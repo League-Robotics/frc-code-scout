@@ -1,0 +1,34 @@
+id: d6-autobuilder
+language: java
+severity: hint
+note: "[D6>=2] PathPlanner AutoBuilder configured."
+rule:
+  any:
+    - pattern: 'AutoBuilder.configure($$$)'
+    - pattern: 'AutoBuilder.configureHolonomic($$$)'
+    - pattern: 'AutoBuilder.buildAuto($$$)'
+---
+id: d6-choreo
+language: java
+severity: hint
+note: "[D6>=3] Choreo trajectory actually referenced in code."
+rule:
+  any:
+    - pattern: 'PathPlannerPath.fromChoreoTrajectory($$$)'
+    - pattern: 'Choreo.$M($$$)'
+---
+id: d6-pathfinding
+language: java
+severity: hint
+note: "[D6>=3] On-the-fly pathfinding / drive-to-pose."
+rule:
+  any:
+    - pattern: 'AutoBuilder.pathfindToPose($$$)'
+    - pattern: 'AutoBuilder.pathfindThenFollowPath($$$)'
+---
+id: d6-repulsor
+language: java
+severity: hint
+note: "[D6=4] Reactive repulsor/potential-field planning."
+rule:
+  pattern: 'new RepulsorField($$$)'

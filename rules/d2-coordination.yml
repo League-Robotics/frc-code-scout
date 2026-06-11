@@ -1,0 +1,23 @@
+id: d2-state-enum
+language: java
+severity: hint
+note: "[D2>=2] State enum (Wanted/System/Super state). Confirm a transition function owns changes."
+rule:
+  kind: enum_declaration
+  has: { field: name, regex: 'State$' }
+---
+id: d2-superstructure-class
+language: java
+severity: hint
+note: "[D2>=3] Superstructure/RobotManager coordinator. Confirm goal-request API + guarded transitions, not just a holder."
+rule:
+  kind: class_declaration
+  has: { field: name, regex: '(Superstructure|RobotManager)' }
+---
+id: d2-transition-fn
+language: java
+severity: hint
+note: "[D2>=2] Explicit transition handler method."
+rule:
+  kind: method_declaration
+  has: { field: name, regex: 'handleStateTransition' }

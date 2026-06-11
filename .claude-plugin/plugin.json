@@ -1,0 +1,8 @@
+{
+  "name": "frc-code-scout",
+  "version": "0.1.0",
+  "description": "Score FRC/FTC team software against an 8-dimension code-sophistication rubric; download, index, and analyze team repositories.",
+  "author": "San Diego FIRST Robotics Inventory project",
+  "skills": "./.claude/skills",
+  "agents": "./.claude/agents"
+}

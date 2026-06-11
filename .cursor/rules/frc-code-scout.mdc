@@ -1,0 +1,15 @@
+---
+description: FRC Code Scout — rubric-based team code analysis environment
+alwaysApply: true
+---
+
+This repo scores FRC/FTC team code against an 8-dimension rubric. Full agent instructions
+are in `AGENTS.md` at the repo root — read it. Key points:
+
+- The rubric is `knowledge/rubric/rubric.md`. Score what's USED, not present — confirm every
+  ast-grep/filesystem candidate by opening the cited files.
+- Two jobs: analyze one team (`scripts/score_rubric.sh` + confirm + report) and build/refresh
+  the corpus (`scripts/clone_corpus.sh`, `scripts/discover_repos.sh`, `scripts/build_index.sh`).
+- Structural search uses ast-grep with rules in `rules/` and `sgconfig.yml`.
+- Set `SCOUT_DATA` to a local disk path; never download onto a synced/mounted folder.
+- Worked example: `knowledge/examples/patribots-four-year-scoring.md`.

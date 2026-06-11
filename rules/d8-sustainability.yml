@@ -1,0 +1,6 @@
+id: d8-note
+language: java
+severity: hint
+note: "[D8] Sustainability is scored mostly from artifacts (README, spotless, CI, carried lib) — see score_rubric.sh filesystem checks. No reliable single AST signal."
+rule:
+  pattern: 'class __frc_code_scout_never_matches__ {}'

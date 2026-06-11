@@ -1,0 +1,12 @@
+{
+  "name": "frc-code-scout-marketplace",
+  "owner": { "name": "San Diego FIRST Robotics Inventory project" },
+  "plugins": [
+    {
+      "name": "frc-code-scout",
+      "source": "./",
+      "description": "Rubric-based FRC/FTC code analysis: download, index (ast-grep), score, and report.",
+      "version": "0.1.0"
+    }
+  ]
+}

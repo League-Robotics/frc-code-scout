@@ -1,0 +1,23 @@
+id: d1-io-interface
+language: java
+severity: hint
+note: "[D1>=3] Per-subsystem IO interface (name ends in IO). Confirm >=2 implementations (Real+Sim or Real+Real)."
+rule:
+  kind: interface_declaration
+  has: { field: name, regex: 'IO$' }
+---
+id: d1-io-inputs-method
+language: java
+severity: hint
+note: "[D1] updateInputs(...) — the IO-seam inputs contract. Strong D1 signal."
+rule:
+  kind: method_declaration
+  has: { field: name, regex: '^updateInputs$' }
+---
+id: d1-tuner-swerve
+language: java
+severity: hint
+note: "[D1=2] CTRE Tuner-generated swerve (vendored abstraction). Mechanisms may still be hardware-welded."
+rule:
+  kind: class_declaration
+  has: { field: superclass, has: { regex: 'TunerSwerveDrivetrain' } }

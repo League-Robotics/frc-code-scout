@@ -1,0 +1,4 @@
+# ast-grep project config. Rules implement the 8-dimension code-sophistication rubric.
+# Run:  ast-grep scan --config sgconfig.yml <repo-path>
+ruleDirs:
+  - rules

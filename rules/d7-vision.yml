@@ -1,0 +1,28 @@
+id: d7-add-vision
+language: java
+severity: hint
+note: "[D7>=2] Vision pose fused into estimator."
+rule:
+  pattern: '$E.addVisionMeasurement($$$)'
+---
+id: d7-pose-estimator
+language: java
+severity: hint
+note: "[D7>=2] SwerveDrivePoseEstimator constructed."
+rule:
+  pattern: 'new SwerveDrivePoseEstimator($$$)'
+---
+id: d7-stddev
+language: java
+severity: hint
+note: "[D7>=3] Dynamic vision std-dev tuning / rejection."
+rule:
+  pattern: '$E.setVisionMeasurementStdDevs($$$)'
+---
+id: d7-robotstate
+language: java
+severity: hint
+note: "[D7=4] Dedicated RobotState world model owning pose."
+rule:
+  kind: class_declaration
+  has: { field: name, regex: '^RobotState$' }

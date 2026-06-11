@@ -1,0 +1,30 @@
+id: d5-autolog
+language: java
+severity: hint
+note: "[D5>=3] @AutoLog inputs struct (AdvantageKit). Level depends on coverage across subsystems."
+rule:
+  kind: marker_annotation
+  regex: 'AutoLog'
+---
+id: d5-process-inputs
+language: java
+severity: hint
+note: "[D5>=3] Logger.processInputs(...) — count distinct subsystems for coverage."
+rule:
+  pattern: 'Logger.processInputs($$$)'
+---
+id: d5-smartdashboard
+language: java
+severity: hint
+note: "[D5=1] SmartDashboard scattered telemetry."
+rule:
+  pattern: 'SmartDashboard.$M($$$)'
+---
+id: d5-doglog-epilogue
+language: java
+severity: hint
+note: "[D5=2] Structured lightweight logging (DogLog/Epilogue @Logged)."
+rule:
+  any:
+    - pattern: 'DogLog.$M($$$)'
+    - { kind: marker_annotation, regex: 'Logged' }

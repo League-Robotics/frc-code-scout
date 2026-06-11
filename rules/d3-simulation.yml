@@ -1,0 +1,18 @@
+id: d3-sim-periodic
+language: java
+severity: hint
+note: "[D3>=1] simulationPeriodic present. Token unless physics is wired in."
+rule:
+  kind: method_declaration
+  has: { field: name, regex: '^simulationPeriodic$' }
+---
+id: d3-mechanism-sim
+language: java
+severity: hint
+note: "[D3>=2] WPILib mechanism physics sim constructed."
+rule:
+  any:
+    - pattern: 'new ElevatorSim($$$)'
+    - pattern: 'new SingleJointedArmSim($$$)'
+    - pattern: 'new FlywheelSim($$$)'
+    - pattern: 'new DCMotorSim($$$)'

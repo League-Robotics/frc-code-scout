@@ -1,0 +1,10 @@
+dimension,code,spearman_normEPA,spearman_state_pctile,spearman_winrate
+Architecture,D1,0.39,0.408,0.442
+Coordination,D2,0.405,0.408,0.49
+Simulation,D3,0.168,0.197,0.328
+Testing,D4,0.259,0.26,-0.015
+Logging,D5,0.35,0.361,0.387
+Auto/Path,D6,0.586,0.599,0.591
+Vision,D7,0.51,0.524,0.47
+Sustainability,D8,0.604,0.617,0.454
+TOTAL,,0.545,0.564,0.514

@@ -1,0 +1,24 @@
+id: d4-junit-test
+language: java
+severity: hint
+note: "[D4>=1] @Test method. Confirm it constructs a sim subsystem and asserts (>=2) vs trivial (1)."
+rule:
+  kind: method_declaration
+  has: { kind: modifiers, has: { kind: marker_annotation, regex: 'Test' } }
+---
+id: d4-assertion
+language: java
+severity: hint
+note: "[D4>=2] Behavioral assertion."
+rule:
+  any:
+    - pattern: 'assertEquals($$$)'
+    - pattern: 'assertTrue($$$)'
+    - pattern: 'assertThat($$$)'
+---
+id: d4-command-to-completion
+language: java
+severity: hint
+note: "[D4=4] Command run to completion in sim (SciBorgs runToCompletion style)."
+rule:
+  pattern: 'runToCompletion($$$)'

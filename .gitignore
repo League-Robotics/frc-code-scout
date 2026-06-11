@@ -1,0 +1,12 @@
+# Downloaded team code and indexes are large and reproducible — never commit them.
+data/repos/
+data/index/
+data/cache/
+*.wpilog
+*.hoot
+*.rlog
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
