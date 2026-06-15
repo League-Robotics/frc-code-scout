@@ -55,6 +55,37 @@ linter — see `AGENTS.md`.
 `--budget N` (time-box and resume) · `--team ID` · `--league ftc`. Default strips `.git`,
 media, CAD, large binaries, and logs to keep the corpus small and code-only.
 
+## Multi-year corpus + EPA dataset (`scout/`)
+
+`scout/` is a zero-dependency (stdlib-only) Python program that builds a richer,
+self-describing corpus across **two team populations** — the 37 national teams from the
+survey (`data/manifests/national-frc-teams.tsv`) and the San Diego teams
+(`data/manifests/frc-teams.tsv`), de-duplicated by team number. For every team, across the
+**2022–2026** seasons, it:
+
+- discovers each season's repos on GitHub (curated manifest repos ∪ in-window-season repos);
+- clones each with full history, then **extracts the commit log as data** — per check-in:
+  date, author, files changed, and change size (insertions/deletions) — into a per-repo
+  `history.json`, and **strips `.git`** afterward (history, not blobs);
+- keeps the working-tree source but **suppresses** large/binary/media/doc files to 0-byte
+  `*.sup` stubs (e.g. `clip.mov` → `clip.mov.sup`);
+- looks up **Statbotics EPA** (`api.statbotics.io/v3`) per team per year;
+- writes a per-team `manifest.json` (every GitHub URL visited), a committed
+  `data/master-dataset.json`, and a human-readable `data/corpus-inventory.md`.
+
+```bash
+export GITHUB_TOKEN=...            # raises GitHub API limit to 5000/hr
+python3 main.py build             # full corpus -> ./frc_team_repos/<num>-<name>/<year>/<repo>/
+python3 main.py build --team 4738 # one team   (resumable; --keep-git, --budget N, --no-clone)
+python3 main.py list-teams        # merged, de-duplicated team list
+python3 main.py discover --team 6328   # show the repo plan (no clone)
+python3 main.py epa --team 254         # Statbotics EPA across the season window
+```
+
+The corpus root defaults to `./frc_team_repos` (a symlink to local disk); override with
+`--output-root` or `$SCOUT_DATA`. The build is resumable: GitHub/Statbotics responses are
+cached under `data/cache/` and already-cloned repos are skipped.
+
 ## Tools
 
 - [ast-grep](https://ast-grep.github.io/) — tree-sitter AST structural search (required).

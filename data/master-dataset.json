@@ -1,0 +1,762 @@
+{
+ "generated": "2026-06-14",
+ "output_root": "/Volumes/Cache/Application Support/Claude/local-agent-mode-sessions/2b3d4558-2139-499c-8ea8-37b426c51ea9/bc89d5ba-263e-4926-83a3-c585ae1567d5/local_7c53f43f-3acf-4b10-b7d7-b5d227ffcf4f/frc-code-scout/frc_team_repos",
+ "seasons": {
+  "2022": "Rapid React",
+  "2023": "Charged Up",
+  "2024": "Crescendo",
+  "2025": "Reefscape",
+  "2026": "Rebuilt"
+ },
+ "season_window": [
+  2022,
+  2023,
+  2024,
+  2025,
+  2026
+ ],
+ "suppress": {
+  "size_threshold_bytes": 2097152,
+  "extensions": [
+   ".3mf",
+   ".7z",
+   ".apk",
+   ".avi",
+   ".bag",
+   ".bin",
+   ".dll",
+   ".doc",
+   ".docx",
+   ".dsevents",
+   ".dslog",
+   ".dwg",
+   ".dxf",
+   ".dylib",
+   ".exe",
+   ".f3d",
+   ".gz",
+   ".h5",
+   ".hoot",
+   ".iges",
+   ".jar",
+   ".mkv",
+   ".mov",
+   ".mp4",
+   ".obj",
+   ".onnx",
+   ".pb",
+   ".pdf",
+   ".ppt",
+   ".pptx",
+   ".psd",
+   ".pt",
+   ".rar",
+   ".rlog",
+   ".sldasm",
+   ".sldprt",
+   ".so",
+   ".step",
+   ".stl",
+   ".stp",
+   ".tar",
+   ".tflite",
+   ".webm",
+   ".wpilog",
+   ".xls",
+   ".xlsx",
+   ".zip"
+  ]
+ },
+ "team_count": 3,
+ "teams": [
+  {
+   "team": 3128,
+   "name": "aluminum-narwhals",
+   "owners": [
+    "team3128"
+   ],
+   "sources": [
+    "sandiego",
+    "national"
+   ],
+   "github_urls_visited": [
+    "https://api.github.com/users/team3128/repos?per_page=100&page=1&sort=pushed&type=owner",
+    "https://github.com/Team3128/3128-prebot-2025",
+    "https://github.com/Team3128/3128-robot-2025",
+    "https://github.com/Team3128/3128-prebot-2024",
+    "https://github.com/Team3128/3128-robot-2024",
+    "https://github.com/Team3128/3128-robot-2023-prebot",
+    "https://github.com/Team3128/3128-robot-2022",
+    "https://github.com/Team3128/3128-common",
+    "https://github.com/Team3128/3128-swerve"
+   ],
+   "repos": [
+    {
+     "year": 2025,
+     "repo": "3128-prebot-2025",
+     "url": "https://github.com/Team3128/3128-prebot-2025",
+     "local_path": "3128-aluminum-narwhals/2025/3128-prebot-2025",
+     "detected_via": "year",
+     "cloned": true,
+     "suppressed_files": 1,
+     "history_summary": {
+      "commits": 2,
+      "first": "2025-07-03T18:47:02-07:00",
+      "last": "2025-09-19T11:14:50-07:00",
+      "contributors": 2,
+      "insertions": 3028,
+      "deletions": 0,
+      "files_touched": 34
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": 2025,
+     "repo": "3128-robot-2025",
+     "url": "https://github.com/Team3128/3128-robot-2025",
+     "local_path": "3128-aluminum-narwhals/2025/3128-robot-2025",
+     "detected_via": "year",
+     "cloned": true,
+     "suppressed_files": 1,
+     "history_summary": {
+      "commits": 224,
+      "first": "2024-12-27T15:50:07-08:00",
+      "last": "2025-04-18T17:36:53-05:00",
+      "contributors": 11,
+      "insertions": 22313,
+      "deletions": 14311,
+      "files_touched": 164
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": 2024,
+     "repo": "3128-prebot-2024",
+     "url": "https://github.com/Team3128/3128-prebot-2024",
+     "local_path": "3128-aluminum-narwhals/2024/3128-prebot-2024",
+     "detected_via": "year",
+     "cloned": true,
+     "suppressed_files": 1,
+     "history_summary": {
+      "commits": 27,
+      "first": "2024-06-04T18:34:33-07:00",
+      "last": "2024-10-07T19:47:10-07:00",
+      "contributors": 5,
+      "insertions": 17544,
+      "deletions": 10727,
+      "files_touched": 151
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": 2024,
+     "repo": "3128-robot-2024",
+     "url": "https://github.com/Team3128/3128-robot-2024",
+     "local_path": "3128-aluminum-narwhals/2024/3128-robot-2024",
+     "detected_via": "year",
+     "cloned": true,
+     "suppressed_files": 2,
+     "history_summary": {
+      "commits": 161,
+      "first": "2024-01-06T17:50:23-08:00",
+      "last": "2024-10-21T20:30:46-07:00",
+      "contributors": 11,
+      "insertions": 29701,
+      "deletions": 18837,
+      "files_touched": 258
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": 2023,
+     "repo": "3128-robot-2023-prebot",
+     "url": "https://github.com/Team3128/3128-robot-2023-prebot",
+     "local_path": "3128-aluminum-narwhals/2023/3128-robot-2023-prebot",
+     "detected_via": "year",
+     "cloned": true,
+     "suppressed_files": 1,
+     "history_summary": {
+      "commits": 87,
+      "first": "2023-06-16T18:20:28-07:00",
+      "last": "2023-11-27T16:38:27-08:00",
+      "contributors": 9,
+      "insertions": 17153,
+      "deletions": 6079,
+      "files_touched": 135
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": 2022,
+     "repo": "3128-robot-2022",
+     "url": "https://github.com/Team3128/3128-robot-2022",
+     "local_path": "3128-aluminum-narwhals/2022/3128-robot-2022",
+     "detected_via": "year",
+     "cloned": true,
+     "suppressed_files": 1,
+     "history_summary": {
+      "commits": 610,
+      "first": "2021-11-10T19:13:47-08:00",
+      "last": "2022-11-11T16:10:32-08:00",
+      "contributors": 23,
+      "insertions": 209725,
+      "deletions": 201960,
+      "files_touched": 453
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": null,
+     "repo": "3128-common",
+     "url": "https://github.com/Team3128/3128-common",
+     "local_path": "3128-aluminum-narwhals/library/3128-common",
+     "detected_via": "none",
+     "cloned": true,
+     "suppressed_files": 1,
+     "history_summary": {
+      "commits": 331,
+      "first": "2021-11-16T22:46:51-08:00",
+      "last": "2025-09-19T15:11:16-07:00",
+      "contributors": 18,
+      "insertions": 204955,
+      "deletions": 160894,
+      "files_touched": 522
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": null,
+     "repo": "3128-swerve",
+     "url": "https://github.com/Team3128/3128-swerve",
+     "local_path": "3128-aluminum-narwhals/library/3128-swerve",
+     "detected_via": "none",
+     "cloned": true,
+     "suppressed_files": 1,
+     "history_summary": {
+      "commits": 325,
+      "first": "2021-11-16T22:46:51-08:00",
+      "last": "2025-03-04T18:23:40-08:00",
+      "contributors": 20,
+      "insertions": 132424,
+      "deletions": 94497,
+      "files_touched": 476
+     },
+     "fork": false,
+     "archived": false
+    }
+   ],
+   "skipped_count": 16,
+   "epa": [
+    {
+     "year": 2022,
+     "status": "ok",
+     "norm_EPA": 1615.0,
+     "epa_points": 30.09,
+     "unitless_epa": 1684.0,
+     "state_pctile": 0.85,
+     "winrate": 0.6154,
+     "wins": 24,
+     "losses": 15,
+     "ties": 0
+    },
+    {
+     "year": 2023,
+     "status": "ok",
+     "norm_EPA": 1553.0,
+     "epa_points": 35.15,
+     "unitless_epa": 1588.0,
+     "state_pctile": 0.6889,
+     "winrate": 0.4583,
+     "wins": 11,
+     "losses": 13,
+     "ties": 0
+    },
+    {
+     "year": 2024,
+     "status": "ok",
+     "norm_EPA": 1642.0,
+     "epa_points": 32.0,
+     "unitless_epa": 1708.0,
+     "state_pctile": 0.8936,
+     "winrate": 0.6525,
+     "wins": 38,
+     "losses": 20,
+     "ties": 1
+    },
+    {
+     "year": 2025,
+     "status": "ok",
+     "norm_EPA": 1721.0,
+     "epa_points": 73.76,
+     "unitless_epa": 1813.0,
+     "state_pctile": 0.9412,
+     "winrate": 0.7045,
+     "wins": 31,
+     "losses": 13,
+     "ties": 0
+    },
+    {
+     "year": 2026,
+     "status": "ok",
+     "norm_EPA": 1729.0,
+     "epa_points": 191.08,
+     "unitless_epa": 1892.0,
+     "state_pctile": 0.9313,
+     "winrate": 0.7656,
+     "wins": 49,
+     "losses": 15,
+     "ties": 0
+    }
+   ]
+  },
+  {
+   "team": 4738,
+   "name": "patribots",
+   "owners": [
+    "Patribots4738"
+   ],
+   "sources": [
+    "sandiego"
+   ],
+   "github_urls_visited": [
+    "https://api.github.com/users/Patribots4738/repos?per_page=100&page=1&sort=pushed&type=owner",
+    "https://github.com/Patribots4738/Reefscape2025",
+    "https://github.com/Patribots4738/Crescendo2024",
+    "https://github.com/Patribots4738/Download-Resource-Tree-2024",
+    "https://github.com/Patribots4738/2023-Summer-Robot",
+    "https://github.com/Patribots4738/ChargedUp2023",
+    "https://github.com/Patribots4738/RapidReact2022",
+    "https://github.com/Patribots4738/Differential-Drive-Command-Based",
+    "https://github.com/Patribots4738/Swerve-Command-Based"
+   ],
+   "repos": [
+    {
+     "year": 2025,
+     "repo": "Reefscape2025",
+     "url": "https://github.com/Patribots4738/Reefscape2025",
+     "local_path": "4738-patribots/2025/Reefscape2025",
+     "detected_via": "year",
+     "cloned": true,
+     "history_summary": {
+      "commits": 632,
+      "first": "2025-01-07T21:40:46-08:00",
+      "last": "2025-11-29T21:31:39-08:00",
+      "contributors": 21,
+      "insertions": 68662,
+      "deletions": 35932,
+      "files_touched": 510
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": 2024,
+     "repo": "Crescendo2024",
+     "url": "https://github.com/Patribots4738/Crescendo2024",
+     "local_path": "4738-patribots/2024/Crescendo2024",
+     "detected_via": "year",
+     "cloned": true,
+     "history_summary": {
+      "commits": 1727,
+      "first": "2024-01-16T14:30:34-08:00",
+      "last": "2024-11-08T20:30:11-08:00",
+      "contributors": 20,
+      "insertions": 918659,
+      "deletions": 898465,
+      "files_touched": 512
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": 2024,
+     "repo": "Download-Resource-Tree-2024",
+     "url": "https://github.com/Patribots4738/Download-Resource-Tree-2024",
+     "local_path": "4738-patribots/2024/Download-Resource-Tree-2024",
+     "detected_via": "year",
+     "cloned": true,
+     "history_summary": {
+      "commits": 9,
+      "first": "2024-01-21T20:37:42-08:00",
+      "last": "2024-08-26T20:01:13-07:00",
+      "contributors": 2,
+      "insertions": 94,
+      "deletions": 37,
+      "files_touched": 1
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": 2023,
+     "repo": "2023-Summer-Robot",
+     "url": "https://github.com/Patribots4738/2023-Summer-Robot",
+     "local_path": "4738-patribots/2023/2023-Summer-Robot",
+     "detected_via": "year",
+     "cloned": true,
+     "history_summary": {
+      "commits": 193,
+      "first": "2023-06-27T14:52:13-07:00",
+      "last": "2023-10-13T17:10:51-07:00",
+      "contributors": 6,
+      "insertions": 9413,
+      "deletions": 5862,
+      "files_touched": 83
+     },
+     "fork": false,
+     "archived": true
+    },
+    {
+     "year": 2023,
+     "repo": "ChargedUp2023",
+     "url": "https://github.com/Patribots4738/ChargedUp2023",
+     "local_path": "4738-patribots/2023/ChargedUp2023",
+     "detected_via": "year",
+     "cloned": true,
+     "history_summary": {
+      "commits": 1095,
+      "first": "2023-01-12T19:35:02-08:00",
+      "last": "2023-11-19T13:21:14-08:00",
+      "contributors": 13,
+      "insertions": 187855,
+      "deletions": 38429,
+      "files_touched": 402
+     },
+     "fork": false,
+     "archived": true
+    },
+    {
+     "year": 2022,
+     "repo": "RapidReact2022",
+     "url": "https://github.com/Patribots4738/RapidReact2022",
+     "local_path": "4738-patribots/2022/RapidReact2022",
+     "detected_via": "year",
+     "cloned": true,
+     "history_summary": {
+      "commits": 92,
+      "first": "2022-01-16T16:41:03-08:00",
+      "last": "2022-11-12T13:37:00-08:00",
+      "contributors": 6,
+      "insertions": 15635,
+      "deletions": 6296,
+      "files_touched": 707
+     },
+     "fork": false,
+     "archived": true
+    },
+    {
+     "year": null,
+     "repo": "Differential-Drive-Command-Based",
+     "url": "https://github.com/Patribots4738/Differential-Drive-Command-Based",
+     "local_path": "4738-patribots/library/Differential-Drive-Command-Based",
+     "detected_via": "none",
+     "cloned": true,
+     "history_summary": {
+      "commits": 30,
+      "first": "2023-10-13T12:15:21-07:00",
+      "last": "2023-10-19T21:41:53-07:00",
+      "contributors": 2,
+      "insertions": 3211,
+      "deletions": 983,
+      "files_touched": 32
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": null,
+     "repo": "Swerve-Command-Based",
+     "url": "https://github.com/Patribots4738/Swerve-Command-Based",
+     "local_path": "4738-patribots/library/Swerve-Command-Based",
+     "detected_via": "none",
+     "cloned": true,
+     "history_summary": {
+      "commits": 102,
+      "first": "2024-01-09T18:45:53-08:00",
+      "last": "2026-03-08T11:51:47-07:00",
+      "contributors": 10,
+      "insertions": 25158,
+      "deletions": 16949,
+      "files_touched": 101
+     },
+     "fork": false,
+     "archived": false
+    }
+   ],
+   "skipped_count": 26,
+   "epa": [
+    {
+     "year": 2022,
+     "status": "ok",
+     "norm_EPA": 1572.0,
+     "epa_points": 24.01,
+     "unitless_epa": 1616.0,
+     "state_pctile": 0.7846,
+     "winrate": 0.5,
+     "wins": 12,
+     "losses": 12,
+     "ties": 1
+    },
+    {
+     "year": 2023,
+     "status": "ok",
+     "norm_EPA": 1722.0,
+     "epa_points": 59.89,
+     "unitless_epa": 1798.0,
+     "state_pctile": 0.937,
+     "winrate": 0.7143,
+     "wins": 30,
+     "losses": 12,
+     "ties": 0
+    },
+    {
+     "year": 2024,
+     "status": "ok",
+     "norm_EPA": 1697.0,
+     "epa_points": 36.15,
+     "unitless_epa": 1759.0,
+     "state_pctile": 0.9504,
+     "winrate": 0.7157,
+     "wins": 36,
+     "losses": 14,
+     "ties": 1
+    },
+    {
+     "year": 2025,
+     "status": "ok",
+     "norm_EPA": 1735.0,
+     "epa_points": 75.99,
+     "unitless_epa": 1828.0,
+     "state_pctile": 0.9585,
+     "winrate": 0.7738,
+     "wins": 32,
+     "losses": 9,
+     "ties": 1
+    },
+    {
+     "year": 2026,
+     "status": "ok",
+     "norm_EPA": 1575.0,
+     "epa_points": 87.38,
+     "unitless_epa": 1616.0,
+     "state_pctile": 0.756,
+     "winrate": 0.5,
+     "wins": 21,
+     "losses": 21,
+     "ties": 0
+    }
+   ]
+  },
+  {
+   "team": 6328,
+   "name": "mechanical-advantage",
+   "owners": [
+    "Mechanical-Advantage"
+   ],
+   "sources": [
+    "national"
+   ],
+   "github_urls_visited": [
+    "https://api.github.com/users/Mechanical-Advantage/repos?per_page=100&page=1&sort=pushed&type=owner",
+    "https://github.com/Mechanical-Advantage/RobotCode2026Public",
+    "https://github.com/Mechanical-Advantage/RobotCode2025OffseasonPublic",
+    "https://github.com/Mechanical-Advantage/RobotCode2025Public",
+    "https://github.com/Mechanical-Advantage/RobotCode2024Public",
+    "https://github.com/Mechanical-Advantage/RobotCode2023",
+    "https://github.com/Mechanical-Advantage/RobotCode2022"
+   ],
+   "repos": [
+    {
+     "year": 2026,
+     "repo": "RobotCode2026Public",
+     "url": "https://github.com/Mechanical-Advantage/RobotCode2026Public",
+     "local_path": "6328-mechanical-advantage/2026/RobotCode2026Public",
+     "detected_via": "year",
+     "cloned": true,
+     "suppressed_files": 3,
+     "history_summary": {
+      "commits": 86,
+      "first": "2026-01-05T01:01:00-05:00",
+      "last": "2026-06-12T08:05:57+00:00",
+      "contributors": 1,
+      "insertions": 72233,
+      "deletions": 31513,
+      "files_touched": 368
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": 2025,
+     "repo": "RobotCode2025OffseasonPublic",
+     "url": "https://github.com/Mechanical-Advantage/RobotCode2025OffseasonPublic",
+     "local_path": "6328-mechanical-advantage/2025/RobotCode2025OffseasonPublic",
+     "detected_via": "year",
+     "cloned": true,
+     "suppressed_files": 3,
+     "history_summary": {
+      "commits": 7,
+      "first": "2025-06-30T22:52:17-04:00",
+      "last": "2025-12-28T06:44:41+00:00",
+      "contributors": 1,
+      "insertions": 7157,
+      "deletions": 5,
+      "files_touched": 80
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": 2025,
+     "repo": "RobotCode2025Public",
+     "url": "https://github.com/Mechanical-Advantage/RobotCode2025Public",
+     "local_path": "6328-mechanical-advantage/2025/RobotCode2025Public",
+     "detected_via": "year",
+     "cloned": true,
+     "suppressed_files": 8,
+     "history_summary": {
+      "commits": 94,
+      "first": "2024-12-14T20:47:16-05:00",
+      "last": "2025-10-15T20:44:12+00:00",
+      "contributors": 1,
+      "insertions": 83652,
+      "deletions": 49225,
+      "files_touched": 449
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": 2024,
+     "repo": "RobotCode2024Public",
+     "url": "https://github.com/Mechanical-Advantage/RobotCode2024Public",
+     "local_path": "6328-mechanical-advantage/2024/RobotCode2024Public",
+     "detected_via": "year",
+     "cloned": true,
+     "suppressed_files": 6,
+     "history_summary": {
+      "commits": 1,
+      "first": "2025-04-27T22:13:33-04:00",
+      "last": "2025-04-27T22:13:33-04:00",
+      "contributors": 1,
+      "insertions": 20790,
+      "deletions": 0,
+      "files_touched": 194
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": 2023,
+     "repo": "RobotCode2023",
+     "url": "https://github.com/Mechanical-Advantage/RobotCode2023",
+     "local_path": "6328-mechanical-advantage/2023/RobotCode2023",
+     "detected_via": "year",
+     "cloned": true,
+     "suppressed_files": 1,
+     "history_summary": {
+      "commits": 316,
+      "first": "2022-12-29T13:51:16-05:00",
+      "last": "2025-01-07T20:28:07-05:00",
+      "contributors": 7,
+      "insertions": 29111,
+      "deletions": 12059,
+      "files_touched": 171
+     },
+     "fork": false,
+     "archived": false
+    },
+    {
+     "year": 2022,
+     "repo": "RobotCode2022",
+     "url": "https://github.com/Mechanical-Advantage/RobotCode2022",
+     "local_path": "6328-mechanical-advantage/2022/RobotCode2022",
+     "detected_via": "year",
+     "cloned": true,
+     "suppressed_files": 1,
+     "history_summary": {
+      "commits": 368,
+      "first": "2022-01-01T18:41:47-05:00",
+      "last": "2022-10-22T15:23:42-04:00",
+      "contributors": 8,
+      "insertions": 24102,
+      "deletions": 9943,
+      "files_touched": 165
+     },
+     "fork": false,
+     "archived": false
+    }
+   ],
+   "skipped_count": 55,
+   "epa": [
+    {
+     "year": 2022,
+     "status": "ok",
+     "norm_EPA": 1759.0,
+     "epa_points": 45.75,
+     "unitless_epa": 1862.0,
+     "state_pctile": 0.971,
+     "winrate": 0.8103,
+     "wins": 46,
+     "losses": 10,
+     "ties": 2
+    },
+    {
+     "year": 2023,
+     "status": "ok",
+     "norm_EPA": 1726.0,
+     "epa_points": 60.35,
+     "unitless_epa": 1802.0,
+     "state_pctile": 0.9394,
+     "winrate": 0.6761,
+     "wins": 48,
+     "losses": 23,
+     "ties": 0
+    },
+    {
+     "year": 2024,
+     "status": "ok",
+     "norm_EPA": 1906.0,
+     "epa_points": 54.26,
+     "unitless_epa": 1981.0,
+     "state_pctile": 0.9855,
+     "winrate": 0.8261,
+     "wins": 57,
+     "losses": 12,
+     "ties": 0
+    },
+    {
+     "year": 2025,
+     "status": "ok",
+     "norm_EPA": 1700.0,
+     "epa_points": 70.35,
+     "unitless_epa": 1790.0,
+     "state_pctile": 0.9,
+     "winrate": 0.6769,
+     "wins": 44,
+     "losses": 21,
+     "ties": 0
+    },
+    {
+     "year": 2026,
+     "status": "ok",
+     "norm_EPA": 1750.0,
+     "epa_points": 203.81,
+     "unitless_epa": 1926.0,
+     "state_pctile": 0.9437,
+     "winrate": 0.7969,
+     "wins": 51,
+     "losses": 13,
+     "ties": 0
+    }
+   ]
+  }
+ ]
+}
