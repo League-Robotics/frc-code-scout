@@ -1,3 +1,22 @@
+Metadata-Version: 2.4
+Name: frc-code-scout
+Version: 0.1.0
+Summary: Build a multi-year FRC team code corpus (commit-history + suppressed source) and a Statbotics EPA dataset
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+Provides-Extra: index
+Requires-Dist: duckdb>=1.5.3; extra == "index"
+Requires-Dist: tree-sitter>=0.25.2; extra == "index"
+Requires-Dist: tree-sitter-language-pack>=1.8.1; extra == "index"
+Provides-Extra: notebook
+Requires-Dist: duckdb>=1.5.3; extra == "notebook"
+Requires-Dist: pandas>=2.2; extra == "notebook"
+Requires-Dist: matplotlib>=3.9; extra == "notebook"
+Requires-Dist: jupyterlab>=4.2; extra == "notebook"
+Requires-Dist: nbformat>=5.10; extra == "notebook"
+Requires-Dist: nbconvert>=7.16; extra == "notebook"
+Requires-Dist: ipykernel>=6.29; extra == "notebook"
+
 # FRC Code Scout
 
 A portable environment for scoring FRC (and FTC) team **software** against an
@@ -114,18 +133,6 @@ GROUP BY t.name ORDER BY epa25 DESC NULLS LAST;
 ```
 
 `index-db` is lazy-loaded, so the stdlib-only commands above still run without the extra.
-
-### The analysis notebook
-
-`notebooks/frc-code-analysis.ipynb` presents the findings — seasonality of team effort,
-framework adoption by season, an automated D1–D8 rubric pass validated against the
-hand-scored teams, testing/simulation coverage, and code-vs-EPA correlations. Regenerate it
-(charts + tables embedded) from the DuckDB index with:
-
-```bash
-uv pip install -e '.[index,notebook]'
-uv run python scripts/build_notebook.py     # -> notebooks/frc-code-analysis.ipynb
-```
 
 ## Tools
 

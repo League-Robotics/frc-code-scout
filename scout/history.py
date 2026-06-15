@@ -33,8 +33,11 @@ def extract_history(repo_dir: Path) -> dict:
     Safe on repos with no commits / no .git: returns empty commits + summary.
     """
     try:
+        # errors="replace": git log can carry non-UTF-8 bytes (latin-1 author
+        # names, commit messages); decode tolerantly rather than abort the team.
         out = subprocess.run(
-            _LOG_CMD, cwd=repo_dir, capture_output=True, text=True, timeout=300
+            _LOG_CMD, cwd=repo_dir, capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=300,
         )
     except (subprocess.TimeoutExpired, OSError):
         return {"commits": [], "summary": _summarize([])}

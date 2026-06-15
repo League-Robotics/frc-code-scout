@@ -5,3 +5,33 @@ description = "Build a multi-year FRC team code corpus (commit-history + suppres
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = []
+
+# The corpus builder (`build`/`list-teams`/`discover`/`epa`) is stdlib-only.
+# The DuckDB code index (`index-db`) needs tree-sitter + duckdb — opt in with:
+#   uv venv --python 3.13 && uv pip install -e '.[index]'
+[project.optional-dependencies]
+index = [
+    "duckdb>=1.5.3",
+    "tree-sitter>=0.25.2",
+    "tree-sitter-language-pack>=1.8.1",
+]
+# Analysis notebook (`scripts/build_notebook.py` -> notebooks/frc-code-analysis.ipynb)
+notebook = [
+    "duckdb>=1.5.3",
+    "pandas>=2.2",
+    "matplotlib>=3.9",
+    "jupyterlab>=4.2",
+    "nbformat>=5.10",
+    "nbconvert>=7.16",
+    "ipykernel>=6.29",
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+# The repo has many top-level dirs (scripts/, knowledge/, data/, ...); name the
+# code package explicitly so flat-layout auto-discovery doesn't choke.
+packages = ["scout"]
+py-modules = ["main"]

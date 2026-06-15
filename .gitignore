@@ -5,6 +5,11 @@ data/cache/
 # Year-grouped corpus built by the scout/ program (symlinked to local disk).
 frc_team_repos/
 frc_team_repos
+# DuckDB code index (derived, rebuildable from the corpus).
+data/*.duckdb
+data/*.duckdb.wal
+# uv venv for the index extras.
+.venv/
 *.wpilog
 *.hoot
 *.rlog

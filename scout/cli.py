@@ -146,6 +146,16 @@ def cmd_discover(args) -> int:
     return 0
 
 
+def cmd_index_db(args) -> int:
+    # Lazy import: keeps the stdlib-only commands working without the extras.
+    try:
+        from . import codedb
+    except ImportError as e:
+        _log(f"index-db needs extras ({e}). Run: uv pip install -e '.[index]'")
+        return 2
+    return codedb.run_index(args)
+
+
 def cmd_epa(args) -> int:
     for num in args.team:
         print(f"\n## team {num}")
@@ -186,6 +196,15 @@ def main(argv: list[str] | None = None) -> int:
     e = sub.add_parser("epa", help="print Statbotics EPA for a team")
     e.add_argument("--team", type=int, action="append", required=True)
     e.set_defaults(func=cmd_epa)
+
+    ix = sub.add_parser("index-db", help="parse corpus with tree-sitter into DuckDB")
+    ix.add_argument("--db", help="DuckDB path (default: data/code-index.duckdb)")
+    ix.add_argument("--output-root", help="corpus root (default: $SCOUT_DATA or ./frc_team_repos)")
+    ix.add_argument("--team", type=int, action="append", help="only this team (repeatable)")
+    ix.add_argument("--lang", action="append",
+                    choices=["java", "kotlin", "cpp", "python"], help="restrict languages")
+    ix.add_argument("--rebuild", action="store_true", help="drop+recreate all tables")
+    ix.set_defaults(func=cmd_index_db)
 
     args = p.parse_args(argv)
     return args.func(args)

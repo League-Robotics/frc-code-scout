@@ -18,6 +18,16 @@ CACHE_DIR = REPO_ROOT / "data" / "cache"
 DATA_DIR = REPO_ROOT / "data"
 DEFAULT_MASTER_JSON = DATA_DIR / "master-dataset.json"
 DEFAULT_INVENTORY_MD = DATA_DIR / "corpus-inventory.md"
+DEFAULT_CODE_DB = DATA_DIR / "code-index.duckdb"  # tree-sitter -> DuckDB index
+
+# Source file extension -> tree-sitter language (used by the code indexer).
+LANG_BY_EXT: dict[str, str] = {
+    ".java": "java",
+    ".kt": "kotlin", ".kts": "kotlin",
+    ".cpp": "cpp", ".cc": "cpp", ".cxx": "cpp",
+    ".h": "cpp", ".hpp": "cpp", ".hh": "cpp",
+    ".py": "python",
+}
 
 SD_MANIFEST = MANIFESTS_DIR / "frc-teams.tsv"
 NATIONAL_MANIFEST = MANIFESTS_DIR / "national-frc-teams.tsv"
