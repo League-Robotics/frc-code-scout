@@ -18,6 +18,8 @@ There are exactly three seams that matter. Build these and nothing else fancy on
 
 A fourth, cross-cutting decision — **the logging contract** — is settled at the IO seam: each IO interface exposes an **`Inputs` struct** that captures everything coming back from hardware. That struct is the single artifact that both logging stacks consume, which is what lets you defer the AdvantageKit-vs-DogLog choice (see §4) without it leaking into subsystem code.
 
+> **Corpus reality check** (measured across 55 season repos in `data/code-index.duckdb`). These three seams are the **elite-tier target, not the median**: the IO seam appears in 24 teams (44%), a `RobotState` class in 26 (47%), and a coordinator (`Superstructure`/`RobotManager`) in 23 (42%) — but **all three together in only 10 teams (18%)**. The pieces are individually common; assembling the full trio is what separates the top tier. Two encouraging confirmations: *every* team that builds an IO interface also has the `Inputs` struct (0 exceptions), and `addVisionMeasurement` appears in 50 of 55 teams — pose estimation is a solved baseline, so the state seam's value is **centralizing** it, not inventing it.
+
 > **Why foundation-first works here:** the IO seam has a deferred dividend. On day one an `XxxIOSim` can be an empty stub and you've lost nothing. The moment you fill it with physics you get simulation (D3); the moment you point a test at it you get unit tests (D4); the moment you run the robot in `REPLAY` mode the *same* inputs struct replays a logged match (D5). You do not rebuild anything — you populate seams you already cut.
 
 ---
@@ -234,6 +236,14 @@ public class Superstructure {
 
 ### 2.6 Package layout (the foundation, on disk)
 
+The `Drive`/`Elevator`/`Arm`/`Manipulator` below are illustrative — `Manipulator` is actually
+rare. The subsystems that recur most across the corpus are **vision, intake, drive, shooter,
+climber, elevator** (then arm, LEDs, indexer, turret); `commands/`, `subsystems/`, and
+`Constants` are near-universal (53–54/55). Two structural elements worth planning for that this
+layout omits: a `generated/` package (CTRE Tuner X swerve output, 19 teams) and **vision as its
+own top-level package** (31 teams) rather than a `VisionIO` tucked under `drive/`. LEDs is a
+real subsystem (~20 teams), not an afterthought.
+
 ```text
 frc/robot/
   Robot.java                 // run-mode selection; AdvantageKit/DogLog init
@@ -249,7 +259,9 @@ frc/robot/
   util/                      // later promoted to a versioned team lib (D8)
 ```
 
-The `*IO`, `*IOInputs`, `*IOReal`, `*IOSim` quartet per subsystem **is** the foundation's signature. If a new member can find those four files for any mechanism, the architecture is intact.
+The `*IO`, `*IOInputs`, `*IO<impl>`, `*IOSim` quartet per subsystem **is** the foundation's signature. If a new member can find those four files for any mechanism, the architecture is intact.
+
+> **Naming, as the corpus actually does it.** The sim impl is reliably `*IOSim` (19 teams), but the *hardware* impl is named **by device, not "Real":** `ElevatorIOTalonFX`, `ModuleIOSparkMax`, `GyroIOPigeon2`, `VisionIOLimelight`/`IOPhotonVision`. Literal `*IOReal` is used by only ~5 teams — so write `XxxIOTalonFX`/`XxxIOKrakenX60` (it documents the vendor at the seam) and don't expect a `Real` file. The `REPLAY` no-op and `*IONull` null-object are genuinely rare in practice (~1 team ships a replay variant); build the empty `XxxIO(){}` if you want AdvantageKit replay, but know almost no one collects that dividend (§3, rung 7). Real IO interfaces also carry more than `updateInputs`/`setVoltage`: expect `setBrakeMode`, `setCurrentLimit`, `runCharacterization`, `setPID`, and `stop` — the interface is the subsystem's full hardware contract, not just a setpoint.
 
 ---
 
@@ -463,7 +475,9 @@ flowchart TB
 | **YAGSL / CTRE Tuner X** | `DriveIO` implementation | generated, configured swerve | Foundation drive; keep it behind `DriveIO` so it's swappable. |
 | **Phoenix 6 / REVLib** | inside `XxxIOReal` | device control, on-motor loops, signal logging | Vendor choice; confine to `IOReal` so subsystems stay vendor-agnostic. |
 
-**The discipline that makes tools swappable:** a vendor type (a `TalonFX`, a `PhotonCamera`) must never appear in a subsystem, a command, or the Superstructure — only inside an `IOReal`/`IOSim` implementation. If a `com.ctre`/`org.photonvision` import shows up above the IO line, the seam has leaked and a tool swap has become a refactor. Enforce it with a spotless/checkstyle rule (which also feeds D8).
+**The discipline that makes tools swappable:** a vendor type (a `TalonFX`, a `PhotonCamera`) must never appear in a subsystem, a command, or the Superstructure — only inside an `IO<impl>`/`IOSim` implementation. If a `com.ctre`/`org.photonvision` import shows up above the IO line, the seam has leaked and a tool swap has become a refactor. Enforce it with a spotless/checkstyle rule (which also feeds D8).
+
+> **This is the discipline teams actually skip.** Of the 24 corpus teams that built an IO seam, **22 still import `com.ctre`/`com.revrobotics` above the line** (in a subsystem, command, or superstructure file). Building the IO interface is the easy 80%; keeping vendor types *out* of everything above it is the unglamorous 20% almost no one finishes — which is exactly why it's worth a lint rule rather than good intentions. Treat clean vendor confinement as a distinguishing D1-level-4 / D8 marker, not a given.
 
 ---
 

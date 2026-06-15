@@ -25,6 +25,35 @@ So: score each dimension independently, report the vector, and read the *shape* 
 
 ---
 
+## Corpus prevalence (measured)
+
+*From the tree-sitter → DuckDB index of 55 season repos (`data/code-index.duckdb`).
+Use these to calibrate: a marker present in 3 teams is a ceiling signal; one present
+in 45 is table stakes. Confirm by reading regardless.*
+
+| Marker | Teams (of 55) | Calibration note |
+|---|---|---|
+| `commands/` dir · `Constants` · `subsystems/` dir | 54 · 54 · 53 | universal — no signal |
+| `addVisionMeasurement` call | 50 | vision/pose-est is assumed (D7≥2 is the floor, not the ceiling) |
+| PhotonVision import | 42 | |
+| `*PoseEstimator` · `*RobotState` class | 36 · 26 | pose-est ≫ centralized world-model (D7 L2 vs L4 split is real) |
+| `util/` dir · `lib/` dir | 36 · 26 | lib/robot split (D8) in ~half |
+| `*IO` interface · `*Inputs` struct | 24 · 26 | **IO seam ≈ 44%; every IO team has an Inputs struct (0 exceptions)** |
+| `*IOSim` impl · `@AutoLog` | 19 · 19 | |
+| `generated/` dir (CTRE Tuner swerve) | 19 | a real structural element worth recognizing |
+| `Superstructure` class | 22 | **the dominant coordinator name** |
+| device-named HW impl (`*IOTalonFX` 14 / `*IOPigeon2` 12 / `*IOLimelight` 12 / `*IOSparkMax` 7) | — | **this is how hardware impls are named** |
+| generic `*StateMachine` | 12 | second coordination marker |
+| `*IOReal` | **5** | ⚠ rare — do **not** grep for this to find an IO layer |
+| `jgrapht` · `RobotManager` · `WantedState` enum · `*IONull` · replay IO variant · BehaviorTree | 3 · 2 · 2 · ~1 · 1 · 1 | true ceiling markers; a hit is a strong D2/D5 signal |
+| vendor type (`com.ctre`/`com.revrobotics`) imported *above* the IO line | 22 of 24 IO teams | clean vendor confinement is aspirational, not the norm |
+
+Most-common subsystems (by `subsystems/<dir>`): **vision · intake · drive · shooter ·
+climber · elevator**, then arm · LEDs · indexer · turret. (Manipulator is rare; subsystem
+names are game-dependent — score the IO/coordination *structure*, not the mechanism roster.)
+
+---
+
 ## D1 — Hardware decoupling (architecture)
 
 *The ladder's spine: how far has the team pushed the boundary between subsystem logic and physical devices?*
@@ -37,7 +66,14 @@ So: score each dimension independently, report the vector, and read the *shape* 
 | 3 | IO layer as the default | Per-subsystem `*IO` interfaces with at least Real + Sim implementations across most mechanisms; selection in one place (switch/factory) |
 | 4 | Generalized / library-grade | Generic parameterized bases (254-style `ServoMotorSubsystem`), null-object IO variants, or replay IO variants; the abstraction is reused, not repeated |
 
-**Grep:** `interface .*IO`, files matching `*IOSim*` / `*IOReal*` / `*IOTalonFX*` / `*IONull*`, `@AutoLog`, YAGSL config dirs (`src/main/deploy/swerve`), `TunerConstants` (CTRE generator).
+**Grep:** `interface .*IO` (the spine), plus its implementations — `*IOSim*` (the sim impl,
+19 teams) and a **hardware impl named by device**: `*IOTalonFX*` / `*IOKraken*` / `*IOSparkMax*`
+/ `*IOSpark*` / `*IOPigeon2*` / `*IONavX*` / `*IOLimelight*` / `*IOPhoton*`. **Do not rely on
+`*IOReal*`** — only ~5 teams use that name; the robust signal is *an `interface *IO` with ≥2
+implementations, one of them `*IOSim`*. Also `@AutoLog`, YAGSL config dirs
+(`src/main/deploy/swerve`), `TunerConstants` (CTRE generator). At L4: a generic base
+(`MotorIO`/`ServoMotorSubsystem`) reused across mechanisms — the `*IONull*` null-object variant
+is real but near-absent in the corpus (~1 team), so don't require it.
 
 **Distinguish at level 3:** an IO *directory* of concrete hardware wrappers (the 2056 case) is not an IO *layer* — there must be an interface with swappable implementations. Check for an actual `interface` and at least two implementations.
 
@@ -55,7 +91,12 @@ So: score each dimension independently, report the vector, and read the *shape* 
 | 3 | Superstructure coordination | A coordinator object fans robot-wide goals out to subsystems; intent (requested state) is separated from execution; kinematic safety handled deliberately (motion planner or guarded transitions) |
 | 4 | Search/graph-based or beyond | State graph with pathfinding (JGraphT / A* over states), behavior tree runtime, or equivalent — transition logic as data, not code |
 
-**Grep:** `enum WantedState`, `SystemState`, `Superstructure`, `RobotManager`, `handleStateTransitions`, `jgrapht`, `BehaviorTree`, `AStarSolver`.
+**Grep:** `Superstructure` (the dominant coordinator — 22 teams; check it's a real goal-fanout,
+not a holder), generic `*StateMachine` (12 teams). Rarer variants, each a strong signal when
+present but few teams: `enum WantedState`/`SystemState` (2910 style — 2 teams), `RobotManager`
+(581/3128 centralized FSM — 2 teams), `handleStateTransitions`, `jgrapht` (3), `AStarSolver`,
+`BehaviorTree` (1). Don't weight `WantedState`/`RobotManager` as the default — they're niche;
+the common path is a `Superstructure` (level 3) optionally backed by a `*StateMachine`.
 
 **Caution:** a class *named* Superstructure that just holds references is level 1 wearing a level 3 name. Look for an actual goal-request API and transition logic.
 

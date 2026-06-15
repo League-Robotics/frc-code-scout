@@ -4,6 +4,9 @@ Version: 0.1.0
 Summary: Build a multi-year FRC team code corpus (commit-history + suppressed source) and a Statbotics EPA dataset
 Requires-Python: >=3.13
 Description-Content-Type: text/markdown
+Requires-Dist: ipykernel>=7.3.0
+Requires-Dist: ipython>=9.14.1
+Requires-Dist: jupyter>=1.1.1
 Provides-Extra: index
 Requires-Dist: duckdb>=1.5.3; extra == "index"
 Requires-Dist: tree-sitter>=0.25.2; extra == "index"
@@ -133,6 +136,18 @@ GROUP BY t.name ORDER BY epa25 DESC NULLS LAST;
 ```
 
 `index-db` is lazy-loaded, so the stdlib-only commands above still run without the extra.
+
+### The analysis notebook
+
+`notebooks/frc-code-analysis.ipynb` presents the findings — seasonality of team effort,
+framework adoption by season, an automated D1–D8 rubric pass validated against the
+hand-scored teams, testing/simulation coverage, and code-vs-EPA correlations. Regenerate it
+(charts + tables embedded) from the DuckDB index with:
+
+```bash
+uv pip install -e '.[index,notebook]'
+uv run python scripts/build_notebook.py     # -> notebooks/frc-code-analysis.ipynb
+```
 
 ## Tools
 

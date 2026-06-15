@@ -4,7 +4,11 @@ version = "0.1.0"
 description = "Build a multi-year FRC team code corpus (commit-history + suppressed source) and a Statbotics EPA dataset"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "ipykernel>=7.3.0",
+    "ipython>=9.14.1",
+    "jupyter>=1.1.1",
+]
 
 # The corpus builder (`build`/`list-teams`/`discover`/`epa`) is stdlib-only.
 # The DuckDB code index (`index-db`) needs tree-sitter + duckdb — opt in with:

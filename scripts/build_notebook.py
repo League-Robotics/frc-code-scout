@@ -60,6 +60,7 @@ and national-survey FRC team's robot code, joined to their commit history and
 code(r"""
 import duckdb, pandas as pd, numpy as np
 import matplotlib.pyplot as plt
+from pathlib import Path
 %matplotlib inline
 
 plt.rcParams.update({"figure.dpi": 110, "axes.grid": True, "grid.alpha": .25,
@@ -67,7 +68,16 @@ plt.rcParams.update({"figure.dpi": 110, "axes.grid": True, "grid.alpha": .25,
                      "figure.figsize": (9, 4.5), "font.size": 10})
 ACC, ACC2, ACC3 = "#2563eb", "#f59e0b", "#10b981"
 
-con = duckdb.connect("data/code-index.duckdb", read_only=True)
+# Resolve the repo root by walking up from the kernel's cwd, so the notebook
+# works whether it's launched from the repo root or from notebooks/.
+def _root():
+    for base in [Path.cwd(), *Path.cwd().parents]:
+        if (base / "data" / "code-index.duckdb").exists():
+            return base
+    raise FileNotFoundError("data/code-index.duckdb not found — run `python3 main.py index-db`")
+ROOT = _root()
+
+con = duckdb.connect(str(ROOT / "data" / "code-index.duckdb"), read_only=True)
 def q(sql): return con.execute(sql).df()
 
 # Spearman = Pearson on ranks (avoids a scipy dependency).
@@ -316,7 +326,7 @@ the 24 hand-scored San Diego teams and correlate.
 """)
 
 code(r"""
-hand = pd.read_csv("knowledge/survey/sd-frc-master.csv")
+hand = pd.read_csv(ROOT / "knowledge/survey/sd-frc-master.csv")
 hand["team"] = hand.team.astype(int)
 ren = {c: c+"_h" for c in [f"D{i}" for i in range(1,9)]+["Total"]}
 hd = hand[["team"]+[f"D{i}" for i in range(1,9)]+["Total"]].rename(columns=ren)
