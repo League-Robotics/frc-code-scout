@@ -1,0 +1,60 @@
+{
+  "team": 9730,
+  "year": 2026,
+  "D1": 1,
+  "D2": 1,
+  "D3": 0,
+  "D4": 0,
+  "D5": 0,
+  "D6": 1,
+  "D7": 0,
+  "D8": 1,
+  "rationale": {
+    "D1": "Confirmed SubsystemBase subclasses (DriveSubsystem, Hopper, Shooter, Climb) owning vendor motors directly with no IO interfaces anywhere in the codebase; no abstraction layer present.",
+    "D2": "Confirmed command composition with button bindings in RobotContainer and simple Command subclasses for autos, but no state machines, enums, or Superstructure coordinator.",
+    "D3": "All simulationPeriodic() methods in every subsystem are empty boilerplate stubs with no physics; no ElevatorSim, DCMotorSim, or any WPILib physics class used.",
+    "D4": "No src/test directory exists and no CI workflow files found; zero tests of any kind.",
+    "D5": "SmartDashboard imported but only appears in commented-out code; active logging is System.out.println in command isFinished() methods only; no structured telemetry.",
+    "D6": "AutoBuilder.configure() is wired and PathPlanner .path/.auto files are authored, but getAutonomousCommand() returns a timed AutoDriveForward and the PathPlannerAuto line is commented out, so PathPlanner is not actually executed.",
+    "D7": "A Limelight subsystem class exists with getBotPoseEstimate code but is never instantiated anywhere; addVisionMeasurement is never called from robot code; vision is completely unused.",
+    "D8": "A real (though minimal) README exists, consistent package structure is maintained, and 3 seasons are tracked, but no CI, no library, and no formatter configured."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/Shooter.java:61 — TalonFX shooterMotor field owned directly in subsystem",
+      "src/main/java/frc/robot/subsystems/Hopper.java:20 — SparkMax owned directly, no interface",
+      "src/main/java/frc/robot/subsystems/DriveSubsystem.java:42 — MAXSwerveModule constructed directly, no IO layer"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/RobotContainer.java:86 — NamedCommands.registerCommand and button bindings only",
+      "src/main/java/frc/robot/commands/AutoDriveForward.java:19 — timed command, no state machine",
+      "src/main/java/frc/robot/RobotContainer.java:364 — getAutonomousCommand returns timed drive, no coordinator"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/Hopper.java:58 — empty simulationPeriodic stub",
+      "src/main/java/frc/robot/subsystems/Shooter.java:110 — empty simulationPeriodic stub",
+      "src/main/java/frc/robot/subsystems/Climb.java:35 — empty simulationPeriodic stub"
+    ],
+    "D4": [
+      "src/test directory does not exist — confirmed by filesystem search returning no results"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/commands/AutoDriveForward.java:59 — System.out.println only active telemetry",
+      "src/main/java/frc/robot/RobotContainer.java:110 — SmartDashboard.putData in commented-out block"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/subsystems/DriveSubsystem.java:109 — AutoBuilder.configure() wired",
+      "src/main/deploy/pathplanner/autos/Back Up and Shoot.auto:1 — authored PathPlanner auto file",
+      "src/main/java/frc/robot/RobotContainer.java:321 — PathPlannerAuto call commented out; timed auto used instead"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/Limelight.java:18 — Limelight class defined but never instantiated in RobotContainer",
+      "src/main/java/frc/robot/RobotContainer.java:54 — no Limelight field instantiated anywhere"
+    ],
+    "D8": [
+      "src/main/java/frc/robot/README.md:1 — minimal real README present",
+      "src/main/java/frc/robot/Constants.java — organized constants file exists"
+    ]
+  },
+  "confidence": "high"
+}

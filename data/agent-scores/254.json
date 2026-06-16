@@ -1,0 +1,63 @@
+{
+  "team": 254,
+  "year": 2025,
+  "D1": 4,
+  "D2": 4,
+  "D3": 3,
+  "D4": 0,
+  "D5": 4,
+  "D6": 4,
+  "D7": 4,
+  "D8": 2,
+  "rationale": {
+    "D1": "Confirmed library-grade: generic ServoMotorSubsystem<T extends MotorInputsAutoLogged, U extends MotorIO> in com.team254.lib.subsystems reused across elevator, claw, indexer, intake-roller, climber-roller, wrist; TalonFXIO (hardware) and SimTalonFXIO (DCMotorSim-backed) are the two swappable MotorIO impls; per-subsystem sensor IOs (ClawSensorIO, ElevatorSensorIO, ClimberSensorIO, IndexerSensorIO) each have Hardware+Sim pairs; DriveIO and VisionIO likewise have Hardware+Sim impls — this is a true parameterized library reused, not repeated.",
+    "D2": "Confirmed search/graph-based coordination: SuperstructureStateMachine builds a weighted state graph of SuperstructureState nodes, calls AStarSolver (custom A* implementation in AStarSolver.java) to find least-cost paths, precomputes all pairwise paths at startup, and reads dynamic transition costs from a deployed file — transition logic is data, not hard-coded conditionals.",
+    "D3": "Confirmed whole-robot sim: MapleSimSwerveDrivetrain (org.ironmaple.simulation.drivesims.SwerveDriveSimulation) for drivetrain physics; SimTalonFXIO uses WPILib DCMotorSim for mechanism physics wired per subsystem; VisionIOSimPhoton for camera sim; SimulatedRobotState tracks game-piece state (CoralState, AlgaeState, ClimberState) with IntakeSimulation and ReefscapeCoralOnFly — discounted replay-as-primary-verification because kIsReplay=false is the default and no replay IO variants exist.",
+    "D4": "Confirmed zero tests: no src/test directory exists in the repository; the mechanical pass reported 8 hal_harness hits which are Robot.java HAL constants, not test harness usage.",
+    "D5": "Confirmed AdvantageKit with replay: Robot extends LoggedRobot; WPILOGWriter active on real robot; kIsReplay flag wires WPILOGReader + WPILOGWriter for replay; Logger.processInputs called in every subsystem via ServoMotorSubsystem.periodic() base class; Logger.recordOutput pervasive throughout; AdvantageScope layouts committed in layouts/ directory — full L4 with replay infrastructure wired.",
+    "D6": "Confirmed reactive/on-the-fly planning: no pre-authored .path/.auto files; PathfindingAutoAlignCommand uses PathPlannerLib navgrid-based pathfinding (auto_navgrid.json, navgrid.json deployed) to dynamically compute paths to reef scoring poses at runtime; PathfindingAuto builds entire auto sequences from on-the-fly pathfinding calls; superstructure states are exposed as auto actions — discounted Choreo because choreo reference in index hits are in lib/pathplanner library comments, not actual .traj files driven.",
+    "D7": "Confirmed world model as architecture: RobotState owns pose via ConcurrentTimeInterpolatableBuffer<Pose2d>; VisionSubsystem uses VisionIO interface with VisionIOHardwareLimelight and VisionIOSimPhoton impls; inverse-variance-weighted multi-estimate fusion and std-dev tuning confirmed in VisionSubsystem.fuseEstimates(); addVisionMeasurement wired in DriveIOHardware and called from RobotContainer — all four D7 L4 indicators present.",
+    "D8": "Confirmed: real 162-line README with setup/build/deploy/sim instructions; clean frc2025 vs lib package split in-tree with spotless formatter (com.diffplug.spotless 6.22.0) configured in build.gradle; discounted CI because no .github/workflows directory exists in the repo; discounted library-as-dependency because com.team254.lib is bundled in-tree, not consumed as a versioned artifact."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/com/team254/lib/subsystems/ServoMotorSubsystem.java:17 — generic ServoMotorSubsystem<T extends MotorInputsAutoLogged, U extends MotorIO>",
+      "src/main/java/com/team254/lib/subsystems/SimTalonFXIO.java:16 — SimTalonFXIO extends TalonFXIO with DCMotorSim",
+      "src/main/java/com/team254/frc2025/RobotContainer.java:59 — RobotBase.isSimulation() switches between TalonFXIO and SimTalonFXIO across all mechanisms"
+    ],
+    "D2": [
+      "src/main/java/com/team254/frc2025/subsystems/superstructure/SuperstructureStateMachine.java:33 — Map<SuperstructureState, List<StateTransition>> graph with precomputedPaths",
+      "src/main/java/com/team254/frc2025/subsystems/superstructure/AStarSolver.java:11 — generic AStarSolver<N> used to find least-cost paths between SuperstructureStates",
+      "src/main/java/com/team254/frc2025/subsystems/superstructure/SuperstructureStateMachine.java:233 — AStarSolver<SuperstructureState> solver instantiated and used at runtime"
+    ],
+    "D3": [
+      "src/main/java/com/team254/frc2025/utils/simulations/MapleSimSwerveDrivetrain.java:21 — org.ironmaple.simulation.drivesims.SwerveDriveSimulation for drivetrain physics",
+      "src/main/java/com/team254/frc2025/simulation/SimulatedRobotState.java:23 — org.ironmaple IntakeSimulation + game-piece state machines for coral/algae",
+      "src/main/java/com/team254/frc2025/subsystems/vision/VisionIOSimPhoton.java — photonvision sim camera for vision in simulation"
+    ],
+    "D4": [
+      "src/ — no src/test directory exists; zero test files, zero @Test annotations confirmed by filesystem check"
+    ],
+    "D5": [
+      "src/main/java/com/team254/frc2025/Robot.java:105 — kIsReplay branch wires WPILOGReader as replay source",
+      "src/main/java/com/team254/lib/subsystems/ServoMotorSubsystem.java:41 — Logger.processInputs(getName(), inputs) in base class periodic() covers all mechanism subsystems",
+      "layouts/ — AdvantageScope layout JSON committed to repo"
+    ],
+    "D6": [
+      "src/main/java/com/team254/frc2025/commands/PathfindingAutoAlignCommand.java:36 — on-the-fly pathfinding to reef scoring poses using PathPlannerLib navgrid",
+      "src/main/java/com/team254/frc2025/auto/PathfindingAuto.java:43 — entire auto built from runtime pathfinding calls, no pre-authored paths",
+      "src/main/deploy/pathplanner/navgrid.json — navgrid obstacle map deployed for pathfinding"
+    ],
+    "D7": [
+      "src/main/java/com/team254/frc2025/RobotState.java:46 — ConcurrentTimeInterpolatableBuffer<Pose2d> fieldToRobot as central world model",
+      "src/main/java/com/team254/frc2025/subsystems/vision/VisionSubsystem.java:42 — inverse-variance-weighted multi-estimate fusion in fuseEstimates()",
+      "src/main/java/com/team254/frc2025/subsystems/drive/DriveIOHardware.java:92 — addVisionMeasurement wired to SwerveDrivePoseEstimator"
+    ],
+    "D8": [
+      "README.md:1 — 162-line README with setup, package descriptions, sim instructions",
+      "build.gradle — spotless com.diffplug.spotless 6.22.0 with googleJavaFormat configured",
+      "src/main/java/com/team254/ — frc2025/ (season) + lib/ (library) package split in-tree"
+    ]
+  },
+  "confidence": "high"
+}

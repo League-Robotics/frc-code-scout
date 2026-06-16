@@ -1,0 +1,63 @@
+{
+  "team": 2706,
+  "year": 2026,
+  "D1": 4,
+  "D2": 3,
+  "D3": 4,
+  "D4": 0,
+  "D5": 3,
+  "D6": 3,
+  "D7": 4,
+  "D8": 2.5,
+  "rationale": {
+    "D1": "Confirmed a full CatzAbstractions library (GenericMotorIO, GenericIOSim backed by DCMotorSim, ServoMotorSubsystem, FlywheelMotorSubsystem) that every mechanism reuses as a parameterized base — library-grade abstraction, not repeated per-mechanism.",
+    "D2": "CatzSuperstructure is a real goal-fanout coordinator (confirmed: fans robot-wide goals to turret, flywheel, hood, spindexer, ydexer, climb with intent/standby separation), but state transitions are boolean flags and method dispatch rather than guarded FSM transitions.",
+    "D3": "Confirmed REAL/SIM/REPLAY run modes wired in Robot.java with WPILOGReader for replay; GenericIOSim uses DCMotorSim physics for all mechanism sims; ModuleIOSim uses DCMotorSim for drivetrain; ModuleIONull null-object for replay — whole-robot sim/replay workflow.",
+    "D4": "No src/test directory exists and no test files found anywhere in the repo — zero testing despite a world-class sim layer.",
+    "D5": "Confirmed AdvantageKit Logger.processInputs called for every subsystem via GenericMotorSubsystem.periodic() base class, Logger.recordOutput throughout CatzRobotTracker and CatzSuperstructure, @AutoLogOutput on pose fields — full-match AK coverage.",
+    "D6": "Confirmed 58 Choreo .traj files under src/main/deploy/choreo, AutoFactory wired in CatzSuperstructure constructor, AutoRoutineBase uses choreo.auto.AutoRoutine/AutoTrajectory for trajectory following, multiple named auto routines confirmed active.",
+    "D7": "Confirmed dedicated CatzRobotTracker with TimeInterpolatableBuffer, custom Kalman filter vision fusion via addVisionObservation, ApriltagScanningIO interface with Limelight impl feeding timestamped pose observations with distance-scaled std-devs — world-model architecture.",
+    "D8": "GitHub Actions CI confirmed (build.yml runs spotlessApply + spotlessCheck + build on push/PR), spotless formatter configured in build.gradle, but README is 2 lines with no build/deploy instructions and no team library repo across seasons."
+  },
+  "evidence": {
+    "D1": [
+      "SeasonCode2026/src/main/java/frc/robot/CatzAbstractions/Bases/ServoMotorSubsystem.java:15 — generic parameterized ServoMotorSubsystem<S,I>",
+      "SeasonCode2026/src/main/java/frc/robot/CatzAbstractions/io/GenericIOSim.java:1 — DCMotorSim-backed generic sim used by all mechanism IOSim subclasses",
+      "SeasonCode2026/src/main/java/frc/robot/CatzSubsystems/CatzShooter/CatzFlywheels/FlywheelsIOSim.java:6 — extends GenericIOSim, confirming reuse pattern"
+    ],
+    "D2": [
+      "SeasonCode2026/src/main/java/frc/robot/CatzSubsystems/CatzSuperstructure.java:55 — real coordinator fanning goals to all subsystems",
+      "SeasonCode2026/src/main/java/frc/robot/CatzSubsystems/CatzSuperstructure.java:131 — updateAndApplyShooterState separates intent from execution",
+      "SeasonCode2026/src/main/java/frc/robot/CatzSubsystems/CatzShooter/CatzTurret/CatzTurret.java:32 — ShooterState enum used locally"
+    ],
+    "D3": [
+      "SeasonCode2026/src/main/java/frc/robot/Robot.java:85 — REPLAY case uses WPILOGReader for log replay",
+      "SeasonCode2026/src/main/java/frc/robot/CatzSubsystems/CatzDriveAndRobotOrientation/Drivetrain/ModuleIOSim.java:28 — DCMotorSim physics for drivetrain",
+      "SeasonCode2026/src/main/java/frc/robot/CatzSubsystems/CatzDriveAndRobotOrientation/Drivetrain/ModuleIONull.java:3 — null-object replay IO variant"
+    ],
+    "D4": [
+      "SeasonCode2026/src/main — no src/test directory exists, zero test files found"
+    ],
+    "D5": [
+      "SeasonCode2026/src/main/java/frc/robot/CatzAbstractions/Bases/GenericMotorSubsystem.java:39 — Logger.processInputs called for every subsystem in base class",
+      "SeasonCode2026/src/main/java/frc/robot/CatzSubsystems/CatzDriveAndRobotOrientation/CatzRobotTracker.java:54 — @AutoLogOutput on pose fields",
+      "SeasonCode2026/src/main/java/frc/robot/Robot.java:71 — WPILOGWriter to USB for real robot, full-match logging"
+    ],
+    "D6": [
+      "SeasonCode2026/src/main/java/frc/robot/CatzSubsystems/CatzSuperstructure.java:87 — AutoFactory wired to RobotTracker pose and drivetrain trajectory follower",
+      "SeasonCode2026/src/main/java/frc/robot/Autonomous/AutoRoutineBase.java:6 — choreo.auto.AutoRoutine/AutoTrajectory actively used",
+      "SeasonCode2026/src/main/deploy/choreo/Depot_2_Cycle_Bump.traj — one of 58 actual trajectory files"
+    ],
+    "D7": [
+      "SeasonCode2026/src/main/java/frc/robot/CatzSubsystems/CatzDriveAndRobotOrientation/CatzRobotTracker.java:68 — TimeInterpolatableBuffer with custom Kalman fusion",
+      "SeasonCode2026/src/main/java/frc/robot/CatzSubsystems/CatzVision/ApriltagScanning/ApriltagScanningIOLimelight.java:35 — addVisionObservation with timestamped, distance-scaled std-devs",
+      "SeasonCode2026/src/main/java/frc/robot/CatzSubsystems/CatzVision/ApriltagScanning/ApriltagScanningIO.java:1 — vision behind IO interface"
+    ],
+    "D8": [
+      ".github/workflows/build.yml:24 — spotlessApply + spotlessCheck + build on every push/PR",
+      "SeasonCode2026/build.gradle:1 — spotless 6.25.0 configured and enforced",
+      "README.md:1 — only 2-line README, no build/deploy/onboarding docs"
+    ]
+  },
+  "confidence": "high"
+}

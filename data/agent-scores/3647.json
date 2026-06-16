@@ -1,0 +1,64 @@
+{
+  "team": 3647,
+  "year": 2025,
+  "D1": 2.5,
+  "D2": 3,
+  "D3": 2.5,
+  "D4": 0,
+  "D5": 3,
+  "D6": 3,
+  "D7": 3,
+  "D8": 3,
+  "rationale": {
+    "D1": "Confirmed no `interface *IO` exists; instead every mechanism (Elevator, Pivot, Wrist, Coraler, Kicker, Rollers, Climb) extends the generic `TalonFXSubsystem` abstract base with @AutoLog inputs — a library-grade reusable base (D1 L2.5) but no swappable Sim/Real implementation pair.",
+    "D2": "Confirmed Superstructure is a real coordinator with goal-request methods (scoreL4, stow, intake, handoff) that fan out to subsystems and guard transitions via shouldClear/clearElevatorGoingUpNoDown checks, not merely a holder — level 3.",
+    "D3": "Confirmed maple-sim (ironmaple) drivetrain physics wired in Robot.simulationPeriodic and SwerveDrive; ElevatorSim is commented out and no mechanism physics sim exists, so drivetrain-only whole-robot sim rates at 2.5, not full L3.",
+    "D4": "Confirmed no src/test directory; CI workflow runs `./gradlew build` only, not `test`; zero test files or assert calls — level 0.",
+    "D5": "Confirmed Robot extends LoggedRobot, TalonFXSubsystem calls Logger.processInputs for every subsystem through the shared base (Elevator/Pivot/Wrist/etc. all covered), and Logger.recordOutput used throughout — full AdvantageKit coverage, level 3.",
+    "D6": "Confirmed choreo.Choreo imported and followChoreoPath called on real trajectory names (s3_to_e1, e1_to_src, etc.) in AutoCommands.java, and AutoBuilder.pathfindToPose used in AutoDrive for on-the-fly pose alignment — level 3.",
+    "D7": "Confirmed AprilTagCamera interface with Limelight and PhotonVision implementations, distance-weighted std-dev tuning in both impls, addVisionMeasurement called in SwerveDrive with per-measurement stdDevs, and TimeInterpolatableBuffer in lib/tracking/RobotTracker — fused filtered estimation, level 3.",
+    "D8": "Confirmed CI (build.yml runs gradlew build + spotless.yml enforces spotless) and 4 tracked seasons; the `library/` folder contains only pre-2022 demos (not a maintained cross-season lib), and 2025 repo has no README — CI + process artifacts earn level 3, but not 4."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/team3647/lib/TalonFXSubsystem.java:28 — abstract class TalonFXSubsystem implements PeriodicSubsystem (generic base reused by all mechanisms)",
+      "src/main/java/team3647/frc2025/subsystems/Elevator.java:20 — public class Elevator extends TalonFXSubsystem (no IO interface, hardware directly in base)",
+      "src/main/java/team3647/frc2025/subsystems/Pivot.java — extends TalonFXSubsystem (no Sim variant)"
+    ],
+    "D2": [
+      "src/main/java/team3647/frc2025/subsystems/Superstructure.java:36 — real coordinator class with scoreL4/stow/intake/handoff goal-request API",
+      "src/main/java/team3647/frc2025/subsystems/Superstructure.java:440 — clearElevatorGoingUpNoDown guarded transitions checking pivot.angleWithin",
+      "src/main/java/team3647/frc2025/robot/RobotContainer.java:75 — superstructure.setIsAlignedFunction wiring confirms active use"
+    ],
+    "D3": [
+      "src/main/java/team3647/frc2025/Util/sim/MapleSimSwerveDrivetrain.java:28 — imports org.ironmaple.simulation and wires SwerveDriveSimulation",
+      "src/main/java/team3647/frc2025/robot/Robot.java:145 — simulationPeriodic calls SimulatedArena.getInstance().simulationPeriodic()",
+      "src/main/java/team3647/frc2025/subsystems/Elevator.java:25 — ElevatorSim field commented out, no mechanism physics sim"
+    ],
+    "D4": [
+      "src/test — directory does not exist",
+      ".github/workflows/build.yml:20 — runs ./gradlew build (no test task)"
+    ],
+    "D5": [
+      "src/main/java/team3647/lib/TalonFXSubsystem.java:94 — Logger.processInputs(getName(), ioAutoLogged) in readPeriodicInputs called by every extending subsystem",
+      "src/main/java/team3647/frc2025/robot/Robot.java:24 — public class Robot extends LoggedRobot",
+      "src/main/java/team3647/frc2025/robot/RobotTracker.java:26 — Logger.recordOutput for superstructure state every periodic"
+    ],
+    "D6": [
+      "src/main/java/team3647/frc2025/autos/AutoCommands.java — imports choreo.Choreo, followChoreoPath(s3_to_e1) and multiple named trajectories actively called",
+      "src/main/java/team3647/frc2025/Util/AutoDrive.java — AutoBuilder.pathfindToPose used for on-the-fly reef alignment",
+      "src/main/deploy/choreo — choreo trajectory files directory confirmed present"
+    ],
+    "D7": [
+      "src/main/java/team3647/lib/vision/AprilTagCamera.java:6 — interface AprilTagCamera with Limelight and PhotonVision implementations",
+      "src/main/java/team3647/lib/vision/AprilTagLimelight.java — stdDevs = baseStdDevs.times(result.avgTagDist / Math.pow(result.tagCount, 3)) distance-weighted rejection",
+      "src/main/java/team3647/lib/tracking/RobotTracker.java:13 — TimeInterpolatableBuffer<Pose2d> fieldToRobot with timestamped samples"
+    ],
+    "D8": [
+      ".github/workflows/build.yml — Gradle Build Test CI on every push",
+      ".github/workflows/spotless.yml — spotless enforced in CI",
+      "build.gradle — id 'com.diffplug.spotless' configured"
+    ]
+  },
+  "confidence": "high"
+}

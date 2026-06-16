@@ -1,0 +1,63 @@
+{
+  "team": 8891,
+  "year": 2024,
+  "D1": 1,
+  "D2": 1,
+  "D3": 0,
+  "D4": 0,
+  "D5": 1,
+  "D6": 2,
+  "D7": 1,
+  "D8": 1,
+  "rationale": {
+    "D1": "Confirmed standard command-based with SubsystemBase subclasses (Intake, Shooter, Climber, Swerve) owning hardware directly via PIDSpark wrappers; no IO interfaces found (zero results for 'interface.*IO'), PIDSpark is a utility wrapper extending CANSparkBase not an abstraction layer with swappable impls.",
+    "D2": "Confirmed command composition in RobotContainer with button bindings and named commands for PathPlanner autos; per-command State enums (Search/Found in CenterTargetCommand/CenterCommand) are local FSMs inside commands, not a centralized coordinator or Superstructure — this is L1 command composition.",
+    "D3": "No simulationPeriodic, no WPILib physics classes (ElevatorSim/FlywheelSim/DCMotorSim), no maple-sim — confirmed zero simulation support.",
+    "D4": "No src/test/java directory found and the wildlib SystemTestCommand/SystemTest framework is a hardware-mode test-mode helper (checks DriverStation.isTest()), not JUnit-based unit tests; no @Test annotations, no assertEquals calls.",
+    "D5": "Confirmed SmartDashboard.putNumber/putBoolean scattered through Shooter, Intake, Climber, and Swerve periodic methods — dashboard values only; no AdvantageKit, DogLog, Epilogue, or structured logging found.",
+    "D6": "Confirmed PathPlannerLib fully wired: AutoBuilder.configureHolonomic in Swerve.java, NamedCommands.registerCommand for 7 named commands, 18 .auto files + ~57 .path files, and 15+ selectable autos in RobotContainer; no Choreo files or on-the-fly pathfinding.",
+    "D7": "Confirmed Limelight subsystem used for tx/ty targeting servoing (CenterTargetCommand uses PID on limelight.getTX()/getTV()), and getBotPose2d_wpiBlue() is available but addVisionMeasurement is absent from Swerve.java which uses SwerveDriveOdometry not SwerveDrivePoseEstimator — this is targeting only, not pose estimation.",
+    "D8": "Confirmed CI workflow (.github/workflows/gradle.yml) runs gradle build on push/PR; README is minimal (5 lines, no build/deploy instructions beyond contributing guidance); no spotless/checkstyle, no separate library repo — basic hygiene with CI but below L2."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/Shooter.java:14 — extends SubsystemBase, holds PIDSpark m_motor directly",
+      "src/main/java/wildlib/io/PIDSpark.java:1 — extends CANSparkBase, not an IO interface with swappable impls",
+      "src/main/java/frc/robot/subsystems/drive/Swerve.java:53 — holds MAXSwerveModule fields directly"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/RobotContainer.java:110 — button bindings with command composition (Commands.either, whileTrue, etc.)",
+      "src/main/java/frc/robot/commands/CenterTargetCommand.java:17 — local enum State {Search, Found} inside a command, not a centralized FSM",
+      "src/main/java/frc/robot/commands/CenterCommand.java:10 — another local State enum; no Superstructure class found"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/drive/Swerve.java:1 — no simulationPeriodic method present",
+      "src/main/java/frc/robot/subsystems/Shooter.java:1 — no DCMotorSim or FlywheelSim usage"
+    ],
+    "D4": [
+      "src/main/java/wildlib/testing/SystemTestCommand.java:1 — hardware test-mode framework, not JUnit; checks DriverStation.isTest()",
+      "src/main/java/wildlib/testing/SystemTest.java:1 — Shuffleboard-based system test runner, no @Test or assertEquals"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/subsystems/Shooter.java:100 — SmartDashboard.putNumber for velocity/current/output",
+      "src/main/java/frc/robot/subsystems/Intake.java:141 — SmartDashboard.putNumber/putBoolean across multiple sensor values",
+      "src/main/java/frc/robot/subsystems/Climber.java:140 — SmartDashboard.putNumber for position values"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/subsystems/drive/Swerve.java:128 — AutoBuilder.configureHolonomic wired with real constraints",
+      "src/main/java/frc/robot/RobotContainer.java:151 — NamedCommands.registerCommand for 7 competition commands",
+      "src/main/java/frc/robot/RobotContainer.java:159 — 15+ AutoBuilder.buildAuto calls with named competition autos"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/commands/CenterTargetCommand.java:1 — PID on limelight.getTX() for rotational targeting",
+      "src/main/java/frc/robot/subsystems/Limelight.java:580 — getBotPose2d_wpiBlue() available but never called via addVisionMeasurement",
+      "src/main/java/frc/robot/subsystems/drive/Swerve.java:78 — SwerveDriveOdometry (not PoseEstimator), no addVisionMeasurement call"
+    ],
+    "D8": [
+      ".github/workflows/gradle.yml:1 — CI builds on push/PR to main branch",
+      "README.md:1 — minimal README with contributing guidance only, no build/deploy instructions",
+      "build.gradle — no spotless or checkstyle configured"
+    ]
+  },
+  "confidence": "high"
+}

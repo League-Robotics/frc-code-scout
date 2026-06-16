@@ -1,0 +1,59 @@
+{
+  "team": 3847,
+  "year": 2026,
+  "D1": 2,
+  "D2": 3,
+  "D3": 3,
+  "D4": 0,
+  "D5": 2,
+  "D6": 3.5,
+  "D7": 3.5,
+  "D8": 3,
+  "rationale": {
+    "D1": "Confirmed abstract `Mechanism` base reused across all TalonFX mechanisms (good library-grade reuse of control patterns) but no per-subsystem `*IO` interfaces with swappable Real/Sim implementations; vendor types (CTRE) live directly in every subsystem — discounted IO layer, scored as vendored abstraction at level 2.",
+    "D2": "Confirmed `Coordinator.applyRobotState(State)` as a real goal-fanout coordinator that fans robot-wide `State` enum values out to all mechanism `*States` classes; `State` enum defines sequencing logic; discounted level 4 as no search/graph pathfinding over states.",
+    "D3": "Confirmed maple-sim `MapleSimSwerveDrivetrain` wired in `Swerve`, WPILib `SingleJointedArmSim` in `ArmSim`, `IntakeSimulation` and game-piece projectile physics in `RobotSim`; full whole-robot sim workflow present; discounted level 4 as no replay IO variants.",
+    "D4": "Confirmed no `src/test` directory and no `@Test` or `assertEquals` calls anywhere; CI runs `./gradlew build` (compile only despite step name 'run tests'); zero actual unit tests.",
+    "D5": "Confirmed `Telemetry` extends `DogLog` and `Telemetry.log` is called across 20+ files (Vision, Launcher, Swerve, etc.) with structured logging; discounted level 3 as no AdvantageKit `@AutoLog`/`processInputs` — DogLog is structured lightweight logging at level 2.",
+    "D6": "Confirmed PathPlanner paths and autos (20+ competition paths) actually referenced via `PathPlannerAuto` and `AutoBuilder.followPath`; `AutoBuilder.pathfindToPoseFlipped` reactive pathfinding confirmed used in `Auton.pathfindingCommandToPose`; discounted full level 4 as repulsor/potential-field not present.",
+    "D7": "Confirmed 3 Limelights using MegaTag1+2, `addVisionMeasurement` with dynamic per-condition std-dev tuning and multi-stage rejection logic, inverse-variance fusion of estimates, and `getPoseAtTimestamp` time-interpolated pose buffer used in vision fusion; discounted level 4 as vision not behind an IO interface and no standalone `RobotState` world-model class.",
+    "D8": "Confirmed CI (build + javadoc deploy workflows), Spotless auto-formatter and SpotBugs static analysis in `build.gradle`, real README with feature descriptions, and `spectrumLib` as an in-repo carried library across seasons; discounted level 4 as `spectrumLib` is bundled in-repo not consumed as a versioned external dependency."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/spectrumLib/mechanism/Mechanism.java:74 — abstract base with TalonFX directly embedded, no IO interface",
+      "src/main/java/frc/robot/launcher/Launcher.java — extends Mechanism directly, com.ctre imports above abstraction line"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/Coordinator.java:14 — applyRobotState() fans State enum to all mechanism *States",
+      "src/main/java/frc/robot/State.java:7 — State enum with sequencing logic"
+    ],
+    "D3": [
+      "src/main/java/frc/spectrumLib/swerve/MapleSimSwerveDrivetrain.java:49 — maple-sim drivetrain physics",
+      "src/main/java/frc/spectrumLib/sim/ArmSim.java:27 — SingleJointedArmSim wired to TalonFX sim state",
+      "src/main/java/frc/robot/RobotSim.java:44 — IntakeSimulation and game-piece projectile physics"
+    ],
+    "D4": [
+      "src/ — no src/test directory; CI main.yml:43 runs ./gradlew build only"
+    ],
+    "D5": [
+      "src/main/java/frc/spectrumLib/Telemetry.java:21 — extends DogLog, used as structured logging facade",
+      "src/main/java/frc/robot/vision/Vision.java:154 — Telemetry.log calls throughout periodic"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/auton/Auton.java:228 — PathPlannerAuto used for all competition autos",
+      "src/main/java/frc/robot/auton/Auton.java:314 — AutoBuilder.pathfindToPoseFlipped reactive pathfinding"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/vision/Vision.java:428 — addVisionMeasurement with dynamic std-dev per condition",
+      "src/main/java/frc/robot/vision/Vision.java:645 — inverse-variance estimate fusion using getPoseAtTimestamp",
+      "src/main/java/frc/robot/swerve/Swerve.java:222 — getPoseAtTimestamp via samplePoseAt time-interpolated buffer"
+    ],
+    "D8": [
+      ".github/workflows/main.yml — CI build on push/PR to main",
+      ".github/workflows/javadoc.yml — javadoc generated and deployed to GitHub Pages",
+      "build.gradle — spotless formatter and spotbugs static analysis configured"
+    ]
+  },
+  "confidence": "high"
+}

@@ -1,0 +1,64 @@
+{
+  "team": 5026,
+  "year": 2026,
+  "D1": 4,
+  "D2": 2.5,
+  "D3": 3,
+  "D4": 0,
+  "D5": 3,
+  "D6": 3,
+  "D7": 4,
+  "D8": 3,
+  "rationale": {
+    "D1": "Confirmed: GenericSuperstructure<G> and GenericRollers<G> are parameterized generic bases reused across all shooter/intake mechanisms (not just swerve), each with Real+Sim impls, selected in a single switch block in RobotContainer — true L4 library-grade abstraction.",
+    "D2": "Confirmed: ShooterController and IntakeController are explicit per-subsystem FSMs with real state enums (ShooterState, IntakeState) and transition logic in periodic(); discounted to 2.5 because there is no single robot-wide Superstructure coordinator fanning goals out — coordination is caller-side in RobotContainer button bindings.",
+    "D3": "Confirmed: maple-sim (org.ironmaple) wired for full swerve drivetrain+gyro+modules, FlywheelSim in ShooterFlywheelIOSim, GenericSuperstructureIOSim/GenericRollersIOSim for all mechanisms, plus VisionIOPhotonvisionSim — whole-robot sim workflow present.",
+    "D4": "Confirmed: no src/test directory exists; CI workflow runs only `./gradlew build` (no `test` step); no @Test annotations found anywhere — D4=0.",
+    "D5": "Confirmed: AdvantageKit fully wired — Logger.processInputs in GenericSuperstructure and GenericRollers base classes covers all subsystems, REPLAY mode wired in Robot.java with WPILOGReader; discounted from 4 because there are no dedicated replay IO variant classes (REPLAY falls through to default/null IOs).",
+    "D6": "Confirmed: 66 PathPlanner .path/.auto files, AutoBuilder.configure wired, pathfindToPose called via RobotState.getPathPlannerApproachPoseCommand, AlignToPoseCommand used in RobotContainer — on-the-fly pose alignment present; no Choreo files.",
+    "D7": "Confirmed: dedicated RobotState singleton owns SwerveDrivePoseEstimator+vision fusion, Vision subsystem uses VisionIO interface with VisionIOPhotonvisionSim variant, multi-camera support (3 cameras), rejection logic and per-measurement stdDev tuning, InterpolatingTreeMap for shooting table — full L4 world model.",
+    "D8": "Confirmed: GitHub Actions CI on push/PR running build+spotless, Spotless formatter enforced (build depends on spotlessApply), TEMPLATE-2026 repo in team org, 5 seasons of tracked repos; discounted from 4 because library is bundled in-repo (lib/ package), not versioned as a separate dependency."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/lib/generic_subsystems/superstructure/GenericSuperstructure.java:7 — public abstract class GenericSuperstructure<G extends GenericSuperstructure.PositionTarget>",
+      "src/main/java/frc/robot/RobotContainer.java:132 — switch(Constants.getRobotType()) selects all IO impls in one place",
+      "src/main/java/frc/robot/lib/generic_subsystems/rollers/GenericRollersIO.java:1 — GenericRollersIO interface with TalonFX+Sim impls reused by all roller mechanisms"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/subsystems/shooter/ShooterController.java:25 — enum ShooterState with per-state sub-mechanism targets",
+      "src/main/java/frc/robot/subsystems/shooter/ShooterController.java:165 — periodic() executes guarded state transitions",
+      "src/main/java/frc/robot/RobotContainer.java:277 — caller sets both intakeController and shooterController states — no single superstructure coordinator"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/RobotSimState.java:20 — org.ironmaple.simulation.SimulatedArena + SwerveDriveSimulation wired",
+      "src/main/java/frc/robot/subsystems/shooter/shooter_flywheel/ShooterFlywheelIOSim.java:10 — FlywheelSim physics in sim impl",
+      "src/main/java/frc/robot/RobotContainer.java:193 — VisionIOPhotonvisionSim wired in SIM case"
+    ],
+    "D4": [
+      "src/ — no src/test directory present; only src/main",
+      ".github/workflows/build.yml:14 — CI runs ./gradlew build only, no test step"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/lib/generic_subsystems/superstructure/GenericSuperstructure.java:58 — Logger.processInputs(name, inputs) covers all GenericSuperstructure subclasses",
+      "src/main/java/frc/robot/Robot.java:85 — case REPLAY: Logger.setReplaySource(new WPILOGReader(logPath))",
+      "src/main/java/frc/robot/lib/generic_subsystems/rollers/GenericRollers.java:42 — Logger.processInputs(name, inputs) covers all roller subsystems"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/RobotContainer.java:577 — AutoBuilder.configure wired",
+      "src/main/java/frc/robot/RobotState.java:175 — AutoBuilder.pathfindToPose(approachPose2d, ...) for on-the-fly alignment",
+      "src/main/java/frc/robot/commands/AlignToPoseCommand.java:19 — AlignToPoseCommand used in teleop bindings"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/RobotState.java:50 — dedicated RobotState singleton with SwerveDrivePoseEstimator + addVisionMeasurement + stdDev",
+      "src/main/java/frc/robot/subsystems/vision/Vision.java:36 — Logger.processInputs + rejection logic + multi-camera fusion",
+      "src/main/java/frc/robot/RobotState.java:246 — InterpolatingTreeMap<Double, HoodParams> shooterTable for time-interpolated shooting data"
+    ],
+    "D8": [
+      "build.gradle:4 — com.diffplug.spotless enforced; build task depends on spotlessApply",
+      ".github/workflows/build.yml:1 — CI on push/pull_request",
+      "frc_team_repos/5026-iron-panthers/ — 2022/2023/2024/2025/2026 seasons tracked; TEMPLATE-2026 repo present"
+    ]
+  },
+  "confidence": "high"
+}

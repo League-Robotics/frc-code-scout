@@ -1,0 +1,61 @@
+{
+  "team": 1114,
+  "year": 2025,
+  "D1": 2,
+  "D2": 2,
+  "D3": 1,
+  "D4": 0,
+  "D5": 1,
+  "D6": 2,
+  "D7": 2,
+  "D8": 2,
+  "rationale": {
+    "D1": "Confirmed timed-robot pattern with a custom SubsystemBase; TalonFX motors instantiated directly inside each subsystem (LiftSubsystem:52-55, ClimberSubsystem, IntakeSubsystem); CTRE TunerConstants provides a vendored swerve abstraction for drive only — no *IO interfaces exist anywhere in this repo.",
+    "D2": "Confirmed per-subsystem state enums (LiftStates, DriveState, IntakeStates, ClimberStates) with switch-case FSMs in each subsystem's calculate(); TeleopController fans state changes across subsystems, but there is no single Superstructure coordinator with a goal-request API — each subsystem manages its own FSM independently.",
+    "D3": "simulationPeriodic() exists in Robot.java:125 but its body contains only two commented-out lines; the 'simlib' package (SimLimelight, SimPID, etc.) is a team utility library not WPILib physics simulation — no ElevatorSim, ArmSim, or DCMotorSim found anywhere in the repo.",
+    "D4": "No src/test directory exists; CI build.yml runs './gradlew build' only; no @Test annotations or assertEquals calls anywhere — no evidence of any unit or integration tests.",
+    "D5": "186 SmartDashboard.put* calls scattered throughout subsystems (Drive:198-213, LiftSubsystem:418-428, etc.); no AdvantageKit, DogLog, Epilogue, or structured logging found — pure Level 1 dashboard telemetry.",
+    "D6": "No PathPlanner (.path/.auto) or Choreo (.traj/.chor) files found in the repo; autonomous navigation uses a custom PID-to-odometry-pose system (DriveToPoint:97-102) reading CTRE's built-in pose estimator, plus Limelight vision servoing for reef alignment (DriveToReef) — sophisticated custom auto but no trajectory library.",
+    "D7": "Confirmed three Limelights with addVisionMeasurement called via TunerConstants.Drivetrain.addVisionMeasurement() in Drive.java:1111; velocity gating applied (angular>90deg or speed>0.2 rejected at line 1101-1109); std dev set to zeros (no tuning); Limelight tx/ty servoing also used for reef auto-alignment.",
+    "D8": "Real README with structural explanation, GitHub Actions for build + Google Java Format CI (format.yml), PR template present; 4 seasons tracked; simlib is an internal cross-year utility library but not a separately versioned/consumed dependency."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/subsystems/lift/LiftSubsystem.java:52 — TalonFX motors created directly in constructor, no IO interface",
+      "src/main/java/frc/io/IO.java:15 — singleton IO class, not an interface-per-device abstraction",
+      "src/main/java/frc/simlib/swerve/TunerConstants.java — CTRE-generated swerve abstraction (only vendored abstraction present)"
+    ],
+    "D2": [
+      "src/main/java/frc/subsystems/lift/LiftStates.java — per-subsystem state enum",
+      "src/main/java/frc/subsystems/lift/LiftSubsystem.java:151 — switch(currentLiftState) FSM in calculate()",
+      "src/main/java/frc/teleop/TeleopController.java:67 — cross-subsystem coordinator calling setCurrentLiftState() etc."
+    ],
+    "D3": [
+      "src/main/java/frc/robot/Robot.java:125 — simulationPeriodic() with only commented-out code inside"
+    ],
+    "D4": [
+      ".github/workflows/build.yml:33 — CI runs './gradlew build' only, no test target; no src/test directory exists"
+    ],
+    "D5": [
+      "src/main/java/frc/subsystems/lift/LiftSubsystem.java:418 — SmartDashboard.putNumber for state feedback",
+      "src/main/java/frc/subsystems/drive/Drive.java:198 — SmartDashboard.put* throughout printValues()",
+      "src/main/java/frc/io/IO.java:127 — SmartDashboard for limelight target status"
+    ],
+    "D6": [
+      "src/main/java/frc/auton/drive/DriveToPoint.java:97 — custom odometry PID driving, no PathPlanner/Choreo",
+      "src/main/java/frc/auton/mode/RIGHT_L4_2F_5C_4D.java:20 — competition auto using DriveToPoint + DriveToReef",
+      "src/main/java/frc/auton/drive/DriveToReef.java:12 — Limelight vision servoing for final reef approach"
+    ],
+    "D7": [
+      "src/main/java/frc/subsystems/drive/Drive.java:1111 — TunerConstants.Drivetrain.addVisionMeasurement() called",
+      "src/main/java/frc/subsystems/drive/Drive.java:1101 — velocity gating before fusing vision pose",
+      "src/main/java/frc/io/IO.java:141 — updatePoseEstimate() called in both auto and teleop periodic"
+    ],
+    "D8": [
+      "README.md:1 — real README explaining timed-robot structure and subsystem organization",
+      ".github/workflows/format.yml:23 — google-java-format CI action on PRs",
+      ".github/workflows/build.yml:1 — CI build on every push and PR"
+    ]
+  },
+  "confidence": "high"
+}

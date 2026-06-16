@@ -1,0 +1,61 @@
+{
+  "team": 2658,
+  "year": 2026,
+  "D1": 2,
+  "D2": 1,
+  "D3": 1,
+  "D4": 0,
+  "D5": 2,
+  "D6": 2,
+  "D7": 1,
+  "D8": 3,
+  "rationale": {
+    "D1": "No *IO interfaces exist anywhere in the codebase; all subsystems (Shooter, Turret, Intake, Indexer, Hood) directly own TalonFX/CANcoder hardware; swerve uses the CTRE TunerX generator (TunerSwerveDrivetrain), which counts as a vendored swerve abstraction — scoring L2 for the vendored drive abstraction with hardware-welded mechanisms.",
+    "D2": "No Superstructure, coordinator class, or robot-wide FSM found; TurretAutoAimCommand has an internal TRACKING/MANUAL/PASSING string but is a single-subsystem command; all robot coordination is button bindings in RobotContainer — confirmed L1 command composition only.",
+    "D3": "simulationPeriodic() exists in Robot.java but is empty; CommandSwerveDrivetrain starts a CTRE sim notifier thread (token swerve sim) but no WPILib physics classes (ElevatorSim, DCMotorSim, etc.) exist for any mechanism — confirmed L1 token sim.",
+    "D4": "No src/test directory exists and no test files found anywhere in the repo; build.gradle configures JUnit 5 but it is unused — confirmed L0.",
+    "D5": "Epilogue (@Logged) is applied to every subsystem class (Shooter, Turret, Intake, Vision, Hood, Indexer, RobotContainer, Robot, TurretAutoAimCommand) with importance-tiered fields; Epilogue.bind(this) called in Robot constructor with DataLogManager + SignalLogger; MATCH_MODE flag controls NT depth — confirmed systematic structured logging across the whole codebase, L2.",
+    "D6": "PathPlannerLib vendordep present and fully wired: configurePathPlanner() calls AutoBuilder.configure() with real PID constraints; 15+ .path files and 15 .auto files deployed; multiple competition autos registered with NamedCommands; no Choreo files — confirmed L2.",
+    "D7": "PhotonVision camera used for turret yaw/distance targeting only; addVisionMeasurement() is overridden in CommandSwerveDrivetrain (CTRE boilerplate) but is never called from Vision subsystem or anywhere in robot code; pose estimation is not wired up — confirmed L1 targeting-only.",
+    "D8": "5 seasons of maintained code (2022-2026) plus a library repo (TankDriveBase with its own CI/publish workflow); CI workflows exist in 2022-2024 repos but the 2026 repo has no .github/workflows; extensive docs/ folder (10+ markdown files including OPERATIONS, SHOOTING_PIPELINE, SUBSYSTEMS, test procedures); elastic-layout.json committed; README is minimal (2 lines) and no formatter configured — scoring L3 for multi-season program with library and CI pattern (though 2026 itself lacks CI)."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/Shooter.java:16 — directly owns TalonFX, no IO interface",
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:45 — extends TunerSwerveDrivetrain (CTRE generator)",
+      "src/main/java/frc/robot/subsystems/Turret.java:48 — directly instantiates TalonFX and CANcoder"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/RobotContainer.java:77 — all coordination via button bindings, no Superstructure",
+      "src/main/java/frc/robot/commands/TurretAutoAimCommand.java:36 — internal state string but single-subsystem only"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/Robot.java:138 — simulationPeriodic() is empty stub",
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:309 — startSimThread() runs CTRE swerve sim loop only"
+    ],
+    "D4": [
+      "build.gradle:79 — JUnit 5 declared but no src/test directory exists"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/Robot.java:56 — Epilogue.bind(this) with DataLogManager.start() and SignalLogger.start()",
+      "src/main/java/frc/robot/subsystems/Turret.java:33 — @Logged fields with CRITICAL/DEBUG importance tiering",
+      "src/main/java/frc/robot/subsystems/Shooter.java:14 — @Logged annotation on class"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:257 — configurePathPlanner() wires AutoBuilder with real PID constants",
+      "src/main/deploy/pathplanner/autos/Blue 1 Center Shoot.auto — one of 15 competition auto files",
+      "src/main/java/frc/robot/RobotContainer.java:109 — autoChooser = AutoBuilder.buildAutoChooser()"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/Vision.java:3 — PhotonCamera for target yaw/distance only",
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:335 — addVisionMeasurement overridden but never called from Vision or robot code",
+      "src/main/java/frc/robot/commands/TurretAutoAimCommand.java:149 — vision used only for turret yaw servoing"
+    ],
+    "D8": [
+      "frc_team_repos/2658-sigma-motion/ — 5 seasons (2022-2026) plus library/ repo present",
+      "frc_team_repos/2658-sigma-motion/library/TankDriveBase/.github/workflows/gradle-publish.yml — library has its own CI",
+      "src/main/java/frc/robot/../../../docs/SHOOTING_PIPELINE.md — one of 10+ documentation files committed"
+    ]
+  },
+  "confidence": "high"
+}

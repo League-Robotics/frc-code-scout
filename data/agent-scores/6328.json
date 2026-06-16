@@ -1,0 +1,62 @@
+{
+  "team": 6328,
+  "year": 2026,
+  "D1": 4,
+  "D2": 2.5,
+  "D3": 4,
+  "D4": 0,
+  "D5": 4,
+  "D6": 4,
+  "D7": 4,
+  "D8": 3,
+  "rationale": {
+    "D1": "Confirmed IO layer is universal across all mechanisms (ModuleIOSim, FlywheelIOSim, HoodIOSim via SingleJointedArmSim, SlamIOSim, RollerSystemIOSim, VisionIONorthstar, LedsIOHAL); hardware impls are stripped in the public repo but anonymous stubs confirm the pattern is live; RollerSystem is a generic parameterized base reused across intake/hopper/kicker — library-grade generalization meriting L4.",
+    "D2": "No Superstructure coordinator class exists; each subsystem (Slamtake, Hopper, Kicker, Hood, Flywheel) has its own Goal enum and internal state machine, and RobotContainer wires them together with direct per-subsystem goal-setting commands — explicit per-subsystem FSMs (L2) without a central fanout coordinator (would require L3), so scored 2.5.",
+    "D3": "Confirmed WPILib physics sims in every mechanism IOSim (DCMotorSim for rollers/flywheel/slam, SingleJointedArmSim for hood, DCMotorSim for drive modules), plus simgui configs in sim/ folder; REPLAY mode is fully wired in Robot.java with WPILOGReader/Writer — replay as primary verification workflow confirmed, meriting L4.",
+    "D4": "No src/test/java tree found, no @Test annotations anywhere in src, build.gradle has JUnit configured but empty — no tests exist; mechanical candidate 0 confirmed.",
+    "D5": "Confirmed AdvantageKit: @AutoLog on all IO input structs, Logger.processInputs across 13 subsystem inputs, WPILOGWriter on REAL + WPILOGReader/Writer replay on REPLAY mode (Robot.java lines 90-106), AScope assets committed — full replay workflow actively configured, L4.",
+    "D6": "Confirmed Choreo trajectories generated from code via VTS system (DriveTrajectories, GenerateTrajectories, ChoreoLauncher) and loaded at runtime via Choreo.loadTrajectory in AutoBuilder; DriveToPose for align-to-target; SalesAssociate uses org.wpilib.math.optimization.Problem (NLP autodiff optimizer) for reactive real-time field ball path planning — exceeds L3 Choreo, meets L4 reactive planning.",
+    "D7": "Confirmed RobotState class with three TimeInterpolatableBuffers (pose, slam, rotation), multi-camera VisionIO[] array in Vision.java, stdDev-based Kalman gain fusion in addVisionObservation, ambiguity threshold rejection (error0/error1 check), VisionIONorthstar hardware impl — dedicated world-model architecture at L4.",
+    "D8": "Confirmed spotless formatter enforced in build.gradle, detailed README with setup steps and multi-season links (2022-2026), docs/ folder with technical docs, 5 public season repos — but .github/workflows absent from public repo (CI is private-side only), discounting to L3 rather than L4."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/org/littletonrobotics/frc2026/subsystems/launcher/flywheel/FlywheelIOSim.java:21 — DCMotorSim with KrakenX60 motor model",
+      "src/main/java/org/littletonrobotics/frc2026/subsystems/launcher/hood/HoodIOSim.java:20 — SingleJointedArmSim physics",
+      "src/main/java/org/littletonrobotics/frc2026/subsystems/rollers/RollerSystem.java:1 — generic parameterized base reused across intake/hopper/kicker"
+    ],
+    "D2": [
+      "src/main/java/org/littletonrobotics/frc2026/subsystems/slamtake/Slamtake.java:58 — @AutoLogOutput IntakeGoal/SlamGoal/SlamState enums per-subsystem",
+      "src/main/java/org/littletonrobotics/frc2026/RobotContainer.java:555 — direct hopper.setGoal(Hopper.Goal.LAUNCH) in command bindings, no central coordinator"
+    ],
+    "D3": [
+      "src/main/java/org/littletonrobotics/frc2026/Robot.java:100 — REPLAY mode wires WPILOGReader as replay source",
+      "src/main/java/org/littletonrobotics/frc2026/subsystems/slamtake/SlamIOSim.java:14 — DCMotorSim",
+      "sim/simgui.json:1 — committed simgui configuration"
+    ],
+    "D4": [
+      "src/ — no test directory found; build.gradle line 96 has JUnit dependency but no test files exist"
+    ],
+    "D5": [
+      "src/main/java/org/littletonrobotics/frc2026/Robot.java:91 — WPILOGWriter for REAL, lines 102-105 WPILOGReader+Writer for REPLAY",
+      "src/main/java/org/littletonrobotics/frc2026/subsystems/launcher/flywheel/FlywheelIO.java:13 — @AutoLog on Inputs struct",
+      "ascope_assets/ — committed AdvantageScope custom assets"
+    ],
+    "D6": [
+      "src/main/java/org/littletonrobotics/frc2026/commands/auto/AutoBuilder.java:104 — Choreo.loadTrajectory() active call",
+      "src/main/java/org/littletonrobotics/frc2026/salesman/SalesAssociate.java:138 — NLP Problem.decisionVariable() for reactive trajectory optimization",
+      "src/main/java/org/littletonrobotics/frc2026/util/vts/GenerateTrajectories.java:50 — custom VTS generates Choreo .traj files from code"
+    ],
+    "D7": [
+      "src/main/java/org/littletonrobotics/frc2026/RobotState.java:44 — TimeInterpolatableBuffer<Pose2d> poseBuffer",
+      "src/main/java/org/littletonrobotics/frc2026/RobotState.java:198 — addVisionObservation with stdDev Kalman filter",
+      "src/main/java/org/littletonrobotics/frc2026/subsystems/vision/Vision.java:57 — VisionIO[] array for multi-camera"
+    ],
+    "D8": [
+      "build.gradle:5 — spotless formatter enforced (compileJava depends on spotlessApply)",
+      "README.md:1 — detailed README with setup, multi-season links 2022-2026",
+      "docs/ — technical docs folder (MacMiniPorts.md, ObjectDetection.md, PhoenixFrames.md)"
+    ]
+  },
+  "confidence": "high"
+}

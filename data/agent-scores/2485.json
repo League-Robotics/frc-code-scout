@@ -1,0 +1,56 @@
+{
+  "team": 2485,
+  "year": 2026,
+  "D1": 1,
+  "D2": 2,
+  "D3": 1,
+  "D4": 0,
+  "D5": 2,
+  "D6": 2,
+  "D7": 2,
+  "D8": 2,
+  "rationale": {
+    "D1": "All subsystems (Shooter, Feeder, Intake, Angler, Windexer) own TalonFX hardware directly with no IO interface layer; the CTRE swerve generator provides a vendored drivetrain abstraction, which earns at most L2, but mechanisms are entirely hardware-welded.",
+    "D2": "Every mechanism carries a current/requested state enum pair with a requestState() API and periodic switch dispatch (confirmed in Shooter.java, AutoStateMachine.java, TargetTracking.java), which is the 2910-style explicit per-subsystem FSM; there is no single cross-robot coordinator fanning out goals, so this is L2, not L3.",
+    "D3": "Robot.java extends LoggedRobot and Drivetrain.startSimThread() wires CTRE's updateSimState, but simulationPeriodic() is empty and no WPILib physics classes (ElevatorSim, FlywheelSim, etc.) exist; this is a token sim stub, not mechanism physics.",
+    "D4": "No src/test directory and no test files exist; no CI workflow found in .github; confirmed zero test infrastructure.",
+    "D5": "Robot.java is a LoggedRobot with WPILOGWriter to /home/lvuser/logs and NT4Publisher confirmed running, and Telemetry.java uses Logger.recordOutput for drive module telemetry, but no @AutoLog inputs structs or processInputs calls exist anywhere — coverage is drivetrain-only, so this is L2 (structured logging, not full AdvantageKit).",
+    "D6": "26 PathPlanner .path files confirmed on disk and AutoStateMachine.java constructs PathPlannerPath arrays and calls AutoBuilder.followPath() in competition autos; no Choreo files present; confirmed L2 PathPlanner adoption with multiple named competition autos.",
+    "D7": "Vision.java uses PhotonCamera + PhotonPoseEstimator (MULTI_TAG_PNP_ON_COPROCESSOR, two cameras) and PoseEstimation.java calls m_drivetrain.addVisionMeasurement() with timestamps for both cameras; standard devs are set (1.5,1.5,1.5) but there is no dynamic std-dev tuning or rejection logic beyond an ambiguity check, placing this at L2.",
+    "D8": "WarlordsLib is a tracked separate library repo confirmed on disk alongside 5 seasons of tracked repos (2022-2026); no README in the 2026 season repo, no CI workflows, no formatter configuration, so the library presence earns L2 but CI and docs are absent."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/Shooter.java:42 — TalonFX m_talonLeft = new TalonFX(kShooterPortLeft, \"Other\") directly in subsystem, no IO interface",
+      "src/main/java/frc/robot/subsystems/drive/Drivetrain.java:35 — extends TunerSwerveDrivetrain (vendored CTRE swerve, not a team-authored IO layer)"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/subsystems/Shooter.java:27 — ShooterStates enum + requestState() + periodic switch, explicit per-subsystem FSM",
+      "src/main/java/frc/robot/subsystems/AutoStateMachine.java:41 — AutoStates enum with current/requested state and periodic switch coordinating multiple subsystems"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/Robot.java:102 — simulationPeriodic() is empty stub",
+      "src/main/java/frc/robot/subsystems/drive/Drivetrain.java:173 — startSimThread() calls updateSimState (CTRE internal, no mechanism physics)"
+    ],
+    "D4": [
+      "frc_team_repos/2485-overclocked/2026/frc-2026 — no src/test directory exists, zero test files, no .github/workflows"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/Robot.java:37 — Logger.addDataReceiver(new WPILOGWriter(\"/home/lvuser/logs\")) confirmed active",
+      "src/main/java/frc/robot/Telemetry.java:114 — Logger.recordOutput for drive module currents/voltages; no @AutoLog or processInputs on mechanism subsystems"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/subsystems/AutoStateMachine.java:118 — PathPlannerPath.fromPathFile() loading named competition paths in autoMap",
+      "src/main/deploy/pathplanner/paths/ — 26 .path files confirmed on disk, no .traj or .chor files"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/vision/Vision.java:143 — PhotonPoseEstimator with MULTI_TAG_PNP_ON_COPROCESSOR for two cameras",
+      "src/main/java/frc/robot/subsystems/drive/PoseEstimation.java:128 — m_drivetrain.addVisionMeasurement(pose2d, visionPose.timestampSeconds) called for both cameras"
+    ],
+    "D8": [
+      "frc_team_repos/2485-overclocked/library/WarlordsLib/ — separate library repo confirmed present with history.json and build files",
+      "frc_team_repos/2485-overclocked/ — 5 seasons tracked (2022-2026); no README.md in 2026 repo, no .github/workflows"
+    ]
+  },
+  "confidence": "high"
+}

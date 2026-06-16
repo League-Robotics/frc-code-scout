@@ -1,0 +1,65 @@
+{
+  "team": 1678,
+  "year": 2026,
+  "D1": 4,
+  "D2": 3,
+  "D3": 3,
+  "D4": 2.5,
+  "D5": 2,
+  "D6": 3,
+  "D7": 3,
+  "D8": 3,
+  "rationale": {
+    "D1": "Confirmed generic abstract MotorIO with MotorIOTalonFX + MotorIOTalonFXSim used across ALL mechanisms via per-Constants getMotorIO() factories, plus parameterized ServoMotorSubsystem<IO>/FlywheelMotorSubsystem bases and CameraIO/LightsIO/SensorIO interfaces with multiple impls — library-grade abstraction reused not repeated; discounted nothing.",
+    "D2": "Confirmed Superstructure with a real goal-fanout Command API (intake, shoot, tuck, spinUp, climbSequence) coordinating all mechanisms with kinematic safety guards (contractClimber, look-ahead targeting), and State enum (IDLE/OUTTAKE/SHOOT); discounted as not graph/search-based so capped at L3.",
+    "D3": "Confirmed MotorIOTalonFXSim backed by SingleJointedArmSim (PivotSim for Hood), LinearSim (Climber), RollerSim (intake/feeder/hopper) wired into all mechanisms; also AprilTagSimulatedPhotonCameraIO + FieldSim for game pieces; sim covers drivetrain + mechanisms + vision; no maple-sim or replay IO variants.",
+    "D4": "Confirmed DriveTest.java (5 HAL-backed JUnit tests with real assertions on sim-backed Drive) runs in CI via tests.yml (./gradlew test on PR/push); AutoPlannerTest and AutoModeSelectorTest are entirely commented out; discounted candidate D4=3 to 2.5 because only one subsystem has active tests — shallow coverage, no command-level runToCompletion style.",
+    "D5": "Confirmed custom LogUtil wrapping NetworkTables StructPublisher/StructArrayPublisher for structured data, DataLogManager.start() to USB, EpochLogger and LoggedTracer in lib; no AdvantageKit @AutoLog/processInputs and no DogLog/Epilogue — systematic NetworkTables publishing at L2, not full-match AdvantageKit logging.",
+    "D6": "Confirmed 8+ Choreo .traj files in deploy/choreo/ actively imported and used via choreo.auto.AutoFactory + followChoreoTrajectory in Drive + AutoModeBase with trajectory mirroring for red alliance; multiple competition autos (LeftSweep, RightSweep variants); PIDToPoseCommand for on-the-fly pose alignment; no repulsor/reactive avoidance.",
+    "D7": "Confirmed CameraIO interface with Limelight (AprilTagLimelightCameraIO), PhotonVision (SublimeAprilTagPhotonCameraIO), and sim (AprilTagSimulatedPhotonCameraIO) implementations; addVisionMeasurement called with distance-scaled std-devs (camera.getAprilTagStdDevs().times(distance)); MegaTag2 support; multi-camera config; no dedicated RobotState class with TimeInterpolatableBuffer so capped at L3.",
+    "D8": "Confirmed 5 seasons of public repos, three CI workflows (build/tests/formatter), spotless in build.gradle, substantial frc/lib package carried across seasons; real README with code highlights; discounted from L4 because the library is bundled in-repo rather than versioned as a consumed dependency."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/lib/io/MotorIO.java:23 — abstract class MotorIO with updateInputs/setpoints API",
+      "src/main/java/frc/lib/io/MotorIOTalonFXSim.java:12 — extends MotorIOTalonFX, wraps MechanismSim",
+      "src/main/java/frc/robot/subsystems/climber/ClimberConstants.java:114 — getMotorIO() returns MotorIOTalonFXSim in sim, MotorIOTalonFX on hardware"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/subsystems/superstructure/Superstructure.java:74 — SubsystemBase coordinator with goal-fanout Command methods",
+      "src/main/java/frc/robot/subsystems/superstructure/Superstructure.java:998 — enum State { IDLE, OUTTAKE, SHOOT }",
+      "src/main/java/frc/robot/subsystems/superstructure/Superstructure.java:849 — climb() command with kinematic sequencing and safety checks"
+    ],
+    "D3": [
+      "src/main/java/frc/lib/sim/PivotSim.java:12 — wraps SingleJointedArmSim for pivot mechanisms",
+      "src/main/java/frc/lib/io/MotorIOTalonFXSim.java:22 — 5ms notifier driving sim physics per motor",
+      "src/main/java/frc/robot/subsystems/vision/CamerasConstants.java:21 — AprilTagSimulatedPhotonCameraIO for sim vision"
+    ],
+    "D4": [
+      "src/test/java/frc/robot/subsystems/drive/DriveTest.java:40 — 5 HAL-backed JUnit tests on Drive singleton",
+      ".github/workflows/tests.yml:40 — ./gradlew test runs on push/PR",
+      "src/test/java/frc/robot/subsystems/autoplanner/AutoPlannerTest.java:1 — entire file commented out, not active"
+    ],
+    "D5": [
+      "src/main/java/frc/lib/logging/LogUtil.java:31 — StructPublisher-backed LogUtil for structured NT publishing",
+      "src/main/java/frc/robot/Robot.java:133 — DataLogManager.start('/U/logs') to USB",
+      "src/main/java/frc/robot/subsystems/drive/Drive.java:175 — LogUtil.log('Drive/Compensated Pose', ...) throughout subsystems"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/autos/AutoModeBase.java:6 — imports choreo.auto.AutoFactory, AutoRoutine, AutoTrajectory",
+      "src/main/deploy/choreo/comp.chor — 8 .traj files actively deployed",
+      "src/main/java/frc/robot/Robot.java:79 — Drive.mInstance::followChoreoTrajectory wired into AutoFactory"
+    ],
+    "D7": [
+      "src/main/java/frc/lib/io/vision/CameraIO.java — CameraIO interface with Limelight/Photon/Sim impls",
+      "src/main/java/frc/lib/bases/CameraSubsystem.java:86 — applyVisionEstimate calls addVisionMeasurement with distance-scaled stddevs",
+      "src/main/java/frc/robot/subsystems/vision/CamerasConstants.java:43 — DEFAULT_STD_DEVIATION and ALIGN_STD_DEVIATION tuning constants"
+    ],
+    "D8": [
+      ".github/workflows/tests.yml — CI runs gradle test on PR/push",
+      ".github/workflows/formatter.yml — spotless formatter enforced in CI",
+      "build.gradle:4 — spotless plugin version 8.1.0 configured"
+    ]
+  },
+  "confidence": "high"
+}

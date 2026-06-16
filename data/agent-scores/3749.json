@@ -1,0 +1,52 @@
+{
+  "team": 3749,
+  "year": 2024,
+  "D1": 1,
+  "D2": 1,
+  "D3": 0,
+  "D4": 0,
+  "D5": 0,
+  "D6": 0,
+  "D7": 0,
+  "D8": 3,
+  "rationale": {
+    "D1": "Confirmed command-based baseline structure (Tank extends SubsystemBase, commands/ dir, RobotContainer) but all method bodies are empty stubs with no hardware wiring or IO interfaces; discounted the SwerveDrivePoseEstimator import in Tank.java as it is unreachable dead code in an otherwise empty class.",
+    "D2": "RobotContainer.configureBindings() is empty and Teleop.execute() is an empty stub — command composition structure is present in name only; no button bindings, no coordination, no state logic confirmed used.",
+    "D3": "No simulationPeriodic, no sim classes, no WPILib physics sim imports in any file; discounted nothing because nothing is present.",
+    "D4": "No src/test directory exists; CI workflow runs './gradlew build' (compile-only, not './gradlew test'), so no tests are executed anywhere.",
+    "D5": "SmartDashboard is imported in Tank.java and Teleop.java but both class bodies are empty stubs with no put* calls; no logging framework of any kind confirmed used.",
+    "D6": "RobotContainer.getAutonomousCommand() returns Commands.print(\"No autonomous command configured\"); no path files, no PathPlanner, no Choreo in the season repo.",
+    "D7": "SwerveDrivePoseEstimator is imported in Tank.java but the class body is entirely empty with no field declarations or method implementations; discounted as unused import in a scaffold.",
+    "D8": "Confirmed CI workflow on season repo (build job on push/PR), a maintained library org 'Core-System' with a full IO-layer template (ExampleSubsystemIO, SwerveModuleIO, GyroIO with Real/Sim impls), and training repos across 2022-2025 seasons; library is a copy-paste template repo not a versioned dependency so capped at 3."
+  },
+  "evidence": {
+    "D1": [
+      "Offseason/src/main/java/frc/robot/subsystems/tank/Tank.java:28 — class Tank extends SubsystemBase with empty periodic()",
+      "Offseason/src/main/java/frc/robot/RobotContainer.java:15 — configureBindings() is empty stub"
+    ],
+    "D2": [
+      "Offseason/src/main/java/frc/robot/commands/Teleop.java:36 — execute() is empty stub",
+      "Offseason/src/main/java/frc/robot/RobotContainer.java:17 — getAutonomousCommand() returns Commands.print"
+    ],
+    "D3": [
+      "Offseason/src/main/java/frc/robot/subsystems/tank/Tank.java:34 — periodic() is empty, no simulationPeriodic override"
+    ],
+    "D4": [
+      "Offseason/build.gradle:74 — test block exists but src/test dir absent; CI at .github/workflows/main.yml:37 runs './gradlew build' not test"
+    ],
+    "D5": [
+      "Offseason/src/main/java/frc/robot/subsystems/tank/Tank.java:14 — SmartDashboard imported but never called in empty class body"
+    ],
+    "D6": [
+      "Offseason/src/main/java/frc/robot/RobotContainer.java:17 — return Commands.print(\"No autonomous command configured\")"
+    ],
+    "D7": [
+      "Offseason/src/main/java/frc/robot/subsystems/tank/Tank.java:8 — SwerveDrivePoseEstimator imported but class body contains only two empty methods"
+    ],
+    "D8": [
+      ".github/workflows/main.yml:37 — CI build job on push/PR confirmed",
+      "library/Core-System/Template/src/main/java/frc/robot/subsystems/example/ExampleSubsystemIO.java — maintained IO-layer template repo"
+    ]
+  },
+  "confidence": "high"
+}

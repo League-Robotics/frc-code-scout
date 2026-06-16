@@ -1,0 +1,63 @@
+{
+  "team": 2877,
+  "year": 2026,
+  "D1": 1,
+  "D2": 1.5,
+  "D3": 1.5,
+  "D4": 0,
+  "D5": 2,
+  "D6": 2,
+  "D7": 2.5,
+  "D8": 1,
+  "rationale": {
+    "D1": "Confirmed standard command-based with SubsystemBase subclasses (Intake, Flywheel, Hood, Turret, ClimberArms) owning hardware directly via CTRE/REV objects; no IO interfaces found (index shows zero), and the CTRE TunerConstants swerve generation is a vendored abstraction counted at D2, not an IO layer — score is L1.",
+    "D2": "Confirmed ClimbState enum with get/setClimbState transitions in ClimberArms used by EndGameDoubleArmClimb (a real guarded state sequence), and ShotType enum in Shooter routing lookup tables; no Superstructure coordinator found, so this is between L1 (command composition) and L2 (per-subsystem state enums with transition logic) — awarded 1.5.",
+    "D3": "Confirmed CTRE SwerveDrivetrain sim notifier (updateSimState via startSimThread) runs physics for the drivetrain, and PhotonVision VisionSystemSim with PhotonCameraSim wired in AprilTagVision.initializeSimulation() and called from CommandSwerveDrivetrain.periodic; however simulationPeriodic in Robot.java is an empty stub and no mechanism physics sims (ElevatorSim etc.) were found — partial credit at 1.5.",
+    "D4": "Confirmed no src/test/java files exist; build.gradle lists junit dependency and configures test task (WPILib boilerplate) but no test source was written — D4=0.",
+    "D5": "Confirmed custom RobotLog wrapper over WPILib DataLogManager (structured binary logging to file) used across 8+ subsystem files (Flywheel, Hood, Turret, Hopper, IntakePivot, IntakeRoller, ShooterFeeder, DataLogger, Shoot), alongside SmartDashboard.put calls; this is systematic structured logging beyond dashboard-scatter but below AdvantageKit — D5=2.",
+    "D6": "Confirmed 51 PathPlanner .path files and multiple .auto files in deploy/pathplanner/, AutoBuilder.configure() wired in CommandSwerveDrivetrain, CoreAuto loads and follows paths via AutoBuilder.followPath(), and EventTrigger markers used; pathFindToPose method exists but no call sites were found in the codebase — confirmed L2 PathPlanner autos, no active on-the-fly pathfinding.",
+    "D7": "Confirmed PhotonVision multi-camera pose estimation (3 cameras on comp bot) with std-dev tuning (SINGLE_TAG_BASE_STDDEV, MULTI_TAG_BASE_STDDEV scaled by distance), ambiguity rejection, multi-tag PNP strategy, and swerve.addVisionMeasurement called with timestamps; no TimeInterpolatableBuffer or dedicated RobotState world-model class — solid L2 with filtering putting it at 2.5.",
+    "D8": "Confirmed 5 seasons of repos present (2022–2026) showing multi-year continuity; README is two lines ('Rebuilt2026 / LigerBots Rebuilt Robot Code') with no build instructions; .github/copilot-instructions.md exists but no CI workflows; no separate library repo found — basic continuity artifact only, D8=1."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/shooter/Flywheel.java:1 — SubsystemBase with direct CTRE motor objects, no IO interface",
+      "src/main/java/frc/robot/subsystems/intake/IntakePivot.java:1 — hardware-welded subsystem",
+      "src/main/java/frc/robot/generated/TunerConstantsCompBot.java:1 — CTRE swerve generator (vendored abstraction, not IO layer)"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/subsystems/climber/ClimberArms.java:44 — ClimbState enum with get/setClimbState",
+      "src/main/java/frc/robot/commands/EndGameDoubleArmClimb.java:37 — switch on climbState with guarded transitions",
+      "src/main/java/frc/robot/subsystems/shooter/Shooter.java:14 — ShotType enum routing to lookup tables"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:320 — startSimThread with updateSimState (CTRE drivetrain physics)",
+      "src/main/java/frc/robot/subsystems/AprilTagVision.java:438 — initializeSimulation() with VisionSystemSim and PhotonCameraSim",
+      "src/main/java/frc/robot/Robot.java:160 — simulationPeriodic() empty stub"
+    ],
+    "D4": [
+      "build.gradle:74 — junit dependency present but no src/test/java source files exist"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/utilities/RobotLog.java:1 — DataLogManager-backed structured logger",
+      "src/main/java/frc/robot/subsystems/DataLogger.java:25 — RobotLog used for battery voltage, CAN utilization, hub shift state",
+      "src/main/java/frc/robot/subsystems/shooter/Flywheel.java:1 — RobotLog used in shooter subsystem"
+    ],
+    "D6": [
+      "src/main/deploy/pathplanner/paths/ — 51 .path files confirmed",
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:411 — AutoBuilder.configure() wired",
+      "src/main/java/frc/robot/commands/autoCommands/CoreAuto.java:49 — PathPlannerPath.fromPathFile + followPath called"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/AprilTagVision.java:58 — MULTI_TAG_PNP_ON_COPROCESSOR strategy, 3 cameras",
+      "src/main/java/frc/robot/subsystems/AprilTagVision.java:68 — SINGLE_TAG_BASE_STDDEV and MULTI_TAG_BASE_STDDEV with distance scaling",
+      "src/main/java/frc/robot/subsystems/AprilTagVision.java:277 — swerve.addVisionMeasurement called with timestamp and std-dev"
+    ],
+    "D8": [
+      "frc_team_repos/2877-ligerbots/ — 5 season directories (2022–2026) present",
+      "README.md:1 — two-line README with no build/deploy instructions",
+      ".github/copilot-instructions.md — AI instructions present but no CI workflow files"
+    ]
+  },
+  "confidence": "high"
+}

@@ -1,0 +1,63 @@
+{
+  "team": 2767,
+  "year": 2025,
+  "D1": 2.5,
+  "D2": 3,
+  "D3": 0,
+  "D4": 0,
+  "D5": 3,
+  "D6": 3,
+  "D7": 3,
+  "D8": 2.5,
+  "rationale": {
+    "D1": "Confirmed 10 IO interfaces (BiscuitIO, CoralIO, ClimbIO, AlgaeIO, ElevatorIO, FunnelIO, SwerveIO, LaserIO, BattMonIO, ExampleIO) each with exactly one hardware implementation and zero IOSim variants; the pattern is the team's consistent default (not partial), but the absence of any swappable sim implementations keeps this below level 3.",
+    "D2": "Confirmed a full centralized RobotStateSubsystem (1369 lines) with 30-state RobotStates enum, guarded transitions (needSafeAlgaeTransfer), futureState queuing, goal-request API (toStow/toReefAlign/toPlaceCoral/etc.) that fans out to all 10+ subsystems — solidly level 3.",
+    "D3": "No simulationPeriodic found, no WPILib physics sim classes (ElevatorSim, DCMotorSim, etc.), no maple-sim, no IOSim implementations; simulation is absent.",
+    "D4": "No src/test directory exists; CI workflow runs ./gradlew build only, not ./gradlew test; no @Test annotations found anywhere.",
+    "D5": "Confirmed @AutoLog Inputs structs on 10 IO interfaces and Logger.processInputs() calls in every mechanism subsystem (CoralSubsystem:124, BiscuitSubsystem:122, ClimbSubsystem:150, AlgaeSubsystem:115, ElevatorSubsystem:68, FunnelSubsystem:39, DriveSubsystem:450, BattMonSubsystem:30, LaserSubsystem:23) plus extensive Logger.recordOutput usage — full AK coverage.",
+    "D6": "Confirmed Choreo.loadTrajectory() called in PathHandler.java and DriveAlgaeWaitAutonServoCommand; 79 .traj files actively referenced; TagAlignSubsystem provides on-the-fly drive-to-target alignment using pose estimation; no PathPlanner.",
+    "D7": "Confirmed 5-camera WallEye vision system with adaptive std-dev matrix, pose rejection (camsWithinField), per-camera yaw trust control (trustedCameraYawIdx), and addVisionMeasurement with stdDevs called from VisionSubsystem:538; no TimeInterpolatableBuffer or dedicated RobotState world-model class, so capped at 3.",
+    "D8": "Confirmed 4 seasons of tracked repos (2022-2025), CI workflow (build only, not test), Spotless formatter in build.gradle, rich README with state machine diagrams and control maps, but no separate library repo and CI does not run tests."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/coral/CoralIO.java:9 — interface CoralIO with one impl CoralIOFX",
+      "src/main/java/frc/robot/subsystems/drive/SwerveIO.java:20 — interface SwerveIO with impls SwerveFXS and Swerve (two HW variants, zero sim)",
+      "src/main/java/frc/robot/RobotContainer.java:175 — all IOs instantiated as concrete HW impls, no factory/sim switch"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/subsystems/robotState/RobotStateSubsystem.java:67 — curState = RobotStates.IDLE, 30-state enum, guarded transitions",
+      "src/main/java/frc/robot/subsystems/robotState/RobotStateSubsystem.java:322 — needSafeAlgaeTransfer() guarding state changes when algae held",
+      "src/main/java/frc/robot/subsystems/robotState/RobotStateSubsystem.java:97 — constructor fans out to all 10+ subsystems"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/Robot.java — no simulationPeriodic override found",
+      "src/main/java/frc/robot/subsystems/ — grep for ElevatorSim/DCMotorSim returns nothing"
+    ],
+    "D4": [
+      "src/ — no src/test directory exists",
+      "src/main/java/frc/robot/commands/auton/TestAutonCommand.java — only test-named file is an auton command, not a unit test"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/subsystems/coral/CoralSubsystem.java:124 — Logger.processInputs(getName(), inputs)",
+      "src/main/java/frc/robot/subsystems/drive/DriveSubsystem.java:450 — Logger.processInputs(getName(), inputs)",
+      "src/main/java/frc/robot/subsystems/biscuit/BiscuitIO.java:9 — @AutoLog on BiscuitIOInputs"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/subsystems/pathHandler/PathHandler.java:175 — Choreo.loadTrajectory(pathNames[0][i])",
+      "src/main/java/frc/robot/commands/auton/DriveAlgaeWaitAutonServoCommand.java:86 — Choreo.loadTrajectory(trajectoryName) driving trajectories",
+      "src/main/java/frc/robot/subsystems/tagAlign/TagAlignSubsystem.java:29 — on-the-fly PID-based drive-to-tag alignment"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/vision/VisionSubsystem.java:538 — driveSubsystem.addVisionMeasurement(robotPose, timestamp, stdMatrix)",
+      "src/main/java/frc/robot/subsystems/vision/VisionSubsystem.java:104 — adaptiveMatrix with per-camera std-dev tuning",
+      "src/main/java/frc/robot/subsystems/vision/VisionSubsystem.java:35 — 5-camera WallEyeCam array with pose rejection"
+    ],
+    "D8": [
+      ".github/workflows/main.yml:38 — ./gradlew build (build only, not test)",
+      "build.gradle:4 — com.diffplug.spotless formatter plugin",
+      "README.md:1 — rich README with CI badge, control diagrams, and state machine images"
+    ]
+  },
+  "confidence": "high"
+}

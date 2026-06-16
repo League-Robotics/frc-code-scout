@@ -1,0 +1,56 @@
+{
+  "team": 812,
+  "year": 2026,
+  "D1": 1,
+  "D2": 1,
+  "D3": 1.5,
+  "D4": 0,
+  "D5": 1,
+  "D6": 3,
+  "D7": 3,
+  "D8": 3,
+  "rationale": {
+    "D1": "Confirmed command-based with SubsystemBase subclasses owning hardware directly (DriveSubsystemSRX, BellySubsystem, ShooterSubsystem etc.) and a Constants file; no IO interfaces or swappable implementations found anywhere in the codebase.",
+    "D2": "Confirmed command composition via SequentialCommandGroup/ParallelCommandGroup in Autonomous.java and button bindings in RobotContainer; no Superstructure coordinator, no state machine, no WantedState/SystemState enums.",
+    "D3": "Confirmed vendor physics sim (SparkFlexSim.iterate()) in BellySubsystem and IntakeDeploymentSubsystem, plus kinematic pose simulation in PreussDriveSimulation, but no WPILib ElevatorSim/FlywheelSim physics classes and no whole-robot sim workflow; discounted candidate D3=1 to 1.5 for the real vendor sim wiring.",
+    "D4": "No src/test directory exists; ShooterTest.java in commands/ is a runtime tuning command, not a JUnit test; test dependency in build.gradle is boilerplate only with zero test files.",
+    "D5": "Confirmed SmartDashboard.put* calls scattered across Robot.java, PoseEstimatorSubsystem, IntakeSubsystem, MAXSRXSwerveModule and others; no AdvantageKit, DogLog, Epilogue, or structured logging found.",
+    "D6": "Confirmed Choreo.loadTrajectory() called for 9+ named trajectories in Robot.java; DriveChoreoPathCommand implements a full Choreo trajectory follower with PID controllers; multiple autoCommands use the loaded trajectories in competition autos; PathPlanner vendored but no pathplanner code used.",
+    "D7": "Confirmed PoseEstimatorSubsystem uses SwerveDrivePoseEstimator with addVisionMeasurement called from PoseEstimatorCamera; ambiguity rejection logic (getPoseAmbiguity <= maximumAmbiguity), multi-camera array support, and tuned Kalman std-dev vectors all confirmed; discounted full D7=4 as no TimeInterpolatableBuffer or dedicated RobotState class.",
+    "D8": "Confirmed real README with startup checklist and instructions, 5 seasons of code tracked (2022-2026) plus a library repo with historical code back to 2011 per the manifest, and ci_workflows=1 per index; no formatter/checkstyle configured in build.gradle."
+  },
+  "evidence": {
+    "D1": [
+      "team812/src/main/java/frc/robot/subsystems/DriveSubsystemSRX.java:28 — extends SubsystemBase, owns MAXSRXSwerveModule hardware directly",
+      "team812/src/main/java/frc/robot/subsystems/BellySubsystem.java:26 — extends SubsystemBase, SparkFlex motor fields directly"
+    ],
+    "D2": [
+      "team812/src/main/java/frc/robot/Autonomous.java:54 — extends SequentialCommandGroup, command composition only",
+      "team812/src/main/java/frc/robot/autoCommands/LeftBumpCommand.java:9 — parallel/sequential command groups, no state machine"
+    ],
+    "D3": [
+      "team812/src/main/java/frc/robot/subsystems/BellySubsystem.java:248 — simulationPeriodic() with motor1Sim.iterate() (SparkFlexSim vendor physics)",
+      "team812/src/main/java/frc/utils/PreussDriveSimulation.java:38 — kinematic pose simulation for auto development"
+    ],
+    "D4": [
+      "team812/src/main/java/frc/robot/commands/ShooterTest.java — runtime tuning command, not a JUnit test; no src/test directory"
+    ],
+    "D5": [
+      "team812/src/main/java/frc/robot/subsystems/PoseEstimatorSubsystem.java:96 — SmartDashboard.putData/putNumber scattered logging",
+      "team812/src/main/java/frc/robot/Robot.java:97 — SmartDashboard.putNumber('Battery Voltage', ...)"
+    ],
+    "D6": [
+      "team812/src/main/java/frc/robot/Robot.java:43 — Choreo.loadTrajectory('LeftTrenchGather') and 8 more trajectories loaded",
+      "team812/src/main/java/frc/robot/commands/DriveChoreoPathCommand.java:33 — full Choreo trajectory follower with PID controllers"
+    ],
+    "D7": [
+      "team812/src/main/java/frc/robot/subsystems/PoseEstimatorSubsystem.java:110 — poseEstimator.addVisionMeasurement() called with PhotonVision data",
+      "team812/src/main/java/frc/utils/PoseEstimatorCamera.java:90 — ambiguity rejection: getPoseAmbiguity() <= VisionConstants.maximumAmbiguity"
+    ],
+    "D8": [
+      "team812/src/main/java/frc/robot/README.md:1 — real README with startup checklist, build/deploy instructions",
+      "frc_team_repos/812-midnight-mechanics/library/ — historical code library back to 2011 season"
+    ]
+  },
+  "confidence": "high"
+}

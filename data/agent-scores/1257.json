@@ -1,0 +1,64 @@
+{
+  "team": 1257,
+  "year": 2026,
+  "D1": 3,
+  "D2": 2,
+  "D3": 2,
+  "D4": 0,
+  "D5": 3,
+  "D6": 2.5,
+  "D7": 3,
+  "D8": 1.5,
+  "rationale": {
+    "D1": "Confirmed 12 subsystems (HopperPivot, HopperIntake, Flywheel, Hood, Kicker, ActiveFloor, Module, Gyro, Vision, etc.) each have an @AutoLog inputs struct plus both a device-named hardware impl and an *IOSim impl; RobotContainer has a clean REAL/SIM/REPLAY factory switch — discounted the ActiveFloor and Kicker which lack Sim impls (use anonymous IO stubs in SIM mode).",
+    "D2": "No Superstructure class exists; coordination is done via chained .alongWith()/.andThen() command composition in RobotContainer and AutoChooser — sophisticated but not a goal-request API with guarded transitions, so capped at L2.",
+    "D3": "FlywheelIOSim uses WPILib FlywheelSim physics, HopperPivotIOSim uses SingleJointedArmSim, ModuleIOSim and VisionIOSim exist, and sim_logs/ is committed — drive + mechanisms covered; no maple-sim or whole-robot dynamics library, so capped at L2.",
+    "D4": "No src/test directory exists at all; the CI workflow runs ./gradlew build only, not gradle test — D4=0.",
+    "D5": "Confirmed full AdvantageKit: Robot extends LoggedRobot, Logger.processInputs() called on every subsystem's @AutoLog inputs struct, WPILOGWriter to USB on REAL and sim_logs/ in SIM, NT4Publisher, and REPLAY mode wired in Robot.java; elastic-layout.json committed — discounted replay being actively exercised (no replay IO variants confirmed).",
+    "D6": "Multiple PathPlanner .path files actively consumed via AutoBuilder.followPath() in AutoChooser; LocalADStarAK pathfinder is set and Drive.pathfindToPose() via AutoBuilder.pathfindToPose() is implemented and used in driveToFieldPosition(); no Choreo files or time-optimal trajectories, so 2.5 (PathPlanner + on-the-fly pathfinding to pose).",
+    "D7": "VisionIOPhoton confirmed multi-camera PhotonVision with separate position and rotation estimators, ambiguity rejection, per-camera std-dev tuning by tag count and distance; addVisionMeasurement called with computed stdDevs in Drive.periodic(); VisionIO interface with VisionIOSim — no TimeInterpolatableBuffer or dedicated RobotState class, so L3 not L4.",
+    "D8": "No README (only WPILib-License.md), no CONTRIBUTING, no spotless/checkstyle in build.gradle; CI build-only; has 5 seasons tracked and elastic-layout.json committed showing operational care, but no onboarding docs or formatter — 1.5 (above bare code drop, below formal onboarding/standards)."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/ActiveFloor/ActiveFloorIO.java:15 — interface ActiveFloorIO with @AutoLog inputs struct",
+      "src/main/java/frc/robot/subsystems/Shooter/Flywheel/FlywheelIOSim.java:17 — FlywheelIOSim implements FlywheelIO with FlywheelSim physics",
+      "src/main/java/frc/robot/RobotContainer.java:110 — switch(Constants.currentMode) REAL/SIM/REPLAY factory"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/RobotContainer.java:251 — driver.rightBumper().whileTrue(flywheel.runTargetedCommand().alongWith(hood...).alongWith(...))",
+      "src/main/java/frc/robot/util/autonomous/AutoChooser.java:60 — getAutoCommand() switch on StartPositions enum with chained command sequences",
+      "src/main/java/frc/robot/RobotContainer.java:189 — comment 'Set up robot state manager' with no class instantiated"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/Hopper/HopperPivot/HopperPivotIOSim.java:26 — SingleJointedArmSim with DCMotor.getNEO(2) and real mass/length",
+      "src/main/java/frc/robot/subsystems/Shooter/Flywheel/FlywheelIOSim.java:18 — FlywheelSim with LinearSystemId.createFlywheelSystem",
+      "src/main/java/frc/robot/Robot.java:77 — SIM case: Logger.addDataReceiver(new WPILOGWriter('sim_logs/'))"
+    ],
+    "D4": [
+      ".github/workflows/build.yml:18 — './gradlew build' only, no test task",
+      "src/test — directory does not exist"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/Robot.java:34 — public class Robot extends LoggedRobot",
+      "src/main/java/frc/robot/subsystems/Shooter/Flywheel/Flywheel.java:68 — Logger.processInputs('Flywheel', inputs)",
+      "src/main/java/frc/robot/Robot.java:71 — WPILOGWriter('/media/sda1/') on REAL, REPLAY mode fully wired"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/util/autonomous/AutoChooser.java:66 — drive.followPathFileCommand('LT_LNZ') active in LEFT_TRENCH auto",
+      "src/main/java/frc/robot/subsystems/drive/Drive.java:178 — Pathfinding.setPathfinder(new LocalADStarAK())",
+      "src/main/deploy/pathplanner/paths/RT_RNZ.path — multiple competition .path files present and consumed"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/vision/VisionIOPhoton.java:23 — VisionIOPhoton with multi-camera PhotonCamera array and dual estimators",
+      "src/main/java/frc/robot/subsystems/drive/Drive.java:347 — poseEstimator.addVisionMeasurement with computed positionStdDevs and rotationStdDevs",
+      "src/main/java/frc/robot/subsystems/vision/VisionIO.java:188 — getEstimationStdDevs() tuned by numTags and avgDist"
+    ],
+    "D8": [
+      ".github/workflows/build.yml:1 — build-only CI, no test, no spotless",
+      "build.gradle — no spotless or checkstyle plugin found",
+      "WPILib-License.md — only license file, no team README"
+    ]
+  },
+  "confidence": "high"
+}

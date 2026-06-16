@@ -1,0 +1,57 @@
+{
+  "team": 5190,
+  "year": 2026,
+  "D1": 2,
+  "D2": 1.5,
+  "D3": 1,
+  "D4": 0,
+  "D5": 1,
+  "D6": 2,
+  "D7": 2,
+  "D8": 1,
+  "rationale": {
+    "D1": "YAGSL provides a vendored swerve abstraction (confirmed via SwerveSubsystem.java importing swervelib), but all mechanism subsystems (Turret, Intake, Indexer) own SparkMax motors directly with no IO interface — grep found zero 'interface.*IO' hits.",
+    "D2": "A Superstructure class exists but confirmed to be a command-factory holder (wraps StartEndCommand/RunCommand calls on subsystem methods) with no goal enum, state transitions, or kinematic guarding; bindings are direct command composition in RobotContainer.",
+    "D3": "simulationPeriodic() is an empty stub in both Robot.java and SwerveSubsystem.java; no WPILib physics sim classes (ElevatorSim, DCMotorSim, etc.) appear anywhere in the codebase.",
+    "D4": "No src/test directory exists at all; zero test files, zero assertions, no CI workflow.",
+    "D5": "Only active logging is SmartDashboard.putData('Field', field2d) in SwerveSubsystem and an Elastic layout JSON in deploy; the comprehensive DashboardPublisher.java is entirely commented out; no AdvantageKit, DogLog, or Epilogue.",
+    "D6": "PathPlanner paths and autos are authored (9 files confirmed) and AutoBuilder is configured with real constraints in SwerveSubsystem; pathfindToPose is wired in alignToOffset; however getAutonomousCommand() bypasses PathPlannerAuto and uses a manual ShootAuto command sequence instead.",
+    "D7": "addVisionMeasurement is actively called in SwerveSubsystem.periodic() using Limelight MegaTag1 pose+timestamp (confirmed line 115); alignToOffset uses MegaTag2 for tag-relative pathfinding; no std-dev tuning or IO interface for vision.",
+    "D8": "A substantive README exists describing the full stack, build/deploy instructions, and known issues; no .github/workflows CI, no spotless/checkstyle in build.gradle; Elastic layout JSON is committed."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/Turret.java:3 — SparkMax imported and owned directly, no IO interface",
+      "src/main/java/frc/robot/subsystems/SwerveSubsystem.java:16 — YAGSL swervelib import (vendored abstraction only)"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/Superstructure.java:13 — class holds subsystem refs and returns StartEndCommand/RunCommand, no state enum or transitions",
+      "src/main/java/frc/robot/RobotContainer.java:112 — direct button-to-command bindings with no Superstructure goal API"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/Robot.java:138 — simulationInit() and simulationPeriodic() are empty stubs",
+      "src/main/java/frc/robot/subsystems/SwerveSubsystem.java:123 — simulationPeriodic() is an empty stub"
+    ],
+    "D4": [
+      "src/test — directory does not exist; no test files found anywhere in repo"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/subsystems/SwerveSubsystem.java:73 — SmartDashboard.putData('Field', field2d) only active dashboard call",
+      "src/main/java/frc/robot/DashboardPublisher.java:1 — entire class is commented out"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/subsystems/SwerveSubsystem.java:160 — AutoBuilder.configure() with real PID constants",
+      "src/main/java/frc/robot/subsystems/SwerveSubsystem.java:310 — AutoBuilder.pathfindToPose() called in alignToOffset",
+      "src/main/java/frc/robot/RobotContainer.java:149 — getAutonomousCommand() uses ShootAuto.shoot(), not PathPlannerAuto"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/SwerveSubsystem.java:115 — swerveDrive.addVisionMeasurement(llEst.pose, llEst.timestampSeconds)",
+      "src/main/java/frc/robot/subsystems/SwerveSubsystem.java:251 — getBotPoseEstimate_wpiBlue_MegaTag2 used in alignToOffset"
+    ],
+    "D8": [
+      "README.md:1 — substantive README with build instructions and known issues listed",
+      "src/main/deploy/elastic-layout.json:1 — Elastic dashboard layout committed"
+    ]
+  },
+  "confidence": "high"
+}

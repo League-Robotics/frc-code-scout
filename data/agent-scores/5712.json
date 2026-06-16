@@ -1,0 +1,63 @@
+{
+  "team": 5712,
+  "year": 2026,
+  "D1": 2,
+  "D2": 2,
+  "D3": 2,
+  "D4": 0,
+  "D5": 2,
+  "D6": 1.5,
+  "D7": 2.5,
+  "D8": 2,
+  "rationale": {
+    "D1": "No `interface *IO` exists in the 2026 repo; ArmSIM and FlywheelSIM extend concrete hardware classes rather than implementing a swappable interface, so there is no IO layer — only vendored CTRE swerve (TunerConstants/CommandSwerveDrivetrain) plus inheritance-based sim subclasses on two mechanisms.",
+    "D2": "Superstructure provides coordinated commands fanning out to Arm+Flywheel (stow, ampScore, speakerClose, speakerFar, intakeGround) and is used in AutoRoutines, but there are no state enums, no wanted/current state tracking, and no guarded transitions — it is a command-factory coordinator, not a full goal-request FSM.",
+    "D3": "ArmSIM uses SingleJointedArmSim and FlywheelSIM uses DCMotorSim with physics wired into simulationPeriodic; CTRE drivetrain runs a sim thread; discounted because there is no drive-level maple-sim, no vision sim, and no deploy path/auto files indicating sim-driven development workflow.",
+    "D4": "No src/test directory and no test files of any kind exist in the repo; score 0.",
+    "D5": "Epilogue @Logged annotation is applied to Robot, RobotContainer, Superstructure, Arm, Flywheel, CommandSwerveDrivetrain, and LimelightSubsystem with a dual HootEpilogueBackend+NTEpilogueBackend configured in Robot.java — systematic structured logging across all subsystems; discounted from L3 because this is Epilogue (not AdvantageKit) and there are no @AutoLog inputs structs or processInputs calls.",
+    "D6": "No PathPlanner or Choreo files are present; AutoRoutines uses a custom LinearPathRequest (CTRE LinearPath with PID+feedforward pose-to-pose) with hard-coded waypoint poses — this is closed-loop pose tracking beyond dead-reckoning but without authored path files or multiple competition autos, placing it between L1 and L2.",
+    "D7": "LimelightSubsystem calls addVisionMeasurement with per-tag XY/theta std-dev scaled by tag count and distance-squared, rejects single-tag measurements above ambiguity threshold, and uses HootAutoReplay for timestamped replay — confirmed in LimelightSubsystem.java:135; discounted from L3 because there is no multi-camera fusion and no dedicated RobotState class with a time-interpolated buffer.",
+    "D8": "Team maintains multiple repos across 2023, 2024, and 2026 seasons, published template repos (2024AdvantageKitSwerveTemplate, 2026-Template) for student onboarding, and has CI build workflows on the 2023 and 2024 season repos; discounted because the 2026 repo has no CI and there is no season-independent library package."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/arm/ArmSIM.java:26 — extends Arm (concrete class), no interface",
+      "src/main/java/frc/robot/subsystems/flywheel/FlywheelSIM.java:24 — extends Flywheel (concrete class), no interface",
+      "src/main/java/frc/robot/generated/TunerConstants.java — CTRE swerve generator (vendored abstraction only)"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/subsystems/Superstructure.java:44 — stowCommand() fans out to arm.vertical()+flywheel.stopCommand()",
+      "src/main/java/frc/robot/autonomous/AutoRoutines.java:31 — superstructure.speakerCloseAndWaitCommand() used in auto",
+      "src/main/java/frc/robot/subsystems/Superstructure.java:25 — no state enums, no transition guards"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/arm/ArmSIM.java:86 — SingleJointedArmSim with physics wired in simulationPeriodic",
+      "src/main/java/frc/robot/subsystems/flywheel/FlywheelSIM.java:73 — DCMotorSim wired in simulationPeriodic",
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:53 — startSimThread() for CTRE drivetrain sim"
+    ],
+    "D4": [
+      "src/ — no src/test directory exists; no test files of any kind found"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/Robot.java:47 — Epilogue.configure with HootEpilogueBackend+NTEpilogueBackend dual backend",
+      "src/main/java/frc/robot/subsystems/Superstructure.java:24 — @Logged annotation",
+      "src/main/java/frc/robot/subsystems/vision/LimelightSubsystem.java:36 — @Logged annotation"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/autonomous/LinearPathRequest.java:1 — CTRE LinearPath-based pose-to-pose with PID+feedforward, no authored path files",
+      "src/main/java/frc/robot/autonomous/AutoRoutines.java:84 — mobilityAuto() drives to hard-coded Waypoints.MIDFIELD_CENTER",
+      "src/main/deploy — directory empty, no .path/.auto/.traj files"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/vision/LimelightSubsystem.java:126 — per-tag std-dev scaling: xyStdDev = BASE_XY_STD_DEV / tagCount * avgDistDev",
+      "src/main/java/frc/robot/subsystems/vision/LimelightSubsystem.java:135 — drivetrain.addVisionMeasurement called with tuned std-devs",
+      "src/main/java/frc/robot/subsystems/vision/LimelightSubsystem.java:120 — ambiguity rejection for single-tag measurements"
+    ],
+    "D8": [
+      "frc_team_repos/5712-hemlock-gray-matter/manifest.json — 6 repos across 2023/2024/2026 seasons including template repos",
+      "frc_team_repos/5712-hemlock-gray-matter/2024/2024-Robot/.github/workflows/build.yml — CI build workflow on season repo",
+      "frc_team_repos/5712-hemlock-gray-matter/2026/2026-Template — published template with no CI workflow"
+    ]
+  },
+  "confidence": "high"
+}

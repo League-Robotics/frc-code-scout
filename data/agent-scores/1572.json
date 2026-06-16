@@ -1,0 +1,57 @@
+{
+  "team": 1572,
+  "year": 2024,
+  "D1": 1.5,
+  "D2": 1,
+  "D3": 1,
+  "D4": 0,
+  "D5": 1,
+  "D6": 2,
+  "D7": 2,
+  "D8": 1,
+  "rationale": {
+    "D1": "Confirmed CTRE swerve generator (TunerConstants + CommandSwerveDrivetrain extends SwerveDrivetrain) provides a vendored drivetrain abstraction, but all four mechanism subsystems (Arm, Shooter, Intake, Feeder) directly instantiate TalonFX hardware with no IO interface or sim variant — no *IO layer exists for mechanisms.",
+    "D2": "Confirmed command-based with button bindings in RobotContainer dispatching InstantCommands; the index flagged a State enum but no actual FSM or coordinator class was found — bindings are direct method calls to subsystems with no state machine logic.",
+    "D3": "Confirmed simulationPeriodic in CommandSwerveDrivetrain calls updateSimState (CTRE swerve built-in) but Robot.simulationPeriodic is empty and no WPILib physics classes (ElevatorSim, etc.) are wired for any mechanism — swerve-only token sim.",
+    "D4": "Confirmed no src/test directory exists and no .github/workflows — zero tests.",
+    "D5": "Confirmed SmartDashboard.put* calls scattered through Arm and Limelight, and CTRE SignalLogger.start() used in Robot and Telemetry for drivetrain odometry — SmartDashboard-level logging only, no structured logging framework.",
+    "D6": "Confirmed PathPlannerLib vendordep present and actively used: AutoBuilder.configureHolonomic in CommandSwerveDrivetrain, AutoBuilder.buildAutoChooser in RobotContainer, 11+ .auto files and 20+ .path files in deploy/pathplanner — real multi-auto PathPlanner deployment.",
+    "D7": "Confirmed Limelight.java calls drivetrain.addVisionMeasurement with latency-compensated timestamps and confidence-scaled std-devs, with field-boundary rejection and multi-tag trust logic — functional pose estimation with basic filtering; no IO interface or sim variant.",
+    "D8": "Confirmed README.md exists with team/season info and brief instructions (based on CTRE example), Constants.java is organized, no CI workflows and no separate library repo found."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/Arm.java:49 — TalonFX instantiated directly in Arm constructor, no IO interface",
+      "src/main/java/frc/robot/generated/TunerConstants.java — CTRE swerve generator provides vendored drivetrain abstraction",
+      "src/main/java/frc/robot/CommandSwerveDrivetrain.java:36 — extends SwerveDrivetrain (CTRE), no custom IO layer"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/RobotContainer.java:109 — op.leftBumper().whileTrue(new InstantCommand(() -> m_Intake.setSpeed(-.75))) — direct method calls, no FSM",
+      "src/main/java/frc/robot/RobotContainer.java:145 — preset arm angle buttons, no coordinator class"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/CommandSwerveDrivetrain.java:78 — simulationPeriodic calls updateSimState(0.02, RobotController.getBatteryVoltage())",
+      "src/main/java/frc/robot/Robot.java:92 — simulationPeriodic is empty stub"
+    ],
+    "D4": [
+      "No src/test directory found — zero test files"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/subsystems/Arm.java:99 — SmartDashboard.putData/putNumber calls",
+      "src/main/java/frc/robot/Telemetry.java:34 — SignalLogger.start() for drivetrain odometry logging"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/CommandSwerveDrivetrain.java:54 — AutoBuilder.configureHolonomic wired with real PID constants",
+      "src/main/deploy/pathplanner/autos/ — 11+ .auto files including multi-note competition autos"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/Vision/Limelight.java:71 — drivetrain.addVisionMeasurement with latency compensation and VecBuilder std-devs",
+      "src/main/java/frc/robot/Vision/Limelight.java:67 — field boundary check before accepting pose"
+    ],
+    "D8": [
+      "README.md:1 — real README with season/team description and CTRE example attribution",
+      "src/main/java/frc/robot/Constants.java:16 — organized Constants class with motor IDs and PID values"
+    ]
+  },
+  "confidence": "high"
+}

@@ -1,0 +1,63 @@
+{
+  "team": 3255,
+  "year": 2026,
+  "D1": 2,
+  "D2": 2.5,
+  "D3": 0,
+  "D4": 0,
+  "D5": 2,
+  "D6": 3,
+  "D7": 2.5,
+  "D8": 4,
+  "rationale": {
+    "D1": "Drivetrain extends SN_SuperSwerveV2 (vendored swerve abstraction via SuperCORE library), but mechanisms like Rotors and Motion own TalonFX hardware objects directly with no IO interface or swappable implementation — vendored abstraction for drive only, mechanisms hardware-welded.",
+    "D2": "StateMachine.tryState() implements a real centralized FSM with guarded switch-within-switch transitions across 18+ RobotState enum values, plus a separate DriverStateMachine; lacks a full Superstructure goal-fanout API (no kinematic planner, no requested-vs-actual separation), placing it between D2 and D3.",
+    "D3": "No simulationPeriodic, no WPILib physics classes (ElevatorSim, FlywheelSim, DCMotorSim), and no maple-sim found anywhere in the source; CI runs simulateJava for build-verification only, not physics-backed mechanism simulation.",
+    "D4": "No src/test directory exists and no @Test annotations found; CI runs ./gradlew build (not test), so there are zero unit tests to run.",
+    "D5": "Epilogue @Logged annotation applied to Robot, RobotContainer, and all subsystems (Rotors, Motion, Vision, Drivetrain, StateMachine, DriverStateMachine, RobotPoses, Telemetry); Epilogue.bind(this) called in robotInit plus DataLogManager and custom logger classes — systematic structured logging throughout but not AdvantageKit processInputs.",
+    "D6": "Choreo trajectories are fully wired: ChoreoTraj auto-generated constants reference 40+ .chor trajectories, AutoFactory.trajectoryCmd drives them in 20+ named competition autos in configAutonomous(), and followTrajectory handles trajectory following with PID correction — Choreo adoption is real and extensive.",
+    "D7": "Three Limelights with MegaTag2, per-camera rejection logic (gyro rate, tag count, area threshold), multi-camera fusion selecting by tag count, and addVisionMeasurement with timestamp called in a dedicated command — confirmed pose fusion; no TimeInterpolatableBuffer and vision is not behind an IO interface.",
+    "D8": "Five seasons of repos all have CI, SuperCORE library is versioned with a create-release workflow and actively consumed as a dependency in 2026 code (SN_SuperSwerveV2, SN_XboxController imports confirmed), plus Standard_Swerve/Elevator/Turret training templates — program-grade library infrastructure."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/Drivetrain.java:38 — extends SN_SuperSwerveV2 (vendored swerve abstraction)",
+      "src/main/java/frc/robot/subsystems/Rotors.java:25 — TalonFX serializerRollers instantiated directly, no IO interface",
+      "src/main/java/frc/robot/subsystems/Motion.java — hardware-welded mechanism, no IO layer"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/subsystems/StateMachine.java:33 — tryState() with switch-within-switch guarded transitions across 18+ RobotState values",
+      "src/main/java/frc/robot/subsystems/StateMachine.java:302 — RobotState enum definition",
+      "src/main/java/frc/robot/subsystems/DriverStateMachine.java — second FSM for driver input modes"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/Rotors.java — no simulationPeriodic, no FlywheelSim or DCMotorSim",
+      ".github/workflows/github-actions.yml:42 — simulateJava runs for 10s as build check only"
+    ],
+    "D4": [
+      ".github/workflows/github-actions.yml:34 — ./gradlew build (no test task invoked)",
+      "src/test/ — directory does not exist"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/Robot.java:38 — Epilogue.bind(this) in robotInit",
+      "src/main/java/frc/robot/subsystems/StateMachine.java:17 — @Logged annotation on StateMachine",
+      "src/main/java/frc/robot/loggers/TalonFXLogger.java — custom Epilogue-based logger for motors"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/RobotContainer.java:234 — autoFactory.trajectoryCmd(path.name()) drives Choreo trajectories",
+      "src/main/java/frc/robot/constants/ChoreoTraj.java:27 — 40+ ChoreoTraj constants auto-generated and referenced in code",
+      "src/main/java/frc/robot/subsystems/Drivetrain.java:158 — followTrajectory(SwerveSample) wired for Choreo"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/commands/AddVisionMeasurement.java:42 — addVisionMeasurement(pose, timestampSeconds) called on drivetrain",
+      "src/main/java/frc/robot/subsystems/Vision.java:85 — rejectUpdate() with gyro rate and tag count/area rejection logic",
+      "src/main/java/frc/robot/subsystems/Vision.java:147 — getBotPoseEstimate_wpiBlue_MegaTag2 for three Limelights"
+    ],
+    "D8": [
+      "library/SuperCORE/.github/workflows/create-release.yml — versioned library with release workflow",
+      "src/main/java/frc/robot/subsystems/Drivetrain.java:20 — import com.frcteam3255.components.swerve.SN_SuperSwerveV2 (library consumed as dependency)",
+      "frc_team_repos/3255-supernurds/ — 5 seasons (2022-2026) all with CI workflows"
+    ]
+  },
+  "confidence": "high"
+}

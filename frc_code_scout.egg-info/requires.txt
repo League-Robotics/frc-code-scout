@@ -7,6 +7,18 @@ duckdb>=1.5.3
 tree-sitter>=0.25.2
 tree-sitter-language-pack>=1.8.1
 
+[ml]
+duckdb>=1.5.3
+pandas>=2.2
+numpy>=1.26
+matplotlib>=3.9
+scikit-learn>=1.5
+scipy>=1.13
+statsmodels>=0.14
+nbformat>=5.10
+nbconvert>=7.16
+ipykernel>=6.29
+
 [notebook]
 duckdb>=1.5.3
 pandas>=2.2

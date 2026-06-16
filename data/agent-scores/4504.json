@@ -1,0 +1,62 @@
+{
+  "team": 4504,
+  "year": 2026,
+  "D1": 2,
+  "D2": 1,
+  "D3": 1,
+  "D4": 0,
+  "D5": 2,
+  "D6": 2,
+  "D7": 1.5,
+  "D8": 1,
+  "rationale": {
+    "D1": "Confirmed CTRE Tuner-X generated swerve (TunerSwerveDrivetrain) provides a vendored abstraction, but all mechanism subsystems (CANElevatorSubsystem, CANShooterSubsystem, CANIntakeSubsystem, CANIntakeArmSubsystem) own vendor motor objects directly with no IO interface; zero `interface *IO` files found in the repo.",
+    "D2": "Confirmed standard command-based architecture with button bindings in RobotContainer and command groups (LaunchSequence) for auto; no Superstructure, no state enums (WantedState/SystemState), no FSM coordinator found anywhere.",
+    "D3": "CANSwerveSubsystem has a CTRE sim Notifier thread (updateSimState) and VisionSubsystem has PhotonVision VisionSystemSim setup, but Robot.simulationPeriodic is an empty stub and vision.simulationPeriodic is never called from it, leaving both sims partially wired but not exercised as a development workflow.",
+    "D4": "No src/test directory exists in the repo; confirmed zero test files and zero assert calls — no testing at any level.",
+    "D5": "Confirmed CTRE SignalLogger.start() in Telemetry.java with structured NetworkTables struct publishing (Pose2d, ChassisSpeeds, SwerveModuleState) for the drivetrain, and SmartDashboard.put* calls scattered in commands; no AdvantageKit, DogLog, or Epilogue present.",
+    "D6": "Confirmed 8 .auto files and 31 .path files in deploy/pathplanner, AutoBuilder.configure() in CANSwerveSubsystem, and AutoBuilder.buildAuto() calls in RobotContainer with NamedCommands registered; PathPlanner is actively used for competition autos.",
+    "D7": "PhotonPoseEstimator with dynamic std-dev tuning (single/multi-tag) is present in VisionSubsystem, but the EstimateConsumer callback (consumePoseEstimate) never calls drivetrain.addVisionMeasurement() — it only computes distance-to-hub for a SmartDashboard indicator, so vision pose is detected but not fused into odometry.",
+    "D8": "README is a 3-line placeholder, no CI workflows (.github dir absent), no spotless/checkstyle in build.gradle; 3 contributor emails in history.json across 4 tracked seasons indicates an active but documentation-light program."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/CANElevatorSubsystem.java:17 — SparkMax motor owned directly, no IO interface",
+      "src/main/java/frc/robot/subsystems/CANSwerveSubsystem.java:42 — extends TunerSwerveDrivetrain (vendored CTRE abstraction only)",
+      "src/main/java/frc/robot/generated/TunerConstants.java:208 — TunerSwerveDrivetrain is the only abstraction layer, no per-mechanism IO"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/RobotContainer.java:81 — NamedCommands and button bindings only; no Superstructure or state machine class",
+      "src/main/java/frc/robot/commands/LaunchSequence.java — command group used for auto sequencing, no coordination layer above"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/CANSwerveSubsystem.java:285 — startSimThread() with updateSimState Notifier (runs)",
+      "src/main/java/frc/robot/subsystems/VisionSubsystem.java:183 — simulationPeriodic(Pose2d) declared but never called from Robot.java",
+      "src/main/java/frc/robot/Robot.java:83 — simulationPeriodic() is empty stub"
+    ],
+    "D4": [
+      "src/ — no src/test directory found; confirmed zero test files in entire repo"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/Telemetry.java:33 — SignalLogger.start() active, structured NetworkTables publishing on drivetrain state",
+      "src/main/java/frc/robot/RobotContainer.java:102 — SmartDashboard.putNumber/putBoolean scattered through RobotContainer",
+      "src/main/java/frc/robot/subsystems/CANElevatorSubsystem.java:48 — System.out.println debugging also present"
+    ],
+    "D6": [
+      "src/main/deploy/pathplanner/autos/ — 8 competition .auto files confirmed",
+      "src/main/java/frc/robot/subsystems/CANSwerveSubsystem.java:206 — AutoBuilder.configure() called with real PID constants",
+      "src/main/java/frc/robot/RobotContainer.java:92 — AutoBuilder.buildAuto() actively called for 3 named autos"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/VisionSubsystem.java:52 — PhotonPoseEstimator with curStdDevs tuning (single/multi-tag heuristic)",
+      "src/main/java/frc/robot/RobotContainer.java:212 — consumePoseEstimate never calls drivetrain.addVisionMeasurement(); only computes hub distance for SmartDashboard",
+      "src/main/java/frc/robot/subsystems/CANSwerveSubsystem.java:308 — addVisionMeasurement override defined but never invoked from any caller"
+    ],
+    "D8": [
+      "README.md:1 — 3-line placeholder README ('Use command robot / Main competition robot')",
+      "build.gradle — no spotless, checkstyle, or formatter plugin",
+      "history.json — 3 distinct contributor emails, no .github/workflows directory"
+    ]
+  },
+  "confidence": "high"
+}

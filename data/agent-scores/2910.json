@@ -1,0 +1,64 @@
+{
+  "team": 2910,
+  "year": 2026,
+  "D1": 4,
+  "D2": 3,
+  "D3": 3,
+  "D4": 0,
+  "D5": 3,
+  "D6": 2,
+  "D7": 2.5,
+  "D8": 2.5,
+  "rationale": {
+    "D1": "Confirmed a genuine library-grade abstraction: generic `MotorIO` interface with `@AutoLog` inputs struct is reused across all mechanisms via `ServoMotorSubsystem` and `RollerMotorSubsystem` parameterized bases, plus device-specific `MotorIOTalonFX` and sim `SimMotorIOTalonFX` implementations; `VisionIO`/`SwerveIO` each have Real+Sim pairs; the abstraction is genuinely reused, not repeated.",
+    "D2": "Confirmed a real coordinator: `SuperStructure` holds `WantedState`/`CurrentState` enums, `handleStateTransitions()` switches state, and `applyStates()` fans robot-wide goals with guarded shot-condition and rotation-tolerance checks out to all subsystems; each mechanism (Hopper, Intake, Shooter) also has its own local WantedState/SystemState FSM.",
+    "D3": "Confirmed maple-sim drivetrain physics via `MapleSimSwerveDrivetrain` / `org.ironmaple.simulation` wired into `SwerveIOSim`; mechanism motors use `SimMotorIOTalonFX`; `SimulatedRobotState` manages the maple-sim arena; discounted: no vision sim variant exists (`VisionIOLimelight` is used even in sim).",
+    "D4": "No `src/test` content whatsoever; CI runs `./gradlew build` (which would execute tests if they existed) and a `spotlessCheck` job, but there are zero test files — confirmed by filesystem search returning 0 java files under src/test.",
+    "D5": "Confirmed `LoggedRobot` + `WPILOGWriter` + `NT4Publisher` in Robot.java; `@AutoLog` on `MotorIOInputs`, `VisionIOInputs`, `SwerveIO.SwerveIOInputs`, `RangeIOInputs`; `Logger.processInputs` called in every base subsystem class (ServoMotorSubsystem, RollerMotorSubsystem, VisionSubsystem, SwerveSubsystem, HopperSubsystem) covering all mechanisms.",
+    "D6": "Confirmed 31 `.path` files in `src/main/deploy/pathplanner/paths/` and PathPlannerLib used for trajectory following in SwerveSubsystem; multiple competition autos defined (LEFT_NEUTRAL_ZONE, RIGHT_NEUTRAL_ZONE, DEPOT, LEFT_NEUTRAL_ZONE_TO_DEPOT); discounted D6=3 because no Choreo files and no on-the-fly pathfinding to poses — trajectories are pre-authored only.",
+    "D7": "Confirmed `VisionIO` interface with `VisionIOLimelight` impl computing tag-based pose estimates sent to `RobotState.addVisionObservation()`; `SuperStructure` uses vision observations to perform a one-shot translation reset; discounted to 2.5 (not 3) because there is no `SwerveDrivePoseEstimator`/`addVisionMeasurement`, no std-dev filtering, no rejection logic, no `TimeInterpolatableBuffer`, and no vision sim variant.",
+    "D8": "Confirmed real README with build/deploy instructions and code org docs; spotless linter configured in `build.gradle` and enforced by a dedicated CI `spotlessCheck` job; CI also runs `./gradlew build` on push/PR to `main`; discounted from 3 because there is no separate maintained team library repo carried across seasons."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/org/frc2910/robot/subsystems/base/MotorIO.java:14 — generic interface with @AutoLog inputs struct",
+      "src/main/java/org/frc2910/robot/subsystems/base/servo/ServoMotorSubsystem.java:23 — parameterized base consuming MotorIO, reused by Intake/Hood/Flywheel",
+      "src/main/java/org/frc2910/robot/subsystems/base/SimMotorIOTalonFX.java:1 — sim implementation of MotorIO"
+    ],
+    "D2": [
+      "src/main/java/org/frc2910/robot/subsystems/SuperStructure.java:54 — WantedState/CurrentState enums with handleStateTransitions() and applyStates()",
+      "src/main/java/org/frc2910/robot/subsystems/SuperStructure.java:181 — handleStateTransitions() switch driving goal fan-out",
+      "src/main/java/org/frc2910/robot/subsystems/hopper/HopperSubsystem.java:52 — per-subsystem WantedState/SystemState FSM"
+    ],
+    "D3": [
+      "src/main/java/org/frc2910/robot/utils/simulation/MapleSimSwerveDrivetrain.java:19 — org.ironmaple.simulation imports with full physics drivetrain sim",
+      "src/main/java/org/frc2910/robot/subsystems/drive/SwerveIOSim.java:1 — SwerveIOSim extends SwerveIOCTRE using MapleSimSwerveDrivetrain",
+      "src/main/java/org/frc2910/robot/simulation/SimulatedRobotState.java:10 — SimulatedArena integration for game pieces"
+    ],
+    "D4": [
+      "src/test — directory does not exist; filesystem search returned 0 Java test files",
+      ".github/workflows/main.yml — CI runs ./gradlew build but no tests exist to run"
+    ],
+    "D5": [
+      "src/main/java/org/frc2910/robot/Robot.java:269 — WPILOGWriter and NT4Publisher added to Logger",
+      "src/main/java/org/frc2910/robot/subsystems/base/servo/ServoMotorSubsystem.java:84 — Logger.processInputs called in all servo mechanism bases",
+      "src/main/java/org/frc2910/robot/subsystems/vision/VisionSubsystem.java:29 — Logger.processInputs for all vision IOs"
+    ],
+    "D6": [
+      "src/main/deploy/pathplanner/paths — 31 .path files confirmed",
+      "src/main/java/org/frc2910/robot/subsystems/drive/SwerveSubsystem.java:340 — PathPlannerTrajectory followed with pose completion check",
+      "src/main/java/org/frc2910/robot/autos/Auto.java:1 — multiple competition autos (LEFT/RIGHT_NEUTRAL_ZONE, DEPOT, etc.)"
+    ],
+    "D7": [
+      "src/main/java/org/frc2910/robot/subsystems/vision/VisionIO.java:8 — VisionIO interface with @AutoLog VisionIOInputs including robotPoseFromCamera",
+      "src/main/java/org/frc2910/robot/subsystems/vision/VisionIOLimelight.java:162 — calculateRobotPose() computing field-relative pose from tag corners",
+      "src/main/java/org/frc2910/robot/subsystems/SuperStructure.java:160 — one-shot translation reset from vision, no fused estimator"
+    ],
+    "D8": [
+      "README.md:1 — real README with build instructions and code organization docs",
+      ".github/workflows/main.yml:1 — CI with build job + spotlessCheck job on push/PR to main",
+      "build.gradle — spotless plugin v7.2.1 configured with Java formatting rules enforced pre-compile"
+    ]
+  },
+  "confidence": "high"
+}

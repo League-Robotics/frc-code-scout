@@ -1,0 +1,64 @@
+{
+  "team": 4160,
+  "year": 2026,
+  "D1": 2,
+  "D2": 1,
+  "D3": 2,
+  "D4": 0,
+  "D5": 1.5,
+  "D6": 2,
+  "D7": 1,
+  "D8": 1.5,
+  "rationale": {
+    "D1": "YAGSL vendored swerve abstraction is present (src/main/deploy/swerve/kraken configs) and YAMS library wrappers (TalonFXWrapper, FlyWheel, Pivot) wrap hardware, but there are zero *IO interfaces in the codebase — the index confirmed this — so it is a partial/vendored abstraction, not a full IO layer.",
+    "D2": "ScoringSystem.java and ShootOnTheMoveCommand.java are 100% commented out and not instantiated; what runs is flat button bindings in RobotContainer directly calling subsystem commands with no coordinator or state machine — confirmed level 1 command composition only.",
+    "D3": "Every mechanism subsystem implements simulationPeriodic() calling YAMS simIterate() (confirmed in ShooterSubsystem, TurretSubsystem, IntakeArmSubsystem), Vision.java sets up PhotonCameraSim, and Telemetry.java references ironmaple SimulatedArena — mechanism physics sim via the YAMS library abstraction.",
+    "D4": "No src/test directory exists and no .github/workflows files were found — confirmed zero tests and no CI.",
+    "D5": "DataLogManager.start() is called in RobotContainer and SmartDashboard.put* calls are scattered through subsystems (TurretSubsystem, GameData, ShootOnTheMoveCommand) with YAMS updateTelemetry() calls; no AdvantageKit, DogLog, or Epilogue present — between dashboard values and structured logging.",
+    "D6": "AutoBuilder.configure() is wired in SwerveSubsystem.setupPathPlanner(), multiple real .path and .auto files exist (1st Approach, RotateShoot, Shoot then Gather), and pathfindToPose/driveToPose are implemented — confirmed PathPlanner adoption at level 2.",
+    "D7": "PhotonVision and addVisionMeasurement code exists in Vision.java with dynamic std-dev tuning, but SwerveSubsystem.visionOdometer is hardcoded to false so setupPhotonVision() is never called and vision measurements are never fed to the estimator at runtime — intentionally disabled.",
+    "D8": "Five seasons of repos tracked and a library folder exists, but the 2026 season repo has no README (only WPILib-License.md), no .github/workflows, and no contributing docs — basic hygiene only, carrying multi-year history but not yet CI or standards documentation."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/deploy/swerve/kraken/swervedrive.json — YAGSL config dir confirming vendored swerve abstraction",
+      "src/main/java/frc/robot/subsystems/ShooterSubsystem.java:65 — TalonFXWrapper wraps hardware but no IO interface above it",
+      "src/main/java/frc/robot/subsystems/TurretSubsystem.java:80 — TalonFXWrapper, no *IO interface"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/systems/ScoringSystem.java:1 — entire file commented out, not instantiated",
+      "src/main/java/frc/robot/RobotContainer.java:70 — ScoringSystem instantiation also commented out",
+      "src/main/java/frc/robot/RobotContainer.java:248 — direct button-to-subsystem bindings, no coordinator"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/ShooterSubsystem.java:171 — simulationPeriodic() calls shooter.simIterate()",
+      "src/main/java/frc/robot/subsystems/Vision.java:74 — PhotonCameraSim and VisionSystemSim wired for sim",
+      "src/main/java/frc/robot/Telemetry.java:12 — imports ironmaple SimulatedArena, used in Telemetry constructor"
+    ],
+    "D4": [
+      "frc_team_repos/4160-robucs/2026/2026-Robot — no src/test directory exists",
+      "frc_team_repos/4160-robucs/2026/2026-Robot — no .github/workflows directory exists"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/RobotContainer.java:136 — DataLogManager.start() called",
+      "src/main/java/frc/robot/subsystems/TurretSubsystem.java:141 — SmartDashboard.putNumber used",
+      "src/main/java/frc/robot/subsystems/ShooterSubsystem.java:165 — shooter.updateTelemetry() via YAMS"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/subsystems/SwerveSubsystem.java:161 — setupPathPlanner() with AutoBuilder.configure()",
+      "src/main/deploy/pathplanner/autos/RotateShoot.auto — real competition auto file",
+      "src/main/java/frc/robot/subsystems/SwerveSubsystem.java:266 — AutoBuilder.pathfindToPose() implemented"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/SwerveSubsystem.java:68 — visionOdometer = false, vision disabled",
+      "src/main/java/frc/robot/subsystems/Vision.java:123 — addVisionMeasurement present but never called at runtime",
+      "src/main/java/frc/robot/subsystems/Vision.java:466 — dynamic std-dev tuning code built but gated off"
+    ],
+    "D8": [
+      "frc_team_repos/4160-robucs/library — library repo directory exists with historical robots",
+      "frc_team_repos/4160-robucs/2026/2026-Robot — no README.md, no .github/workflows",
+      "frc_team_repos/4160-robucs — 5 season directories: 2022, 2023, 2024, 2025, 2026"
+    ]
+  },
+  "confidence": "high"
+}

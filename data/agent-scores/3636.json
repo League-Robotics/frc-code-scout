@@ -1,0 +1,61 @@
+{
+  "team": 3636,
+  "year": 2026,
+  "D1": 3,
+  "D2": 1,
+  "D3": 2.5,
+  "D4": 0,
+  "D5": 3,
+  "D6": 1.5,
+  "D7": 3.5,
+  "D8": 2.5,
+  "rationale": {
+    "D1": "Confirmed 7+ IO interfaces (Intake, Flywheel, Turret, Climber, Feeder, Indexer, Hood, Drivetrain) each with Real+Sim implementations selected via when(Robot.model) in every subsystem; IntakeIOSim is commented out but all others are present and wired; no generic parameterized base reused across mechanisms so not L4.",
+    "D2": "No Superstructure coordinator, no WantedState/SystemState enums, no RobotManager FSM found; coordination is command composition in ShooterLogic.kt (shoot() sequences Flywheel+Feeder+Indexer) and Bindings.kt button bindings, placing this firmly at L1.",
+    "D3": "Confirmed DrivetrainIOSim uses maple-sim SelfControlledSwerveDriveSimulation; FlywheelIOSim uses WPILib FlywheelSim; ClimberIOSim and TurretIOSim use DCMotorSim; however simulationPeriodic() is entirely commented out and IndexerIOSim/FeederIOSim are TODO stubs, so the full sim workflow is incomplete.",
+    "D4": "No src/test directory exists; CI workflow only runs ./gradlew build, not ./gradlew test; no test files anywhere in the repo.",
+    "D5": "Confirmed full AdvantageKit coverage: @Logged annotation on all input classes (Kotlin KSP equivalent of @AutoLog), Logger.processInputs called in every subsystem's periodic (Drivetrain, Intake, Flywheel, Feeder, Indexer, Climber, Turret, Hood); WPILOGWriter on real robot, NT4Publisher in sim; replay log path configured via LogFileUtil.findReplayLog() but no replay IO variants present so not L4.",
+    "D6": "No PathPlanner or Choreo files in deploy or vendordeps; autos are command sequences using therekrab/autopilot library for on-the-fly pose alignment (alignWithAutopilot) with a beeline profile, which is better than dead-reckoning but not authored trajectory files; scored above L1 but below L2.",
+    "D7": "Confirmed dual Limelight with MegaTag1+MegaTag2 fusion, per-measurement std-dev tuning based on tag count and distance, rejection logic (field bounds, angle threshold), vision behind AbsolutePoseProvider interface with Real and CameraSimPoseProvider sim variants, addAbsolutePoseMeasurement calls addVisionMeasurement with timestamping; RobotState holds only a single boolean so no time-interpolated buffer world model.",
+    "D8": "Confirmed GitHub Actions CI (build only), Nix flake for reproducible dev environment (.envrc), custom KSP annotation processor module (annotation/) showing multi-module engineering discipline; no separate library repo found, README present but minimal."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/kotlin/com/frcteam3636/frc2026/subsystems/shooter/flywheel/FlywheelIO.kt:30 — interface FlywheelIO with FlywheelIOReal and FlywheelIOSim",
+      "src/main/kotlin/com/frcteam3636/frc2026/subsystems/climber/ClimberIO.kt:41 — interface ClimberIO with ClimberIOReal and ClimberIOSim",
+      "src/main/kotlin/com/frcteam3636/frc2026/subsystems/shooter/flywheel/Flywheel.kt:34 — when(Robot.model) factory selecting IOSim vs IOReal"
+    ],
+    "D2": [
+      "src/main/kotlin/com/frcteam3636/frc2026/robot/Bindings.kt:31 — configureBindings() with button-to-command composition, no coordinator object",
+      "src/main/kotlin/com/frcteam3636/frc2026/subsystems/shooter/ShooterLogic.kt:92 — shoot() function sequences commands across subsystems but is a function not a coordinator class"
+    ],
+    "D3": [
+      "src/main/kotlin/com/frcteam3636/frc2026/subsystems/drivetrain/DrivetrainIO.kt:143 — DrivetrainIOSim using maple-sim SelfControlledSwerveDriveSimulation",
+      "src/main/kotlin/com/frcteam3636/frc2026/subsystems/shooter/flywheel/FlywheelIO.kt:97 — FlywheelIOSim using WPILib FlywheelSim",
+      "src/main/kotlin/com/frcteam3636/frc2026/robot/Robot.kt:249 — simulationPeriodic() body entirely commented out"
+    ],
+    "D4": [
+      ".github/workflows/build.yml:25 — runs ./gradlew build (not test); no src/test directory exists"
+    ],
+    "D5": [
+      "src/main/kotlin/com/frcteam3636/frc2026/subsystems/shooter/flywheel/FlywheelIO.kt:20 — @Logged on FlywheelInputs",
+      "src/main/kotlin/com/frcteam3636/frc2026/subsystems/drivetrain/Drivetrain.kt:230 — Logger.processInputs(\"Drivetrain\", inputs)",
+      "src/main/kotlin/com/frcteam3636/frc2026/robot/Robot.kt:129 — Logger.addDataReceiver(WPILOGWriter()) on real robot"
+    ],
+    "D6": [
+      "src/main/kotlin/com/frcteam3636/frc2026/subsystems/drivetrain/Autos.kt:28 — Lebron auto using Drivetrain.alignAndFlip() pose-following sequences, no path files",
+      "src/main/deploy/example.txt — only file in deploy/, no pathplanner/ or choreo/ directories"
+    ],
+    "D7": [
+      "src/main/kotlin/com/frcteam3636/frc2026/subsystems/drivetrain/AbsolutePose.kt:398 — addAbsolutePoseMeasurement calls addVisionMeasurement with per-measurement std-dev",
+      "src/main/kotlin/com/frcteam3636/frc2026/subsystems/drivetrain/AbsolutePose.kt:164 — LimelightPoseProvider with MegaTag1+MegaTag2 fusion and rejection logic",
+      "src/main/kotlin/com/frcteam3636/frc2026/subsystems/drivetrain/AbsolutePose.kt:51 — interface AbsolutePoseProvider with Real/Sim implementations"
+    ],
+    "D8": [
+      ".github/workflows/build.yml:1 — CI workflow present, runs on push",
+      "annotation/src/main/kotlin/org/team9432/annotation/Logged.kt — custom KSP annotation processor module for @Logged",
+      "flake.nix — Nix flake for reproducible development environment"
+    ]
+  },
+  "confidence": "high"
+}

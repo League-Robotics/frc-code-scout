@@ -1,0 +1,63 @@
+{
+  "team": 6995,
+  "year": 2026,
+  "D1": 2.5,
+  "D2": 2,
+  "D3": 2.5,
+  "D4": 0,
+  "D5": 2,
+  "D6": 3,
+  "D7": 3.5,
+  "D8": 2.5,
+  "rationale": {
+    "D1": "Confirmed abstract base class per subsystem (AgitatorS, TurretS, FlyWheelS, etc.) with Real + None (null-object) swappable variants across all mechanisms; vendor types (CTRE Phoenix6) confirmed inside Real impls only; no interface+IOSim pattern and no Sim variant for mechanisms (except SimODVision), so discounted from D1=3.",
+    "D2": "Confirmed RobotStates inner class coordinates cross-subsystem predicates (isShootReady, isTurretStowed) and AutoCommands encapsulates multi-subsystem command sequences; no centralized Superstructure with goal-request API or guarded state transitions — coordination is command-composition + boolean flags, which anchors at L2.",
+    "D3": "Confirmed simulationPeriodic() and simIterate() in 8+ Real subsystems (flywheel, turret, intakepivot, indexer, spindexer, hood, climbpivot, climbextension) plus SimODVision and a RobotVisualizer; sim is mechanism-level physics (via YAMS) but not full-robot drivetrain physics sim, so scored between L2 and L3.",
+    "D4": "No test files found anywhere in src/test, no CI workflow files; D4=0.",
+    "D5": "Confirmed Epilogue @Logged on Robot.java and bound via Epilogue.bind(this); @Logged annotations on abstract subsystem methods (agitator, flywheel, turret, intakepivot, etc.); file backend is commented out so logs go to NetworkTables only; @Logged annotations in RobotContainer are mostly commented out, limiting subsystem coverage — scores L2 (structured lightweight logging, active but partial).",
+    "D6": "Confirmed Choreo .traj files actively loaded via factory.trajectoryCmd(ChoreoTraj.R_Sweep.name()) in Autos.java; both Choreo trajectories and on-the-fly AutoAlign pose-driving used in competition autos; no PathPlanner, but Choreo + reactive pose alignment qualifies as L3.",
+    "D7": "Confirmed 4 Limelights with MegaTag2 AprilTag pose estimation, std-dev tuning formula (distance^2/tagCount^2 coefficients), addVisionMeasurement called with custom std-devs; AprilTagVision abstract class with Real+None; game-piece object detection with SimODVision variant; multi-camera fusion is real but no dedicated RobotState class with TimeInterpolatableBuffer, so discounted from L4.",
+    "D8": "Confirmed 5 seasons tracked, separate NOMADBase library repo present; no README beyond WPILib license in the season repo, no CI workflows, no spotless/checkstyle in build.gradle; library is a separate repo but not consumed as a versioned dependency — scores between L2 (library exists, multi-season) and L3 (no CI)."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/agitator/AgitatorS.java:18 — abstract class AgitatorS extends SubsystemBase with @Logged methods",
+      "src/main/java/frc/robot/subsystems/agitator/RealAgitatorS.java:25 — concrete Real impl with TalonFX vendor types confined here",
+      "src/main/java/frc/robot/RobotContainer.java:119 — new NoneAgitatorS() selected at construction, swappable"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/RobotContainer.java:344 — RobotStates inner class with isShootReady(), isTurretStowed() predicates",
+      "src/main/java/frc/robot/autos/Autos.java:98 — factory.trajectoryCmd + AutoCommands compose multi-subsystem sequences",
+      "src/main/java/frc/robot/RobotContainer.java:213 — joystick bindings call autoCommands.Score(), autoCommands.fuelIntake() — command-composition coordination"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/intakepivot/RealIntakePivotS.java:195 — simulationPeriodic() calls m_intakePivot.simIterate()",
+      "src/main/java/frc/robot/subsystems/turret/RealTurretS.java:142 — simulationPeriodic() calls m_turret.simIterate() and RobotVisualizer.updateTurret()",
+      "src/main/java/frc/robot/subsystems/vision/detection/SimODVision.java — sim variant for object detection vision"
+    ],
+    "D4": [
+      "no src/test files found — D4=0"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/Robot.java:23 — @Logged on Robot class, Epilogue.bind(this) at line 51",
+      "src/main/java/frc/robot/subsystems/agitator/AgitatorS.java:21 — @Logged on getVelocity() and getCurrent() abstract methods",
+      "src/main/java/frc/robot/subsystems/turret/TurretS.java:51 — @Logged annotations on abstract subsystem getters"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/autos/Autos.java:98 — factory.trajectoryCmd(ChoreoTraj.R_Sweep.name()) — Choreo traj actively loaded",
+      "src/main/java/frc/robot/autos/Autos.java:194 — AutoAlign pose-driving used alongside Choreo sweep",
+      "src/main/deploy/choreo/R_Sweep.traj — .traj file present and referenced by name in code"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/vision/apriltag/RealATVision.java:42 — 4 Limelights with MegaTag2, std-dev tuning formula at lines 67-68",
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:408 — addVisionMeasurement called with AprilTagVision.getStdDevs(estimate)",
+      "src/main/java/frc/robot/subsystems/vision/apriltag/AprilTagVision.java:13 — abstract class with Real+None variants confirmed"
+    ],
+    "D8": [
+      "frc_team_repos/6995-nomad/library/NOMADBase — separate library repo present",
+      "frc_team_repos/6995-nomad/ — 5 season directories (2022-2026) confirmed",
+      "src/main/java/frc/robot/Robot.java — no README in repo, no CI workflows found"
+    ]
+  },
+  "confidence": "high"
+}

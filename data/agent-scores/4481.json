@@ -1,0 +1,64 @@
+{
+  "team": 4481,
+  "year": 2025,
+  "D1": 3.5,
+  "D2": 3,
+  "D3": 3.5,
+  "D4": 0,
+  "D5": 3.5,
+  "D6": 3,
+  "D7": 3.5,
+  "D8": 3.5,
+  "rationale": {
+    "D1": "Confirmed full per-subsystem IO layer (ElevatorIO, PivotIO, ClimberIO, AlgaeGripperIO, FeedThroughGripperIO, LEDControllerIO) each with Real+Simulated impls selected in System.java switch; lib adds SwerveModuleIO/IMUIO/VisionIO with Real/Sim/Replay variants — half-step above L3 for library-grade reuse across drive and vision, but mechanisms are independent IO classes not a single generic ServoMotorSubsystem base.",
+    "D2": "Confirmed System.java holds ArmState enum with requestedArmState/currentArmState fields and ComplexCommands fans goals to elevator+pivot with guarded kinematic sequencing (stow-before-raise, reef-contact zones); this is a real coordinator with intent-execution separation, but no graph/pathfinding logic so capped at L3.",
+    "D3": "Confirmed SimulatedElevatorIO/SimulatedPivotIO etc. use custom SimpleMotorSim, SimulatedSwerveModuleIO covers drivetrain, VisionEnvironmentSimulator+SimulatedPhotonVisionIO covers vision in sim, and Robot.java wires WPILOGReader/REPLAY mode with ReplayVisionIO — replay IO variants are present and wired, half-step above L3.",
+    "D4": "No src/test directory exists in the robot module; no test Java files found anywhere in the repo; the private CI explicitly skips tests (-x test) on the robot build — scored 0.",
+    "D5": "Confirmed @AutoLog on all IO Inputs classes with Logger.processInputs in every subsystem periodic; REAL mode logs to WPILOGWriter+URCL; REPLAY mode wires WPILOGReader; AutoLogOutputManager covers the lib package — half-step above L3 for replay mode being wired, not just present.",
+    "D6": "Confirmed Choreo .traj files (Q_pounder_*, Mac_kroket_*) actively referenced via ChoreoTrajectoryAdapter in Autos.java competition routines; PathPlannerTrajectoryGenerator used for on-the-fly auto-align teleop — this is L3 (Choreo optimized + on-the-fly pose driving); no repulsor/dynamic obstacle avoidance to reach L4.",
+    "D7": "Confirmed four RealPhotonVisionIO cameras with VisionIO interface (Real/Sim/Replay); addVisionMeasurement wired in SwerveDrive.java with per-camera std-dev tuning (distance^4, ambiguity, multi-tag); TimeInterpolatableBuffer for latency compensation in PhotonVisionIO — half-step above L3 for time-interpolated buffer, but no dedicated RobotState class separating pose from control.",
+    "D8": "Confirmed lib/ submodule (com.teamrembrandts) co-shipped in the season repo with its own CI (spotless, checkstyle, unit-tests, Javadoc+GitHub Pages); robot CI has spotless+checkstyle+build on push/PR; README present — half-step above L3 for Javadoc generation and deployment, but library is in-repo not versioned as a separate Maven artifact."
+  },
+  "evidence": {
+    "D1": [
+      "robot/src/main/java/frc/robot/subsystems/elevator/ElevatorIO.java:13 — interface ElevatorIO with @AutoLog ElevatorInputs",
+      "robot/src/main/java/frc/robot/System.java:87 — switch(Constants.MODE) selects Real/Sim/default IO for all 6 mechanisms",
+      "lib/src/main/java/com/teamrembrandts/subsystems/drive/SwerveModuleIO.java — library-grade SwerveModuleIO with Spark/Simulated/Ideal impls"
+    ],
+    "D2": [
+      "robot/src/main/java/frc/robot/System.java:115 — ArmState enum with requestedArmState/currentArmState logged fields",
+      "robot/src/main/java/frc/robot/commands/ComplexCommands.java:134 — safeSetArmForReefActionWhenArmUp fans goals with kinematic guards per ArmState",
+      "robot/src/main/java/frc/robot/RobotContainer.java:194 — autoAlignReefFinished trigger chains into ComplexCommands.scoreGamePieceOrSuperCycleCommand()"
+    ],
+    "D3": [
+      "robot/src/main/java/frc/robot/subsystems/elevator/SimulatedElevatorIO.java:16 — SimulatedElevatorIO uses SimpleMotorSim",
+      "robot/src/main/java/frc/robot/Robot.java:89 — REPLAY mode wires WPILOGReader and ReplayVisionIO confirmed in System.java:452",
+      "lib/src/main/java/com/teamrembrandts/simulation/VisionEnvironmentSimulator.java — VisionEnvironmentSimulator updated in simulationPeriodic"
+    ],
+    "D4": [
+      "robot/src/main/java/frc/robot/ — no src/test directory exists; zero test files found in entire robot module",
+      ".github/workflows_private/main.yml:54 — build step runs './gradlew build -x test -x lib:test' explicitly skipping tests"
+    ],
+    "D5": [
+      "robot/src/main/java/frc/robot/subsystems/elevator/ElevatorIO.java:16 — @AutoLog annotation on ElevatorInputs",
+      "robot/src/main/java/frc/robot/subsystems/elevator/Elevator.java:419 — Logger.processInputs(\"Elevator\", inputs) in periodic()",
+      "robot/src/main/java/frc/robot/Robot.java:91 — REPLAY mode: Logger.setReplaySource(new WPILOGReader(logPath))"
+    ],
+    "D6": [
+      "robot/src/main/deploy/choreo/Q_pounder_red_right_4.traj — Choreo trajectory file present",
+      "robot/src/main/java/frc/robot/commands/Autos.java:73 — new ChoreoTrajectoryAdapter(\"Mac_kroket_Red\", 5) actively used in competition auto",
+      "robot/src/main/java/frc/robot/RobotContainer.java:562 — PathPlannerTrajectoryGenerator used for on-the-fly auto-align"
+    ],
+    "D7": [
+      "lib/src/main/java/com/teamrembrandts/subsystems/vision/PhotonVisionIO.java:41 — TimeInterpolatableBuffer<Rotation2d> rotationBuffer for latency compensation",
+      "lib/src/main/java/com/teamrembrandts/subsystems/drive/SwerveDrive.java:105 — poseEstimator.addVisionMeasurement wired via visionMeasurementConsumer",
+      "lib/src/main/java/com/teamrembrandts/subsystems/vision/Vision.java:146 — per-camera std-dev matrix with distance^4 scaling and multi-tag detection"
+    ],
+    "D8": [
+      "lib/.github/workflows/ci.yml:74 — unit-test job runs './gradlew test' on the lib; build-javadoc job deploys to GitHub Pages",
+      ".github/workflows_private/main.yml:1 — CI pipeline with spotless, checkstyle, and compile on push/PR to main",
+      "README.md — present in repo root (confirmed by ls output)"
+    ]
+  },
+  "confidence": "high"
+}

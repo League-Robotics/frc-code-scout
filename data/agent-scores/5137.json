@@ -1,0 +1,62 @@
+{
+  "team": 5137,
+  "year": 2026,
+  "D1": 4,
+  "D2": 1,
+  "D3": 3,
+  "D4": 0,
+  "D5": 3,
+  "D6": 2,
+  "D7": 3,
+  "D8": 3,
+  "rationale": {
+    "D1": "Confirmed a fully generalized IO base-class pattern (MotorIO, GyroIO, CameraIO, EncoderIO, LedIO, BitIO) with device-named hardware impls (MotorIOTalonFX/TalonFXS/SparkMax, GyroIOPigeon, CameraIOPhotonCamera, etc.) applied across every mechanism, plus base classes doubling as REPLAY null objects — this is a library-grade generic abstraction, not just per-subsystem interfaces.",
+    "D2": "MultiCommands orchestrates shooter+LEDs via command composition but no Superstructure, no state machine, no WantedState or SystemState enum was found anywhere in the codebase — coordination is pure command-based (level 1).",
+    "D3": "Confirmed DCMotorSim used in SwerveModuleSim, ShooterSim, and IntakeSim; VisionSim wires PhotonVision pose simulation; SwervePhysicsSim/IntakePhysicsSim/ShooterPhysicsSim connect to an external MuJoCo physics engine — drivetrain, mechanisms, and vision are all simulated.",
+    "D4": "No src/test directory exists in the season repo, no @Test annotations found, and the two hal_harness hits were false positives from an unrelated pattern — no testing whatsoever.",
+    "D5": "Confirmed @AutoLog inputs structs on all IO classes (MotorIO, GyroIO, CameraIO, EncoderIO, LedIO), Logger.processInputs called in every IO update(), Logger.recordOutput throughout subsystems, WPILOGWriter + NT4Publisher in Robot.java, and full REPLAY mode with WPILOGReader — AK coverage spans all mechanisms.",
+    "D6": "Confirmed AutoBuilder.configure() wired up in RobotContainer with real PID constraints, 12 competition .auto files and 19+ .path files in deploy/pathplanner/, NamedCommands registered for intake/shooter/hang — strong PathPlanner adoption; no Choreo files present.",
+    "D7": "Confirmed addVisionMeasurement with dynamic std-dev calculation based on distance, ambiguity, and tag count (single vs multi-tag), two CameraIOPhotonCamera instances fused in Swerve.periodic(), CameraIO interface with sim variant — fused filtered estimation; no TimeInterpolatableBuffer or standalone RobotState class found.",
+    "D8": "Confirmed spotless Palantir formatter enforced via compileJava.dependsOn(spotlessApply), 5 seasons of repos, a library folder with templates/swerve/kitbot, and CLAUDE.md architecture docs — CI workflows exist in sibling repos (elastic lib) but not in the season repo itself."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/io/MotorIO.java:23 — generic base class with @AutoLog inputs struct, unsupportedFeature() null-object pattern",
+      "src/main/java/frc/robot/RobotContainer.java:126 — switch(Constants.currentMode) selects MotorIOTalonFX for REAL/SIM, base MotorIO for REPLAY across all mechanisms",
+      "src/main/java/frc/robot/io/MotorIOTalonFX.java — device-named hardware impl"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/commands/MultiCommands.java:20 — top coordinator is a simple command composition, no state machine",
+      "src/main/java/frc/robot/RobotContainer.java:398 — initCommands() creates per-subsystem command classes only, no Superstructure"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/swerve/SwerveModuleSim.java:37 — DCMotorSim for drive and steer motors",
+      "src/main/java/frc/robot/subsystems/shooter/ShooterSim.java:24 — DCMotorSim for flywheel and feed",
+      "src/main/java/frc/robot/subsystems/swerve/VisionSim.java — PhotonVision sim for vision measurements"
+    ],
+    "D4": [
+      "src/ — no src/test directory exists; no @Test annotations found anywhere in repo"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/io/MotorIO.java:103 — Logger.processInputs(logPath, inputs) in update()",
+      "src/main/java/frc/robot/Robot.java:80 — WPILOGWriter + NT4Publisher for REAL; WPILOGReader + WPILOGWriter for REPLAY",
+      "src/main/java/frc/robot/subsystems/swerve/Swerve.java:479 — Logger.recordOutput throughout periodic()"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/RobotContainer.java:734 — AutoBuilder.configure() with PPHolonomicDriveController and real PID constants",
+      "src/main/deploy/pathplanner/autos/ — 12 competition autos (B-Depot, R-Outpost, CATS, etc.)",
+      "src/main/java/frc/robot/RobotContainer.java:707 — NamedCommands.registerCommand for intake/shooter actions"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/swerve/Swerve.java:395 — addVisionMeasurement with calculateVisionStdDevs()",
+      "src/main/java/frc/robot/subsystems/swerve/Swerve.java:401 — single vs multi-tag std dev tuning with distance scaling",
+      "src/main/java/frc/robot/RobotContainer.java:237 — two CameraIOPhotonCamera instances added to swerve"
+    ],
+    "D8": [
+      "build.gradle — spotless Palantir formatter with compileJava.dependsOn(spotlessApply)",
+      "frc_team_repos/5137-iron-kodiaks/library/ — templates/swerve/kitbot library repos spanning multiple seasons",
+      "CLAUDE.md — architecture documentation with build commands and IO pattern explanation"
+    ]
+  },
+  "confidence": "high"
+}

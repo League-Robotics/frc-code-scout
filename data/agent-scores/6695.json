@@ -1,0 +1,53 @@
+{
+  "team": 6695,
+  "year": 2026,
+  "D1": 1.5,
+  "D2": 1,
+  "D3": 0,
+  "D4": 3,
+  "D5": 1,
+  "D6": 2,
+  "D7": 1.5,
+  "D8": 3,
+  "rationale": {
+    "D1": "Confirmed two thin service interfaces (LimelightService with HttpLimelightService impl, PoseProvider implemented by LimelightSubsystem), but DriveSubsystem directly instantiates TalonFX/AHRS hardware with no IO interface and no Sim impl — not a full IO layer across mechanisms.",
+    "D2": "Confirmed standard command-based binding in RobotContainer (button-to-command, DriveCommand as default), no Superstructure coordinator, no FSM, no state enum — pure Level 1 command composition.",
+    "D3": "No simulationPeriodic, no WPILib physics sim classes, no IOSim implementations found anywhere in src/; desktopSupport is set false in build.gradle.",
+    "D4": "Confirmed 4 real test files (AutoAlignTest, LimelightTest, IsAlignedTest, ParseJsonTest) with mockito-kotlin mocking and coroutine test dispatchers; CI workflow runs ./gradlew test on every push — real tests gated by CI.",
+    "D5": "Confirmed SmartDashboard.putNumber/putBoolean calls in Robot.kt for match time, CAN utilization, limelight state; no AdvantageKit, DogLog, or Epilogue present — scattered dashboard telemetry only.",
+    "D6": "Confirmed AutoBuilder.configure with PPHolonomicDriveController in DriveSubsystem, PathPlannerAuto used in RobotContainer, NamedCommands registered, and 11+ .auto files plus 13 .path files on disk — PathPlanner fully adopted.",
+    "D7": "Confirmed Limelight polled via HTTP for tag-relative Pose3d (targetPose_RobotSpace) used for alignment servoing; no addVisionMeasurement, no SwerveDrivePoseEstimator — targeting only, not global pose estimation, though LimelightService interface adds abstraction.",
+    "D8": "Confirmed real README with IDE/build instructions, detekt+ktlint+spotless configured in build.gradle and enforced in CI workflow that also runs tests and build on every push; 5 seasons tracked; library repo is a Python Romi training bot, not a reusable Kotlin library."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/interfaces/LimelightService.kt:6 — interface LimelightService with single HttpLimelightService impl; no DriveIO interface",
+      "src/main/java/frc/robot/subsystems/DriveSubsystem.kt:25 — TalonSwerveModule hardware instantiated directly, no IO layer"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/RobotContainer.kt:51 — DriveSubsystem.defaultCommand = DriveCommand(...); button bindings only, no coordinator"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/DriveSubsystem.kt — no simulationPeriodic method; build.gradle:59 — includeDesktopSupport = false"
+    ],
+    "D4": [
+      "src/test/java/frc/robot/limelight/LimelightTest.kt:32 — mockito-kotlin mock of LimelightService with coroutine test dispatcher",
+      ".github/workflows/ci.yml:31 — ./gradlew test step runs on every push/PR"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/Robot.kt:69 — SmartDashboard.putNumber(\"Match Time\", ...) and multiple putNumber/putBoolean calls; no structured logger"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/subsystems/DriveSubsystem.kt:73 — AutoBuilder.configure with PPHolonomicDriveController",
+      "src/main/java/frc/robot/RobotContainer.kt:81 — PathPlannerAuto(\"Auto Activity\") returned as autonomous command"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/LimelightSubsystem.kt:54 — targets_Fiducials?.firstOrNull()?.targetPose_RobotSpace used for alignment; no addVisionMeasurement call anywhere"
+    ],
+    "D8": [
+      ".github/workflows/ci.yml:25 — spotlessCheck + ktlintCheck + detekt + test + build all enforced on push",
+      "build.gradle:142 — spotless { kotlin { ktlint() licenseHeader(...) } } configured"
+    ]
+  },
+  "confidence": "high"
+}

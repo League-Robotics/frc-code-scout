@@ -1,0 +1,65 @@
+{
+  "team": 581,
+  "year": 2026,
+  "D1": 1.5,
+  "D2": 3,
+  "D3": 2,
+  "D4": 3,
+  "D5": 2.5,
+  "D6": 3,
+  "D7": 3.5,
+  "D8": 3.5,
+  "rationale": {
+    "D1": "No IO interfaces exist anywhere — subsystems (Shooter, Deploy, ShooterHood) directly instantiate and drive TalonFX motors; Hardware.java centralizes device creation which is a mild structural improvement over pure baseline, but there is no swappable IO layer.",
+    "D2": "RobotManager extends StateMachineSubsystem<RobotState> with a real goal-request API (prepareScoreRequest, prepareFeedRequest, idleRequest), guarded transitions checking subsystem readiness, and fans out goals to all mechanisms in afterTransition/whileInState — confirmed in RobotManager.java; each mechanism also runs its own StateMachine.",
+    "D3": "Custom SimKit library provides PositionMechanism (TrapezoidProfile-based CTRE sim), VelocityMechanism, and SimShooter; simulationPeriodic confirmed in Shooter.java, Deploy.java, and ShooterHood.java; no WPILib physics classes (ElevatorSim etc.) but real motor-state prediction is wired in for main mechanisms.",
+    "D4": "12 test files in shared/src/test/java with HAL-initialized JUnit5 tests including SimHooks timing (ConstraintsCalculatorTest), real assertions on path-follower math; CI workflow confirmed to run ./gradlew test on every push with Slack failure notification — tests gate the build.",
+    "D5": "DogLog used pervasively throughout all subsystems with DogLog.log, DogLog.tunable for live NT tuning, and DogLog.logFault for fault reporting; configured in Base581Robot with file logging and NT publish in dev mode; not AdvantageKit — no processInputs/AutoLog pattern.",
+    "D6": "Custom Trailblazer library with AutoSegmentBuilder, HeuristicPathTracker, constraint-aware path follower, marker-based autos, and AutoChooser with multiple named competition autos (RightNormalAuto, LeftNormalAuto, RightSpecialAuto); no PathPlanner or Choreo used.",
+    "D7": "Three Limelights fused with std-dev weighted addVisionMeasurement in Localization.ingestTagResult(), PoseEstimateValidator rejection logic, TrustFactor with collision detection, MegaTag2 used; samplePoseAt timestamp lookup confirmed; no separate RobotState world model class or TimeInterpolatableBuffer for pose history.",
+    "D8": "CI runs tests + spotless format check on every push with Slack alerts; docs/ directory includes patterns.md, subsystem-bringup-checklist, writing-subsystems.md; shared/ library carried across 4 robot variants (comp-bot, beta-bot, turret-bot, dumper-bot) in a monorepo; spotless + errorprone enforced."
+  },
+  "evidence": {
+    "D1": [
+      "comp-bot/src/main/java/frc/robot/shooter/Shooter.java:39 — TalonFX topLeftMotor directly in subsystem",
+      "comp-bot/src/main/java/frc/robot/Hardware.java:37 — all devices instantiated centrally, no IO interface",
+      "comp-bot/src/main/java/frc/robot/feeder/Feeder.java — no IO interface, direct motor ownership"
+    ],
+    "D2": [
+      "comp-bot/src/main/java/frc/robot/robot_manager/RobotManager.java:104 — getNextState with guarded transitions",
+      "comp-bot/src/main/java/frc/robot/robot_manager/RobotManager.java:250 — afterTransition fans out to all subsystems",
+      "shared/src/main/java/com/team581/util/state_machines/StateMachine.java:6 — generic StateMachine base"
+    ],
+    "D3": [
+      "comp-bot/src/main/java/frc/robot/shooter/Shooter.java:323 — simulationPeriodic using SimKit.velocityMechanism",
+      "shared/src/main/java/com/team581/simkit/internal/PositionMechanism.java:16 — TrapezoidProfile-based CTRE sim",
+      "comp-bot/src/main/java/frc/robot/deploy/Deploy.java:276 — simulationPeriodic using SimKit.positionMechanism"
+    ],
+    "D4": [
+      "shared/src/test/java/com/team581/trailblazer/ConstraintsCalculatorTest.java:15 — HAL-init, SimHooks, real assertions",
+      ".github/workflows/ci.yml:63 — ./gradlew test in CI with Slack failure notification",
+      "shared/src/test/java/com/team581/math/ObstructionCalculatorTest.java:9 — geometry assertion tests"
+    ],
+    "D5": [
+      "shared/src/main/java/com/team581/Base581Robot.java:32 — DogLog configured with file logging",
+      "comp-bot/src/main/java/frc/robot/robot_manager/RobotManager.java:455 — DogLog.log calls throughout whileInState",
+      "shared/src/main/java/com/team581/util/state_machines/StateMachine.java:51 — DogLog.log for every state transition"
+    ],
+    "D6": [
+      "shared/src/main/java/com/team581/trailblazer/Trailblazer.java:28 — custom path following library",
+      "comp-bot/src/main/java/frc/robot/autos/Autos.java:14 — AutoChooser with named auto selections",
+      "shared/src/main/java/com/team581/trailblazer/trackers/HeuristicPathTracker.java:132 — updateRobotState path tracking"
+    ],
+    "D7": [
+      "comp-bot/src/main/java/frc/robot/localization/Localization.java:125 — addVisionMeasurement with std-dev and timestamp",
+      "shared/src/main/java/com/team581/localization/TrustFactor.java:29 — std-dev weighted fusion and rejection",
+      "shared/src/main/java/com/team581/vision/limelight/PoseEstimateValidator.java:57 — MegaTag2 validation"
+    ],
+    "D8": [
+      ".github/workflows/ci.yml:44 — test job gates build job",
+      "docs/subsystem-bringup-checklist.md — team process documentation",
+      "build.gradle:1 — spotless + errorprone enforced across monorepo"
+    ]
+  },
+  "confidence": "high"
+}

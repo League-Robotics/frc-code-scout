@@ -1,0 +1,58 @@
+{
+  "team": 4919,
+  "year": 2026,
+  "D1": 1,
+  "D2": 1,
+  "D3": 1,
+  "D4": 0,
+  "D5": 1,
+  "D6": 2,
+  "D7": 2,
+  "D8": 1,
+  "rationale": {
+    "D1": "Confirmed command-based SubsystemBase classes (Shooter, Loader, Pickup, DriveTrain, SwerveModule) with motors instantiated directly in each subsystem; no IO interfaces or swappable implementations exist anywhere in the repo.",
+    "D2": "Confirmed command composition and button bindings in RobotContainer (sequential/parallel groups, trigger bindings for Fire/Eat/Spit/ReLoad/DeStick); no Superstructure, no state enums, no centralized coordinator.",
+    "D3": "All simulationPeriodic() bodies are empty stubs except DriveTrain which only updates Field2d from odometry; no WPILib physics sim classes (ElevatorSim/FlywheelSim/DCMotorSim) found anywhere.",
+    "D4": "No src/test directory and no test files of any kind; the boilerplate build.gradle JUnit5 dependency is present but unused.",
+    "D5": "SmartDashboard.put* scattered throughout DriveTrain.periodic and drive(); WPILib DataLogManager started in Robot.java with a few DoubleLogEntry fields declared but only partially used; AdvantageKit is vendored but only the conduit schema Joystick class was imported (unused) — no processInputs or @AutoLog.",
+    "D6": "Confirmed 35 PathPlanner path files + 9 .auto files in deploy/, AutoBuilder.configure() called in SwerveModule with PPHolonomicDriveController and real PID constants, AutoBuilder.buildAutoChooser() used in RobotContainer, and AutoBuilder.pathfindToPose() wired to SmartDashboard; no Choreo files.",
+    "D7": "Confirmed SwerveDrivePoseEstimator with addVisionMeasurement() called in DriveTrain.periodic using Limelight MegaTag1 getBotPoseEstimate_wpiBlue, with ambiguity (>0.7) and distance (>3m) rejection logic and setVisionMeasurementStdDevs; single camera, no IO abstraction.",
+    "D8": "No README, no CI workflows, no formatter/linter configured; team has 4+ seasons of repos tracked (2022-2026) and a library folder ('Icarus') but it is an old season robot repo, not a maintained dependency — basic hygiene only."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/Shooter.java:13 — WPI_VictorSPX LaunchR = new WPI_VictorSPX(Motorconstants.ShootMotorR) directly in subsystem",
+      "src/main/java/frc/robot/subsystems/DriveTrain.java:52 — SwerveModule m_frontLeft= new SwerveModule(...) directly constructed",
+      "src/main/java/frc/robot/subsystems/SwerveModule.java:53 — SparkMax m_driveMotor directly instantiated in subsystem"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/RobotContainer.java:81 — command instances (m_reLoad, m_deStick, m_eat, m_spit, m_fire) bound to buttons",
+      "src/main/java/frc/robot/RobotContainer.java:102 — RunCommand for default drive, no coordinator class present"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/DriveTrain.java:368 — simulationPeriodic() only sets field2d from odometry, no physics",
+      "src/main/java/frc/robot/subsystems/Shooter.java:46 — simulationPeriodic() is empty stub"
+    ],
+    "D4": [
+      "build.gradle:74 — JUnit Jupiter 5.10.1 in testImplementation but no test source files exist"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/subsystems/DriveTrain.java:176 — SmartDashboard.putBoolean/putNumber scattered throughout periodic()",
+      "src/main/java/frc/robot/Robot.java:38 — DataLogManager.start() called with DoubleLogEntry fields but not actually logged"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/subsystems/SwerveModule.java:148 — AutoBuilder.configure() with PPHolonomicDriveController and real robot config",
+      "src/main/java/frc/robot/RobotContainer.java:113 — autoChooser = AutoBuilder.buildAutoChooser()",
+      "src/main/java/frc/robot/RobotContainer.java:130 — AutoBuilder.pathfindToPose() used for on-the-fly pathfinding"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/DriveTrain.java:139 — LimelightHelpers.getBotPoseEstimate_wpiBlue used",
+      "src/main/java/frc/robot/subsystems/DriveTrain.java:167 — m_odometry.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999)) then addVisionMeasurement"
+    ],
+    "D8": [
+      "build.gradle:1 — no spotless/checkstyle plugins configured",
+      "frc_team_repos/4919-team-ronin/library/Icarus — library folder is an old robot project, not a consumed dependency"
+    ]
+  },
+  "confidence": "high"
+}

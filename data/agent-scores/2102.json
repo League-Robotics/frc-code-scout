@@ -1,0 +1,60 @@
+{
+  "team": 2102,
+  "year": 2026,
+  "D1": 2,
+  "D2": 1.5,
+  "D3": 2,
+  "D4": 0,
+  "D5": 1,
+  "D6": 3,
+  "D7": 3,
+  "D8": 2,
+  "rationale": {
+    "D1": "YAGSL provides a vendored swerve abstraction but all mechanism subsystems (ShooterSubsystem, HoodSubsystem, IntakePivotSubsystem, ConveyorSubsystem, KickerSubsystem, ClimberSubsystem) hold SparkFlex motors directly with no IO interface or swappable implementations; no 'interface *IO' found anywhere.",
+    "D2": "RobotContainer uses command composition (SequentialCommandGroup, ParallelCommandGroup, ConditionalCommand) and Trigger-based auto-firing (isReadyToShoot, teleJammedForward) with NamedCommands for auto, going beyond simple button bindings but with no Superstructure coordinator, no explicit state enum transitions, and no goal-request API.",
+    "D3": "WPILib physics simulation (FlywheelSim, ElevatorSim, SingleJointedArmSim) wired into every main mechanism subsystem via simulationPeriodic, plus VisionSystemSim with four PhotonCameraSim instances; swerve simulationPeriodic is an empty stub, scoring this D3=2 not 3.",
+    "D4": "No src/test directory exists and no test files were found anywhere in the 2026_Rebuilt repo; D4=0.",
+    "D5": "Logging is SmartDashboard.put* scattered through subsystems (confirmed in ShooterSubsystem, SwerveSubsystem, Vision, HoodSubsystem, etc.); no AdvantageKit, DogLog, or Epilogue found in vendordeps or source.",
+    "D6": "AutoBuilder with PathPlanner configured with real constraints and 20+ named autos confirmed in RobotContainer.setupAuto(); Choreo .traj files are actively used via 'choreoAuto: true' in all .auto files (27 autos confirmed), and PathfindToPose is used for on-the-fly pose navigation.",
+    "D7": "Four PhotonVision cameras with PhotonPoseEstimator (MULTI_TAG_PNP_ON_COPROCESSOR), dynamic std dev scaling by distance and tag count, rejection logic (minDist thresholds, disconnect filter, manual disable), and addVisionMeasurement wired into SwerveDrive; no TimeInterpolatableBuffer or dedicated RobotState class.",
+    "D8": "Five-plus seasons of public repos (2022-2026), a maintained RobotTools series (educational site with tutorials in RobotTools2026) providing onboarding resources, but no GitHub Actions CI, no spotless/checkstyle, and no separate maintained library package."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/shooter/ShooterSubsystem.java:40 — SparkFlex m_leadMotor directly instantiated in subsystem, no IO interface",
+      "src/main/java/frc/robot/subsystems/drive/SwerveSubsystem.java:72 — SwerveDrive via YAGSL (swervelib), vendored abstraction for drive only"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/RobotContainer.java:145 — m_isReadyToShoot Trigger auto-fires conveyor+kicker without coordinator",
+      "src/main/java/frc/robot/RobotContainer.java:202 — NamedCommands.registerCommand used for auto, no Superstructure class found"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/shooter/ShooterSubsystem.java:49 — FlywheelSim wired with simulationPeriodic at line 191",
+      "src/main/java/frc/robot/subsystems/intake/IntakePivotSubsystem.java:38 — SingleJointedArmSim with simulationPeriodic at line 107",
+      "src/main/java/frc/robot/subsystems/drive/Vision.java:73 — VisionSystemSim with four PhotonCameraSim instances"
+    ],
+    "D4": [
+      "src/ — no src/test directory exists, no @Test annotations found anywhere"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/subsystems/shooter/ShooterSubsystem.java:186 — SmartDashboard.putBoolean/putNumber in periodic",
+      "src/main/java/frc/robot/subsystems/drive/SwerveSubsystem.java:155 — SmartDashboard.putBoolean throughout periodic"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/subsystems/drive/SwerveSubsystem.java:181 — AutoBuilder.configure with PPHolonomicDriveController and real constraints",
+      "src/main/deploy/pathplanner/autos/auto2.auto:choreoAuto:true — 27 of 27 competition autos use choreoAuto flag referencing Choreo .traj files",
+      "src/main/java/frc/robot/subsystems/drive/SwerveSubsystem.java:267 — AutoBuilder.pathfindToPose used for on-the-fly navigation"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/drive/Vision.java:117 — swerveDrive.addVisionMeasurement called with dynamic curStdDevs",
+      "src/main/java/frc/robot/subsystems/drive/Vision.java:200 — four Cameras enum entries (FRONT_LEFT, FRONT_RIGHT, SIDE_LEFT, SIDE_RIGHT) with MULTI_TAG_PNP_ON_COPROCESSOR",
+      "src/main/java/frc/robot/subsystems/drive/Vision.java:365 — updateEstimationStdDevs scales std devs by distance and numTags with rejection logic"
+    ],
+    "D8": [
+      "manifest.json — 5 seasons tracked (2022-2026), 3 contributors in 2026_Rebuilt",
+      "RobotTools2026/Site/ — educational tutorial site with many lesson pages maintained by team",
+      "2026_Rebuilt/ — no .github/workflows found; no spotless/checkstyle in build.gradle"
+    ]
+  },
+  "confidence": "high"
+}

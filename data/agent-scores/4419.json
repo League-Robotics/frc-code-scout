@@ -1,0 +1,54 @@
+{
+  "team": 4419,
+  "year": 2024,
+  "D1": 1,
+  "D2": 1,
+  "D3": 0,
+  "D4": 0,
+  "D5": 1,
+  "D6": 0,
+  "D7": 0,
+  "D8": 1,
+  "rationale": {
+    "D1": "Confirmed: one Shooter subsystem (SubsystemBase) owns REV SparkFlex motors directly with no IO interface or hardware abstraction layer; RobotBuilder-generated command-based baseline, no *IO interfaces present anywhere.",
+    "D2": "Confirmed: three commands (Shoot, RevUp, Pivot) with button bindings in RobotContainer; no state machine, no Superstructure coordinator, no goal-request API — pure command composition baseline.",
+    "D3": "Confirmed: Shooter.SimulationPeriodic() is an empty auto-generated stub; build.gradle sets includeDesktopSupport=false; no physics classes (ElevatorSim, FlywheelSim, etc.) used anywhere.",
+    "D4": "Confirmed: src/test/cpp/main.cpp is the GradleRIO boilerplate test harness with no test cases at all — just HAL_Initialize and RUN_ALL_TESTS with nothing registered.",
+    "D5": "Confirmed: Robot.cpp RobotPeriodic() calls SmartDashboard.PutNumber for 5 motor values; this is scattered dashboard output, not structured logging — no DogLog, Epilogue, or AdvantageKit.",
+    "D6": "Confirmed: no PathPlanner or Choreo files in deploy/, no AutoBuilder or trajectory following; autonomous chooser exists in RobotContainer but nothing is added to it — no auto paths at all.",
+    "D7": "Confirmed: no vision imports, no LimelightHelpers, no PhotonCamera, no addVisionMeasurement anywhere; only REVLib and WPILibNewCommands in vendordeps.",
+    "D8": "Confirmed: 2022 rapid-react repo has a real README with build/deploy context; 2024 repo has no README; no CI workflows (.yml absent); no formatter; RobotBuilder-generated structure counts as basic hygiene floor."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/include/subsystems/Shooter.h:28 — class Shooter: public frc2::SubsystemBase with public motor fields, no IO interface",
+      "src/main/cpp/Robot.cpp:36 — directly accesses m_container->m_shooter.m_motorController1 in RobotPeriodic"
+    ],
+    "D2": [
+      "src/main/cpp/RobotContainer.cpp:55 — button bindings wire JoystickButton to Shoot/RevUp/Pivot commands; no coordinator",
+      "src/main/cpp/commands/Shoot.cpp:37 — Execute() sets motor directly; no state enum or FSM"
+    ],
+    "D3": [
+      "src/main/cpp/subsystems/Shooter.cpp:74 — SimulationPeriodic() body is empty comment only",
+      "build.gradle:40 — def includeDesktopSupport = false"
+    ],
+    "D4": [
+      "src/test/cpp/main.cpp:1 — GradleRIO boilerplate; no TEST() or TEST_F() cases present"
+    ],
+    "D5": [
+      "src/main/cpp/Robot.cpp:36 — SmartDashboard::PutNumber called 5 times for motor voltages/positions; no structured logging"
+    ],
+    "D6": [
+      "src/main/deploy/example.txt:1 — deploy directory contains only example.txt; no .path, .auto, or .traj files",
+      "vendordeps/ — only REVLib.json and WPILibNewCommands.json; no PathPlannerLib or Choreo vendordep"
+    ],
+    "D7": [
+      "vendordeps/ — REVLib.json and WPILibNewCommands.json only; no PhotonVision or Limelight vendordep"
+    ],
+    "D8": [
+      "frc_team_repos/4419-team-rewind/2022/rapid-react/README.md:1 — real README with build/deploy context for 2022 season",
+      "frc_team_repos/4419-team-rewind/2024/2024-Becky2/ — no README.md present; no .github/workflows"
+    ]
+  },
+  "confidence": "high"
+}

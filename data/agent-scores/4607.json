@@ -1,0 +1,56 @@
+{
+  "team": 4607,
+  "year": 2026,
+  "D1": 2,
+  "D2": 1,
+  "D3": 1,
+  "D4": 0,
+  "D5": 1.5,
+  "D6": 2,
+  "D7": 3,
+  "D8": 2,
+  "rationale": {
+    "D1": "Confirmed: all mechanism subsystems (LeftFlywheel, LeftHood, LeftTurret, etc.) directly own TalonFX motors with no IO interface layer; swerve is CTRE-generated CommandSwerveDrivetrain — vendored abstraction on drive, hardware-welded mechanisms everywhere else.",
+    "D2": "Confirmed: no Superstructure class, no WantedState/SystemState enums, no FSM coordinator — shot commands (GeneralShot, PointAtHub) are parallel command groups wiring subsystems together, which is command composition only.",
+    "D3": "Confirmed: simulationPeriodic() is an empty stub in Robot.java; CommandSwerveDrivetrain runs a CTRE notifier sim loop for the drivetrain but no mechanism physics (ElevatorSim/FlywheelSim/etc.) exist anywhere.",
+    "D4": "Confirmed: no src/test directory and no test files present; JUnit 5 is declared in build.gradle dependencies but no tests have been written.",
+    "D5": "Confirmed: SmartDashboard.put* used extensively in Robot.java and subsystems; Telemetry.java publishes drivetrain state via structured NetworkTables (StructPublisher) and CTRE SignalLogger writes to log files — above mere dashboard scattered puts but not a full structured logging framework.",
+    "D6": "Confirmed: AutoBuilder fully configured in CommandSwerveDrivetrain, 34 path files and 18 auto files in deploy/pathplanner, named commands registered in RobotContainer, SendableChooser for auto selection — no Choreo files or repulsor planning.",
+    "D7": "Confirmed: dual Limelight cameras (limelight-br, limelight-bl) feed getBotPoseEstimate_wpiBlue into addVisionMeasurement with speed-scaled std-devs and tag count/distance rejection logic in Robot.java robotPeriodic — multi-camera fused, filtered estimation.",
+    "D8": "Confirmed: CLAUDE.md serves as a real project doc with build/architecture/convention documentation, styleguide-frc4607.xml (365 lines) enforces Google Java Style per CLAUDE.md, Constants/Calibrations split is principled — no CI workflows, no separate library repo."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/LeftFlywheel.java:22 — TalonFX m_motor1 owned directly in SubsystemBase, no IO interface",
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:43 — extends TunerSwerveDrivetrain (CTRE vendored abstraction, only for swerve)"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/Commands/GeneralShot.java:24 — ParallelCommandGroup wiring subsystems, no state machine or coordinator",
+      "src/main/java/frc/robot/RobotContainer.java:104 — button bindings directly invoke command compositions, no Superstructure"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/Robot.java:201 — simulationPeriodic() empty stub",
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:289 — startSimThread() runs CTRE drivetrain sim only, no mechanism physics"
+    ],
+    "D4": [
+      "build.gradle:81 — JUnit 5 declared but no src/test directory or test files exist anywhere in the repo"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/Telemetry.java:45 — StructPublisher/NetworkTables structured publishing for drivetrain state",
+      "src/main/java/frc/robot/Robot.java:72 — SmartDashboard.putBoolean/putNumber scattered for status values"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:204 — AutoBuilder.configure fully wired with PPHolonomicDriveController",
+      "src/main/java/frc/robot/RobotContainer.java:106 — NamedCommands.registerCommand for multiple shot types used in 18 auto files"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/Robot.java:56 — getBotPoseEstimate_wpiBlue for limelight-br and limelight-bl",
+      "src/main/java/frc/robot/Robot.java:59 — addVisionMeasurement with VecBuilder std-devs scaled by robot speed and tag count/distance rejection"
+    ],
+    "D8": [
+      "CLAUDE.md:1 — real project documentation with architecture, build commands, conventions",
+      "styleguide-frc4607.xml:1 — 365-line Google Java Style checkstyle config"
+    ]
+  },
+  "confidence": "high"
+}

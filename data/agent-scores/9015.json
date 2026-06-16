@@ -1,0 +1,63 @@
+{
+  "team": 9015,
+  "year": 2026,
+  "D1": 3,
+  "D2": 1,
+  "D3": 3,
+  "D4": 0,
+  "D5": 3,
+  "D6": 3,
+  "D7": 3,
+  "D8": 2,
+  "rationale": {
+    "D1": "Confirmed full IO layer: every mechanism (climb, turret, hood, shooter, indexer, intake pivot+roller, drive modules, gyro, vision) has an interface + TalonFX/hardware impl + Sim impl, selected via REAL/SIM/REPLAY switch in RobotContainer; no generic parameterized base so not L4.",
+    "D2": "GameState tracks match timing and alliance but is not a coordinator — it has no goal-fanout API to other subsystems; teleop control is all button bindings in RobotContainer, so this is command-composition L1, not a Superstructure L3.",
+    "D3": "MapleSim full drivetrain dynamics (SwerveDriveSimulation + IntakeSimulation from ironmaple) with REAL/SIM/REPLAY mode switch confirmed in RobotContainer; mechanism IOSim classes (climb, pivot, shooter, turret) are stubs with no physics, so whole-robot sim workflow earns L3 but not L4.",
+    "D4": "No src/test directory and no test files exist in the repo; CI runs `./gradlew build` which compiles only, not tests.",
+    "D5": "AdvantageKit with @AutoLog inputs structs and Logger.processInputs confirmed in every subsystem (drive/gyro, climb, turret, vision, intake roller+pivot, indexer, hood, shooter); full-match logging to file is the intended workflow.",
+    "D6": "Choreo trajectories actively loaded via Choreo.loadTrajectory() in Autos.java (CENTERRUSH_LEFT, DEPOT_LEFT, DEPOT_CENTER, etc.) with AutoRoutine/AutoTrajectory API; PathPlanner .path/.auto files also present and wired via AutoBuilder in Drive — both planners used in competition autos.",
+    "D7": "VisionIO interface with VisionIOPhotonVision + VisionIOSim impls; std-dev tuning, pose rejection logic, and multi-camera consumer pattern all confirmed in Vision.java; addVisionMeasurement wired via RobotContainer; no dedicated RobotState class or TimeInterpolatableBuffer so not L4.",
+    "D8": "Real README with build badge, CI build workflow (build.yml), Checkstyle + Spotless configured in build.gradle; no separate team library repo across seasons, discounting the candidate L3 from ci_workflows count (only one season repo workflow present)."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/climb/ClimbIO.java:7 — interface ClimbIO with @AutoLog inputs struct",
+      "src/main/java/frc/robot/subsystems/climb/ClimbIOTalonFX.java — hardware impl",
+      "src/main/java/frc/robot/subsystems/climb/ClimbIOSim.java — sim impl (stub)"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/subsystems/gamestate/GameState.java:13 — SubsystemBase tracking match state only, no cross-subsystem goal fanout",
+      "src/main/java/frc/robot/subsystems/gamestate/StateEnum.java:1 — match-phase enum, not a mechanism coordination enum"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/RobotContainer.java:163-189 — SIM case: SwerveDriveSimulation + IntakeSimulation + ModuleIOTalonFXMapleSim for all 4 modules",
+      "src/main/java/frc/robot/subsystems/drive/ModuleIOTalonFXMapleSim.java:28 — extends ModuleIOTalonFX using ironmaple SwerveModuleSimulation",
+      "src/main/java/frc/robot/subsystems/intake/RollerIOSim.java:1 — IntakeSimulation from ironmaple used for game piece sim"
+    ],
+    "D4": [
+      "No src/test directory exists in the repo",
+      ".github/workflows/build.yml:30 — CI runs ./gradlew build (compile only, not test)"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/subsystems/climb/Climb.java:57 — Logger.processInputs(\"Climber\", inputs)",
+      "src/main/java/frc/robot/subsystems/shooter/Shooter.java:90 — Logger.processInputs(\"Shooter\", inputs)",
+      "src/main/java/frc/robot/subsystems/vision/Vision.java:82 — Logger.processInputs per camera"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/Autos.java:105 — Choreo.loadTrajectory(\"TEST\").get() in testAuto()",
+      "src/main/java/frc/robot/Autos.java:134 — Choreo.loadTrajectory(\"CENTERRUSH_LEFT\") in centerrushLeft()",
+      "src/main/deploy/choreo/CENTERRUSH_LEFT.traj — trajectory file present and referenced"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/vision/Vision.java:39 — std-dev tuning with kSingleTagStdDevs/kMultiTagStdDevs",
+      "src/main/java/frc/robot/subsystems/drive/Drive.java:474 — poseEstimator.addVisionMeasurement()",
+      "src/main/java/frc/robot/RobotContainer.java:127 — drive::addVisionMeasurement wired as VisionConsumer"
+    ],
+    "D8": [
+      "README.md:1 — real README with build badge",
+      ".github/workflows/build.yml:1 — CI workflow on push/PR to main",
+      "build.gradle:3,6 — checkstyle and spotless plugins configured"
+    ]
+  },
+  "confidence": "high"
+}

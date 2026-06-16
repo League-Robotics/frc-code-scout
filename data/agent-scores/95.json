@@ -1,0 +1,56 @@
+{
+  "team": 95,
+  "year": 2026,
+  "D1": 1,
+  "D2": 2,
+  "D3": 1,
+  "D4": 0,
+  "D5": 1,
+  "D6": 3,
+  "D7": 2.5,
+  "D8": 1.5,
+  "rationale": {
+    "D1": "Confirmed standard command-based pattern with SubsystemBase classes holding vendor hardware directly (SparkMax in L4Arm, Pigeon2 in SwerveBase); no *IO interfaces or swappable implementations exist anywhere in the codebase.",
+    "D2": "CoralHandlerCommand implements a real 11-state enum FSM (IDLE, L1_INTAKING, L4_SCORING, PERFORMING_HANDOFF, CLIMBING, etc.) with explicit switch-case transitions coordinating two arms and a climber; discounted full D2=3 because there is no separate Superstructure goal-fanout — the FSM is embedded in a single giant Command.",
+    "D3": "SwerveBase.simulationPeriodic() is an empty stub (line 621) and the only physics present is a gyro angle integrator (angle += omega * dt) for sim; no WPILib physics sim classes (ElevatorSim, SingleJointedArmSim) are used anywhere.",
+    "D4": "No test files found anywhere in src/test across either robot project (Knight or Tharp); D4=0 confirmed.",
+    "D5": "Heavy SmartDashboard.put* throughout all subsystems (SwerveBase periodic alone has ~25 putNumber/putBoolean calls); no AdvantageKit, DogLog, Epilogue, or structured logging framework present.",
+    "D6": "Choreo AutoFactory is wired in RobotContainer and Autos.java with AutoRoutine/AutoTrajectory loading named .traj files from disk and driving via swerve.followTrajectory(); a dynamic ModularAuto strings trajectory segments together at runtime; AlignToPose commands provide pose-align capability; discounted D6=4 because no repulsor/reactive avoidance exists.",
+    "D7": "addVisionMeasurement is called with computed xyStds/angStds (tag-distance-squared / numTargets scaling) and angular rejection logic for two Limelights (bow+stern) in SwerveBase.periodic(); multi-camera fusion confirmed at lines 568-569; discounted D7=3 because no TimeInterpolatableBuffer and no separate RobotState class — pose estimation lives directly in SwerveBase.",
+    "D8": "README.md exists but is one line ('Robot code for FRC 2026 season'); two robot variants (Knight/Tharp) in the same monorepo is a notable sustainability artifact; no CI workflows (.github/workflows) and no formatter config were found."
+  },
+  "evidence": {
+    "D1": [
+      "Tharp/src/main/java/frc/robot/subsystems/L4Arm.java:46 — SparkMax held directly in L4Arm SubsystemBase, no IO interface",
+      "Tharp/src/main/java/frc/robot/subsystems/SwerveBase.java:61 — Pigeon2 imu field directly in SwerveBase, no abstraction"
+    ],
+    "D2": [
+      "Tharp/src/main/java/frc/robot/commands/CoralHandlerCommand.java:61-65 — enum State with 11 states",
+      "Tharp/src/main/java/frc/robot/commands/CoralHandlerCommand.java:247 — switch(currentState) FSM with guarded transitions"
+    ],
+    "D3": [
+      "Tharp/src/main/java/frc/robot/subsystems/SwerveBase.java:621 — empty simulationPeriodic() stub",
+      "Tharp/src/main/java/frc/robot/subsystems/SwerveBase.java:576-580 — gyro angle integrator only, no physics classes"
+    ],
+    "D4": [
+      "No src/test/java directory found in Knight or Tharp"
+    ],
+    "D5": [
+      "Tharp/src/main/java/frc/robot/subsystems/SwerveBase.java:507-617 — ~25 SmartDashboard.put* calls in periodic(), no structured logging"
+    ],
+    "D6": [
+      "Tharp/src/main/java/frc/robot/commands/Autos.java:21-25 — choreo.auto.AutoFactory, AutoRoutine, AutoTrajectory imports actively used",
+      "Tharp/src/main/java/frc/robot/commands/Autos.java:160-218 — ModularAuto dynamically loads and chains Choreo .traj files by name",
+      "Tharp/src/main/java/frc/robot/subsystems/SwerveBase.java:275-289 — followTrajectory(SwerveSample) method wired to Choreo"
+    ],
+    "D7": [
+      "Tharp/src/main/java/frc/robot/subsystems/SwerveBase.java:447-493 — addVisionMeasurement with xyStds/angStds computed from tag distance and count, rejection on z-error and angular error",
+      "Tharp/src/main/java/frc/robot/subsystems/SwerveBase.java:568-569 — dual-camera fusion (sternCam, bowCam) in periodic()"
+    ],
+    "D8": [
+      "FRC2026/README.md:1 — one-line README only",
+      "FRC2026/ — Knight/ and Tharp/ subdirectories represent two physical robot variants in one repo"
+    ]
+  },
+  "confidence": "high"
+}

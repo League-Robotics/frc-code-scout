@@ -12,6 +12,7 @@ scout/clone.py
 scout/codedb.py
 scout/config.py
 scout/dataset.py
+scout/features.py
 scout/github.py
 scout/history.py
 scout/httpc.py

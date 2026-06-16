@@ -1,0 +1,65 @@
+{
+  "team": 971,
+  "year": 2026,
+  "D1": 4,
+  "D2": 3,
+  "D3": 3.5,
+  "D4": 2.5,
+  "D5": 3,
+  "D6": 2.5,
+  "D7": 3,
+  "D8": 3.5,
+  "rationale": {
+    "D1": "Confirmed a library-grade generic MotorIO abstract base (lib/superstructure/MotorIO.java) with MotorTalonFX (hardware) and MotorSim (sim) implementations, swapped via RobotBase.isSimulation() in MotorSubsystem, reused across all mechanisms — discounted the absence of a null-object variant.",
+    "D2": "Confirmed Superstructure has a real setGoal(SetpointGoal) API fanning goals to all mechanisms and ShooterHandler has an explicit NOT_READY→AIMING→FIRING FSM with guarded canTransitionToReady() — discounted any claim of graph/search-based coordination.",
+    "D3": "Confirmed maple-sim drivetrain simulation (MapleSimSwerveDrivetrain using org.ironmaple), MotorSim trapezoid-profile simulation for all mechanism motors, and REPLAY mode wired in Robot.java — discounted as full level 4 because no replay IO variant classes exist to make replay the primary verification workflow.",
+    "D4": "Confirmed 5 meaningful test files (ShooterPhysicsTest, ShooterSolverTests, ShotTableTest, JoystickTest) with 29 assertions testing shooter physics math, and ./gradlew build (CI) runs them — discounted as level 3 because tests cover only library math utilities, not sim-backed subsystem behavior construction.",
+    "D5": "Confirmed AdvantageKit fully wired: LoggedRobot, Logger.start(), REAL/SIM/REPLAY mode switch in Robot.java, WPILOGWriter for match logging, and @AutoLogOutput + Logger.recordOutput spread across MotorIO, ShooterHandler, and Superstructure — discounted level 4 because no replay IO variants or FaultReporter are implemented.",
+    "D6": "Confirmed custom BLine library (vendordep v0.8.4) used for all competition autos with kinematic constraints (4.5 m/s, 12 m/s²) and 11 named auto routines; PathPlanner files present but only FlippingUtil is imported, not AutoBuilder — discounted PathPlanner adoption; BLine is a closed-loop trajectory follower equivalent to PathPlanner level 2.",
+    "D7": "Confirmed BOS class reads from 3 cameras via NetworkTables, calls drivetrain.addVisionMeasurement with per-measurement timestamp and tuned variance (VecBuilder.fill) for multi-camera fusion — discounted level 4 because no dedicated RobotState class or TimeInterpolatableBuffer; pose is stored in CTRE SwerveDrivetrain.",
+    "D8": "Confirmed CONTRIBUTING.md with PR rules, branch naming, and test requirements; spotless formatter enforced (build fails without it per CONTRIBUTING.md); GitHub Actions CI runs ./gradlew build on push/PR; BLine-Lib is a versioned external dependency — discounted full level 4 because no generated docs or multi-robot variant structure evident."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/lib/superstructure/MotorIO.java:17 — abstract class MotorIO with abstract setVoltage/setVelocity/setPosition methods",
+      "src/main/java/frc/robot/lib/superstructure/MotorSubsystem.java:47 — RobotBase.isSimulation() ? new MotorSim(motorConfig) : new MotorTalonFX(motorConfig)",
+      "src/main/java/frc/robot/lib/superstructure/MotorSim.java:13 — MotorSim extends MotorIO with TrapezoidProfile physics"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/subsystems/superstructure/Superstructure.java:299 — setGoal(Setpoint) fans goals to rollerFloor, b2, kicker, groundPivot, flywheels, hoods, turrets",
+      "src/main/java/frc/robot/subsystems/superstructure/ShooterHandler.java:110 — enum State { NOT_READY, AIMING, FIRING } with guarded canTransitionToReady()",
+      "src/main/java/frc/robot/subsystems/superstructure/SetpointGoal.java:12 — SetpointGoal enum with 20+ named robot-wide setpoints"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/lib/simulation/MapleSimSwerveDrivetrain.java:29 — import org.ironmaple.simulation.SimulatedArena; maple-sim wired for drivetrain",
+      "src/main/java/frc/robot/lib/superstructure/MotorSim.java:19 — MotorSim uses TrapezoidProfile to simulate all mechanism motors",
+      "src/main/java/frc/robot/Robot.java:49 — REPLAY mode: Logger.setReplaySource(new WPILOGReader(logPath))"
+    ],
+    "D4": [
+      "src/test/java/frc/robot/lib/ShooterPhysicsTest.java:27 — stationaryInterpolation_returnsValidSolution with assertNotNull/assertTrue",
+      "src/test/java/frc/robot/lib/ShooterSolverTests.java:33 — stationaryInterpolation_returnsFiniteSolution asserting flywheel speed > 0",
+      ".github/workflows/gradle.yml:32 — run: ./gradlew build (includes tests)"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/Robot.java:25 — extends LoggedRobot; Logger.addDataReceiver(new WPILOGWriter())",
+      "src/main/java/frc/robot/lib/superstructure/MotorIO.java:24 — @AutoLogOutput(key = \"{name}/Applied Voltage\") across all motor fields",
+      "src/main/java/frc/robot/subsystems/superstructure/ShooterHandler.java:277 — Logger.recordOutput for flywheel/turret/hood goals per periodic"
+    ],
+    "D6": [
+      "vendordeps/BLine-Lib.json:1 — BLine-Lib v0.8.4 custom path library used for all autos",
+      "src/main/java/frc/robot/subsystems/Autos.java:174 — 11 AutoRoutine entries referencing custom .json paths",
+      "src/main/deploy/autos/config.json:1 — kinematic constraints: 4.5 m/s max velocity, 12.0 m/s² acceleration"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/vision/BOS.java:54 — updatePose() reads 3 camera NT subscribers and calls drivetrain.addVisionMeasurement",
+      "src/main/java/frc/robot/subsystems/vision/BOS.java:84 — VecBuilder.fill(variance/4, variance/4, variance*2/3) per-measurement std-dev tuning",
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java — addVisionMeasurement wraps CTRE SwerveDrivetrain pose estimator"
+    ],
+    "D8": [
+      "CONTRIBUTING.md:1 — full PR process, branch naming, commit format, testing requirements, spotless formatting instructions",
+      "build.gradle — id 'com.diffplug.spotless' version '6.20.0' with spotless block enforced in build",
+      ".github/workflows/gradle.yml:32 — CI runs ./gradlew build on push/PR to main"
+    ]
+  },
+  "confidence": "high"
+}

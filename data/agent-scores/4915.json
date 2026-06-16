@@ -1,0 +1,64 @@
+{
+  "team": 4915,
+  "year": 2026,
+  "D1": 2,
+  "D2": 3,
+  "D3": 2,
+  "D4": 0,
+  "D5": 2,
+  "D6": 2.5,
+  "D7": 3,
+  "D8": 2,
+  "rationale": {
+    "D1": "YAGSL config dir confirms vendored swerve abstraction (D1-L2 signal), but all mechanism subsystems (PivotSubsystem, ShooterSubsystem, etc.) own hardware directly via LoggedTalonFX with no *IO interface — no interface+2-impl pattern found anywhere outside the vision camera ProcessorInterface (domain-specific, not a hardware-decoupling layer).",
+    "D2": "Superstructure.configureTriggers() maps field zones to multi-subsystem commands via WPILib Triggers, with real guarded transitions (waitUntil isPivotSafe, isTurretSafe) inside SuperstructureCommands; this is a genuine goal-fanout coordinator, not a holder.",
+    "D3": "SwerveSubsystem.simulationPeriodic() calls drivetrain.updateSimState() (CTRE sim), VisionSubsystem wires PhotonCameraSim in sim mode and updates it from pose, BumpSim does custom tilt visualization — drivetrain+vision sim is real; no WPILib mechanism physics (ElevatorSim/FlywheelSim) for non-drive mechanisms.",
+    "D4": "No src/test directory exists; CI workflow runs ./gradlew build (and a 30-second simulation smoke test) but no gradle test task — zero unit tests confirmed.",
+    "D5": "DataLogManager.start() writes a timestamped .wpilog file on real hardware; every subsystem publishes typed NetworkTables structs (StructPublisher<Rotation2d>, DoublePublisher, etc.) and an Elastic layout (elastic-layout.json) is committed — systematic structured logging without AdvantageKit.",
+    "D6": "No PathPlanner or Choreo files found; team uses a custom BLine library (FollowPath, Path with per-segment constraints) for on-the-fly trajectory generation with velocity overshoot, a ComplexAutoChooser with many named segments, and DriveToPOI align-to-target — sophisticated bespoke path following comparable to PathPlanner adoption with pose-align commands.",
+    "D7": "Multi-camera fusion (PhotonProcessor + LimelightProcessor via ProcessorInterface), PoseFusionEngine with outlier rejection and weighted fusion, std-dev tuning in StdDevCalculator, turreted camera with ConcurrentTimeBuffer for latency-compensated yaw, and addVisionMeasurement wired through SwerveSubsystem — fused and filtered estimation without a dedicated RobotState world-model class.",
+    "D8": "GitHub Actions CI runs build + 30-second simulation smoke test on push/PR, README includes control maps, eclipse-formatter.xml committed, 5 seasons of history tracked in the corpus — no evidence of a separate maintained team library repo."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/com/spartronics4915/frc2026/subsystems/mechanisms/PivotSubsystem.java:39 — LoggedTalonFX motor directly owned, no IO interface",
+      "src/main/deploy/swerve/comp-chassis/swervedrive.json — YAGSL config confirming vendored swerve abstraction",
+      "src/main/java/com/spartronics4915/frc2026/subsystems/vision/cameras/ProcessorInterface.java:17 — vision-domain interface present but not a hardware-decoupling IO layer"
+    ],
+    "D2": [
+      "src/main/java/com/spartronics4915/frc2026/subsystems/control/Superstructure.java:203 — configureTriggers() wires zone-based goal dispatch",
+      "src/main/java/com/spartronics4915/frc2026/commands/SuperstructureCommands.java:229 — waitUntil(this::isPivotSafe) guarded transition in trench()",
+      "src/main/java/com/spartronics4915/frc2026/commands/SuperstructureCommands.java:31 — PipelineState enum coordinating indexer+feeder states"
+    ],
+    "D3": [
+      "src/main/java/com/spartronics4915/frc2026/subsystems/swerve/SwerveSubsystem.java:205 — simulationPeriodic calls drivetrain.updateSimState()",
+      "src/main/java/com/spartronics4915/frc2026/subsystems/vision/VisionSubsystem.java:124 — visionSystemSim = new VisionSystemSim(\"main\") in simulation",
+      "src/main/java/com/spartronics4915/frc2026/util/simulation/BumpSim.java:19 — custom bump tilt simulation wired into SwerveSubsystem.periodic()"
+    ],
+    "D4": [
+      ".github/workflows/main.yml:63 — CI runs ./gradlew build only; no gradle test step",
+      ".github/workflows/main.yml:114 — simulation smoke test (30s timeout) is the only verification beyond compile"
+    ],
+    "D5": [
+      "src/main/java/com/spartronics4915/frc2026/Robot.java:68 — DataLogManager.start() with timestamped filename on real hardware",
+      "src/main/java/com/spartronics4915/frc2026/subsystems/mechanisms/PivotSubsystem.java:75 — StructPublisher<Rotation2d> positionPublisher and multiple DoublePublishers",
+      "src/main/deploy/elastic-layout.json — Elastic dashboard layout committed to deploy"
+    ],
+    "D6": [
+      "src/main/java/com/spartronics4915/frc2026/autos/Autos.java:277 — Autos.build(Path) drives BLine trajectories with per-segment constraints",
+      "src/main/java/com/spartronics4915/frc2026/autos/NeutralZoneAutos.java:56 — on-the-fly quadrant path generation with velocity overshoot",
+      "src/main/java/com/spartronics4915/frc2026/autos/ComplexAutoChooser.java:33 — many named AutoSegment entries for competition auto selection"
+    ],
+    "D7": [
+      "src/main/java/com/spartronics4915/frc2026/subsystems/vision/processing/PoseFusionEngine.java:40 — weighted multi-camera fusion with outlier rejection",
+      "src/main/java/com/spartronics4915/frc2026/subsystems/swerve/SwerveSubsystem.java:272 — addVisionMeasurement wired to drivetrain",
+      "src/main/java/com/spartronics4915/frc2026/subsystems/vision/cameras/PhotonProcessor.java:142 — ConcurrentTimeBuffer for turreted-camera latency-compensated yaw"
+    ],
+    "D8": [
+      ".github/workflows/main.yml:54 — CI compiles and runs simulation smoke test on push/PR",
+      "eclipse-formatter.xml — formatter config committed to repo root",
+      "README.md:1 — real README with driver/operator control maps"
+    ]
+  },
+  "confidence": "high"
+}

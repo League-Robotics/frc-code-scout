@@ -1,0 +1,62 @@
+{
+  "team": 2839,
+  "year": 2026,
+  "D1": 1,
+  "D2": 1,
+  "D3": 1,
+  "D4": 0,
+  "D5": 1.5,
+  "D6": 2,
+  "D7": 2,
+  "D8": 2,
+  "rationale": {
+    "D1": "Confirmed command-based baseline with SubsystemBase subclasses (Shooter, Intake) owning TalonFX motors directly and CTRE-generated swerve as vendored abstraction; no IO interfaces found anywhere in the codebase, discounting the mechanical candidate of 1 as accurate.",
+    "D2": "Confirmed command composition via RobotContainer button bindings and NamedCommands for auto, with sequential/parallel command groups (AimAndShoot, GoAndShoot, TrackCode); no FSM, no Superstructure coordinator, no state enums found.",
+    "D3": "Confirmed only a token sim: CTRE internal sim notifier in CommandSwerveDrivetrain startSimThread() updates swerve state, but simulationPeriodic() in Robot.java is empty and no WPILib physics sim classes (ElevatorSim, etc.) exist for any mechanism.",
+    "D4": "No src/test directory exists and no .github/workflows CI files found; score is 0.",
+    "D5": "Confirmed structured NetworkTables publishing (StructPublisher for Pose/ChassisSpeeds/SwerveModuleState) plus CTRE SignalLogger for drivetrain data and custom WebServer dashboard; more than raw SmartDashboard but below DogLog/Epilogue/AdvantageKit coverage across subsystems — mechanisms only publish via WebServer.putNumber.",
+    "D6": "Confirmed PathPlanner fully wired: AutoBuilder.configure in CommandSwerveDrivetrain, NamedCommands registered, 6 .auto files and 6 .path files used, PPHolonomicDriveController configured with real PID gains; no Choreo trajectories.",
+    "D7": "Confirmed Limelight-based pose estimation: EstimatePose command calls LimelightHelpers.getBotPoseEstimate_wpiBlue and drivetrain.addVisionMeasurement with timestamp across 1 configured camera; no std-dev tuning, no IO interface, no multi-camera fusion beyond sequential cycling.",
+    "D8": "Confirmed real README with feature list and IP/port deploy info, plus two library/template repos (AutoSwerveAndIntakeTemplate, ScrappyBot) indicating onboarding infrastructure; no CI workflows and no formatter/checkstyle configured."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/Shooter.java:14 — SubsystemBase subclass with TalonFX fields directly owned",
+      "src/main/java/frc/robot/subsystems/Intake.java:10 — SubsystemBase subclass with TalonFX fields directly owned",
+      "src/main/java/frc/robot/generated/TunerConstants_New.java — CTRE-generated swerve vendored abstraction"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/RobotContainer.java:86 — NamedCommands.registerCommand for auto composition",
+      "src/main/java/frc/robot/RobotContainer.java:111 — configureBindings with Trigger-based command composition",
+      "src/main/java/frc/robot/commands/AimAndShoot.java:21 — compound command with no state machine"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/Robot.java:87 — simulationPeriodic() is empty stub",
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:283 — CTRE sim notifier thread only, no physics classes"
+    ],
+    "D4": [
+      "src/test — directory does not exist; no test files anywhere in repo"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/Telemetry.java:41 — StructPublisher<Pose2d> and StructArrayPublisher for swerve state",
+      "src/main/java/frc/robot/Telemetry.java:33 — SignalLogger.start() and writeDoubleArray for drivetrain",
+      "src/main/java/frc/robot/subsystems/Shooter.java:83 — WebServer.putNumber for mechanism telemetry only"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:201 — AutoBuilder.configure with PPHolonomicDriveController",
+      "src/main/java/frc/robot/RobotContainer.java:106 — AutoBuilder.buildAutoChooser and NamedCommands",
+      "src/main/deploy/pathplanner/autos/Left.auto — one of 6 real competition auto files"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/commands/EstimatePose.java:41 — LimelightHelpers.getBotPoseEstimate_wpiBlue called",
+      "src/main/java/frc/robot/commands/EstimatePose.java:44 — drivetrain.addVisionMeasurement(ll.pose, ll.timestampSeconds)",
+      "src/main/java/frc/robot/commands/AimAndShoot.java:102 — addVisionMeasurement also called during aim"
+    ],
+    "D8": [
+      "README.md:1 — real README with project description and deploy URL",
+      "frc_team_repos/2839-daedalus/library/AutoSwerveAndIntakeTemplate — template repo for onboarding",
+      "frc_team_repos/2839-daedalus/library/ScrappyBot — training/entry-level robot repo"
+    ]
+  },
+  "confidence": "high"
+}

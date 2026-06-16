@@ -1,0 +1,65 @@
+{
+  "team": 190,
+  "year": 2026,
+  "D1": 4,
+  "D2": 2,
+  "D3": 2.5,
+  "D4": 2.5,
+  "D5": 3,
+  "D6": 3,
+  "D7": 4,
+  "D8": 3,
+  "rationale": {
+    "D1": "Confirmed full IO layer with TurretIO/TurretIOSim/TurretIOTalonFX pattern across all mechanisms; generic parameterized bases (GenericFlywheel, GenericRoller, Arm, Elevator) in GompeiLib reused across mechanisms — library-grade abstraction, not repeated per-mechanism.",
+    "D2": "Per-subsystem state enums (TurretState, IntakeState, HoodState, ShooterGoal) with switch-based FSMs confirmed in Turret.java; composite commands orchestrate intent; no single Superstructure class fanning robot-wide goals to subsystems, so capped at level 2.",
+    "D3": "DCMotorSim in TurretIOSim and V1_DoomSpiralSwankIOSim, SingleJointedArmSim in HoodIOSim and FourBarLinkageIOSim confirmed; REPLAY mode wired in Robot.java; maple-sim mentioned as comment but not instantiated — drivetrain sim not fully confirmed.",
+    "D4": "75 test files in lib/src/test but most are empty stubs; 10 files have real @Test methods (SetpointTest, GeometryUtilTest, GompeiLibTest, etc.); lib/build.gradle has JUnit5+jacoco configured; lib is a Gradle subproject included in the season build so tests run in CI, but coverage is utility/math only, not subsystem behavior.",
+    "D5": "Confirmed @AutoLog Inputs structs (TurretIOInputs, etc.) and Logger.processInputs called in every subsystem periodic across turret, flywheel, roller, arm, elevator, drive, vision; REAL/SIM/REPLAY modes with WPILOGWriter/NT4Publisher wired in Robot.java — full AK adoption throughout.",
+    "D6": "V1_DoomSpiralAutoTrajectoryCache.java confirmed loading 16+ Choreo trajectories via Choreo.loadTrajectory() and using them in auto routines; AutoRoutine/AutoFactory-based chooser (BetterAutoChooser) wired; PathPlanner pathfinding (LocalADStarAK) confirmed in Robot.java.",
+    "D7": "Confirmed RobotState class with zone-based multi-estimator Localization (globalZone, blueHubZone, redHubZone, blueTowerZone, redTowerZone); multi-camera limelight fusion via addLocalizerVisionMeasurement with yaw-velocity rejection; vision behind CameraIO interface; lookahead pose and InterpolatingTreeMaps for shot calculation — world model as architecture.",
+    "D8": "Spotless formatter confirmed in build.gradle and enforced via lint.yaml CI; lib/ (GompeiLib) synced to an external Team-190/CI-Workflows repo via push/pull workflows; season CI runs build on push/PR; spotless enforced as gate — CI + maintained team library pattern confirmed."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/shared/turret/TurretIO.java:12 — interface TurretIO with @AutoLog TurretIOInputs",
+      "src/main/java/frc/robot/subsystems/shared/turret/TurretIOSim.java:21 — TurretIOSim implements TurretIO using DCMotorSim",
+      "lib/src/main/java/edu/wpi/team190/gompeilib/subsystems/generic/flywheel/GenericFlywheel.java — reusable generic base confirmed via import in V1_DoomSpiralRobotContainer.java:27"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/subsystems/shared/turret/Turret.java:144 — switch(state) over TurretState enum with transition logic",
+      "src/main/java/frc/robot/commands/v2_Turnover/V2_TurnoverCompositeCommands.java:54 — scoreOrFeedCommand fans goal to shooter based on RobotState.isInAllianceZone()",
+      "src/main/java/frc/robot/subsystems/shared/turret/TurretState.java:1 — per-subsystem state enum, no cross-subsystem Superstructure found"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/shared/turret/TurretIOSim.java:16 — DCMotorSim import and use confirmed",
+      "src/main/java/frc/robot/subsystems/shared/hood/HoodIOSim.java:1 — SingleJointedArmSim confirmed",
+      "src/main/java/frc/robot/Robot.java:113 — REPLAY case with WPILOGReader confirmed; maple-sim referenced only in comment at line 110"
+    ],
+    "D4": [
+      "lib/src/test/java/edu/wpi/team190/gompeilib/core/utility/SetpointTest.java:15 — real @Test methods asserting setpoint behavior",
+      "lib/src/test/java/edu/wpi/team190/gompeilib/subsystems/arm/ArmTest.java:1 — empty stub (representative of most test files)",
+      "lib/build.gradle:101 — test{} block with JUnit5 and jacoco configured"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/subsystems/shared/turret/TurretIO.java:15 — @AutoLog on TurretIOInputs",
+      "src/main/java/frc/robot/subsystems/shared/turret/Turret.java:124 — Logger.processInputs(aKitTopic, inputs)",
+      "src/main/java/frc/robot/Robot.java:102 — REAL/SIM/REPLAY mode switch with WPILOGWriter and NT4Publisher"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/commands/v1_DoomSpiral/autonomous/V1_DoomSpiralAutoTrajectoryCache.java:10 — Choreo.loadTrajectory() loading 16 named trajectories",
+      "src/main/java/frc/robot/util/BetterAutoChooser.java:5 — choreo.auto.AutoRoutine imported and used",
+      "src/main/java/frc/robot/Robot.java:76 — Pathfinding.setPathfinder(new LocalADStarAK()) confirms PathPlanner pathfinding"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/v2_Turnover/V2_TurnoverRobotState.java:44 — Localization with 5 FieldZones (globalZone, blueHubZone, redHubZone, blueTowerZone, redTowerZone)",
+      "src/main/java/frc/robot/subsystems/v2_Turnover/V2_TurnoverRobotState.java:393 — addLocalizerVisionMeasurement with yaw-velocity rejection at line 394",
+      "src/main/java/frc/robot/subsystems/v1_DoomSpiral/V1_DoomSpiralRobotContainer.java:164 — two Limelight cameras wired to localization"
+    ],
+    "D8": [
+      ".github/workflows/lint.yaml:25 — spotlessCheck enforced as CI gate on push/PR",
+      ".github/workflows/pushgompeilib.yml:1 — GompeiLib synced to Team-190/CI-Workflows external repo",
+      "build.gradle:6 — spotless plugin version 6.25.0 configured"
+    ]
+  },
+  "confidence": "high"
+}

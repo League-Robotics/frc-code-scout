@@ -1,0 +1,63 @@
+{
+  "team": 2412,
+  "year": 2026,
+  "D1": 2,
+  "D2": 1,
+  "D3": 2.5,
+  "D4": 2,
+  "D5": 2,
+  "D6": 2,
+  "D7": 3,
+  "D8": 2.5,
+  "rationale": {
+    "D1": "No `*IO` interfaces for mechanisms (grep confirmed zero); hardware-welded SubsystemBase subclasses own motors directly (Flywheels, Hood, IntakePivot, Spindexer), with only CTRE-generated CommandSwerveDrivetrain as a vendored swerve abstraction — confirmed D1=2.",
+    "D2": "No Superstructure coordinator, no WantedState/SystemState FSM, no RobotManager; confirmed coordination is command composition in Controls.java with button bindings and inline switch on IntakeMode enum — solid D1-style command-based, not a real coordinator.",
+    "D3": "Confirmed WPILib physics sims used in-subsystem (FlywheelSim in FlywheelsSim.java, SingleJointedArmSim in HoodSim.java and PivotSim.java, FlywheelSim in Spindexer.java), plus PhotonVision VisionSystemSim via SimWrapper for vision — covers drivetrain and multiple mechanisms but no maple-sim; D3=2.5.",
+    "D4": "One real JUnit test file (AutosTest.java) with a meaningful assertFalse verifying auto path files exist on disk; CI runs `simulateJavaDebug -PautomatedTest=true` (a sim smoke test) but does NOT run `gradle test` directly — partial CI testing without full assertion coverage.",
+    "D5": "CTRE SignalLogger.start() is called (DriveStateSignalLogger) and writes drive telemetry to .hoot log files; LauncherSubsystem uses NetworkTables publishers systematically; VisionSubsystem publishes structured NT entries; no AdvantageKit/DogLog/Epilogue — confirmed structured NT + CTRE signal logging, D5=2.",
+    "D6": "86 PathPlanner path files confirmed deployed and consumed via AutoBuilder.buildAuto/followPath in AutoLogic.java and AutoPath.java; Choreo vendordep is present and 1 traj file exists (NewPath_copy1.traj) but zero Choreo imports in Java code — choreo discounted, D6=2.",
+    "D7": "Confirmed three-Limelight MegaTag2 + MegaTag1 fusion with tuned std-dev matrices, ambiguity/range/velocity/rotation/spread rejection logic, and `drivetrain.addVisionMeasurement` with timestamped FPGA-corrected poses in VisionSubsystem.java — photon-sim for vision in sim; no TimeInterpolatableBuffer or dedicated RobotState class, so D7=3.",
+    "D8": "GitHub Actions CI confirmed (spotless format check + automated sim test on push/PR); AdvantageScope layout committed; two robot variant configs (Alpha vs Comp TunerConstants); build.gradle has spotless 6.25; no README beyond WPILib-License.md, no lib repo — CI + variant structure earns D8=2.5."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/launcher/Flywheels.java — hardware-welded TalonFX, no IO interface",
+      "src/main/java/frc/robot/generated/CompTunerConstants.java:254 — vendored CTRE swerve only abstraction",
+      "src/main/java/frc/robot/subsystems/intake/IntakePivot.java — direct hardware, no IO layer"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/Controls.java:371 — inline switch on intakeMode enum, no coordinator",
+      "src/main/java/frc/robot/subsystems/intake/IntakeSubsystem.java:9 — IntakeMode enum but no transition FSM"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/launcher/FlywheelsSim.java:41 — FlywheelSim instantiated with motor model",
+      "src/main/java/frc/robot/subsystems/intake/PivotSim.java:38 — SingleJointedArmSim for intake pivot",
+      "src/main/java/frc/robot/sim/SimWrapper.java:62 — VisionSystemSim (PhotonVision) integrated"
+    ],
+    "D4": [
+      "src/test/java/AutosTest.java:47 — assertFalse verifying PathPlanner auto file exists",
+      ".github/workflows/spotless.yml:43 — simulateJavaDebug -PautomatedTest=true in CI"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/util/DriveStateSignalLogger.java:9 — SignalLogger.start() + writeDoubleArray to CTRE hoot log",
+      "src/main/java/frc/robot/subsystems/launcher/LauncherSubsystem.java:43 — systematic NT publishers for all aim targets",
+      "src/main/java/frc/robot/subsystems/VisionSubsystem.java:585 — NT rejection diagnostics per camera"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/subsystems/auto/AutoLogic.java:233 — AutoBuilder.buildAuto consuming PathPlanner .auto files",
+      "src/main/deploy/pathplanner/paths/RT-Climb.path — 86 path files present",
+      "src/main/deploy/choreo/NewPath_copy1.traj — traj file present but zero choreo imports in Java code"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/VisionSubsystem.java:361 — drivetrain.addVisionMeasurement with timestamped stdDevs",
+      "src/main/java/frc/robot/subsystems/VisionSubsystem.java:45 — stdDevs matrix with MT1/MT2 tuning",
+      "src/main/java/frc/robot/subsystems/VisionSubsystem.java:308 — multi-camera rejection pipeline (velocity, ambiguity, spread, rotation)"
+    ],
+    "D8": [
+      ".github/workflows/spotless.yml — CI with spotless check + automated sim test",
+      "src/main/java/frc/robot/Subsystems.java:87 — Alpha vs Comp TunerConstants robot variant selection",
+      "AdvantageScope/Robot_2026CornerTurret/config.json — committed AdvantageScope layout"
+    ]
+  },
+  "confidence": "high"
+}

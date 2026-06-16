@@ -1,0 +1,63 @@
+{
+  "team": 2984,
+  "year": 2026,
+  "D1": 2,
+  "D2": 1,
+  "D3": 1,
+  "D4": 0,
+  "D5": 1,
+  "D6": 1,
+  "D7": 3,
+  "D8": 1,
+  "rationale": {
+    "D1": "CTRE TunerConstants-generated swerve provides a vendored drivetrain abstraction (D1=2), but all mechanism subsystems (Turret, Transport) hold motor objects directly with no IO interface — there are zero `interface *IO` definitions in the repo, confirming no IO layer exists for mechanisms.",
+    "D2": "Button bindings in RobotContainer and command sequences qualify for D1=1 command-based baseline; the Autonomous class is a large static utility with switch/case state machines, but there is no centralized coordinator object with a goal-request API or guarded transitions — it is imperative per-method switching, not a Superstructure.",
+    "D3": "CommandSwerveDrivetrain has a sim notifier thread (startSimThread with updateSimState) and Vision.java has PhotonCameraSim/VisionSystemSim wired — token/partial sim exists; but Robot.simulationPeriodic() is empty and no mechanism physics (ElevatorSim etc.) are present, so this is D1/stub-level sim only.",
+    "D4": "No src/test directory exists beyond the build.gradle JUnit dependency declaration; no test files or @Test annotations found anywhere — confirmed D4=0.",
+    "D5": "Telemetry.java publishes structured NetworkTables data (StructPublisher for Pose, ChassisSpeeds, module states) and CTRE SignalLogger is started — this is organized NetworkTables publishing at D1/low-D2 level; no AdvantageKit, DogLog, or Epilogue; also heavy System.out.println debugging throughout Robot.java/Autonomous.java puts ceiling at D5=1.",
+    "D6": "PathPlanner AutoBuilder is fully configured in CommandSwerveDrivetrain and path files exist, but Robot.autonomousPeriodic() explicitly comments out `m_autonomousCommand.schedule()` and routes all autos to custom Autonomous.* static methods using a home-grown AutoDrive spline system — PathPlanner is present but not used for competition autos; the active system is custom encoder/pose-based, which is D1 (closed-loop with position feedback but not trajectory following).",
+    "D7": "Two PhotonVision cameras feed addVisionMeasurement via estConsumer lambda (Robot.java:49-50); Vision.java implements multi-tag vs single-tag std-dev heuristic with dynamic distance-based scaling — confirmed fused, filtered estimation at D3; no TimeInterpolatableBuffer and RobotState is a plain DTO (not a world-model class), so D4 is not reached.",
+    "D8": "No README beyond WPILib-License.md, no CONTRIBUTING, no spotless/checkstyle, no .github/workflows — only consistent package structure and a Constants file qualify for minimal D1 hygiene; has_library_repo=true in the manifest counts toward D8 but the season repo itself shows no onboarding or CI artifacts."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/Turret.java:37 — TalonFX/SparkMax held directly, no IO interface",
+      "src/main/java/frc/robot/generated/TunerConstants.java — CTRE swerve generator provides vendored drivetrain abstraction",
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:42 — extends TunerSwerveDrivetrain (vendored abstraction only)"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/RobotContainer.java:187 — configureBindings with button triggers, D1 command-based",
+      "src/main/java/frc/robot/subsystems/Autonomous.java:117 — switch/case autoState integer, static utility pattern, no coordinator object",
+      "src/main/java/frc/robot/Robot.java:173 — autonomousPeriodic switch dispatches to Autonomous.* static methods"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:253 — startSimThread with updateSimState (swerve sim only)",
+      "src/main/java/frc/robot/Vision.java:74 — VisionSystemSim/PhotonCameraSim wired in sim branch",
+      "src/main/java/frc/robot/Robot.java:487 — simulationPeriodic() is empty stub"
+    ],
+    "D4": [
+      "build.gradle:74 — JUnit dependency declared but no test source files exist anywhere in the repo"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/Telemetry.java:46 — StructPublisher<Pose2d> via NetworkTables",
+      "src/main/java/frc/robot/Telemetry.java:33 — SignalLogger.start() for CTRE signal logging",
+      "src/main/java/frc/robot/Robot.java:427 — System.out.printf debug output every 10 cycles"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/subsystems/CommandSwerveDrivetrain.java:307 — AutoBuilder.configure() present",
+      "src/main/java/frc/robot/Robot.java:124 — m_autonomousCommand.schedule() commented out; PathPlanner not used in competition",
+      "src/main/java/frc/robot/subsystems/Autonomous.java:127 — AutoDrive.setSpline() is the actual path following system"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/Robot.java:49-50 — two Vision instances feeding addVisionMeasurement via lambda",
+      "src/main/java/frc/robot/Vision.java:137 — updateEstimationStdDevs with multi-tag/distance-based std-dev heuristic",
+      "src/main/java/frc/robot/subsystems/RobotState.java:5 — RobotState is a DTO snapshot, not a world-model with time-interpolated buffers"
+    ],
+    "D8": [
+      "build.gradle:1 — standard GradleRIO project, no spotless/checkstyle",
+      "frc_team_repos/2984-vikings/2026/2026-Rebuilt-TestChassis — no README.md, no .github/workflows directory",
+      "src/main/java/frc/robot/Constants.java — organized constants file (minimal hygiene)"
+    ]
+  },
+  "confidence": "high"
+}

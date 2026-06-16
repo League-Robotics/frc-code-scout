@@ -1,0 +1,63 @@
+{
+  "team": 1538,
+  "year": 2025,
+  "D1": 1,
+  "D2": 2,
+  "D3": 1,
+  "D4": 0,
+  "D5": 2,
+  "D6": 3,
+  "D7": 3,
+  "D8": 2,
+  "rationale": {
+    "D1": "Subsystems (Arm, Claw, Climber, SwerveDrive) own CTRE hardware objects directly as members (TalonFX, CANcoder) with no IO interface abstraction; the CowLib provides utilities but no swappable hardware seam.",
+    "D2": "Per-subsystem state enums are real and used (Arm::State with 20 states, Climber::ClimbState, AlgaeIntake::HingeState), and OperatorController coordinates arm+claw together via a SuperstructureMode toggle; SwerveDrive uses std::variant for drive states — solid FSM-per-subsystem pattern but no single centralized coordinator.",
+    "D3": "IsSimulation() branches exist throughout (SimulatorControlBoard, sim encoder offsets, DriverStationSim in AutoModes), but no WPILib mechanism physics classes (ElevatorSim, DCMotorSim) are used — token sim branching only.",
+    "D4": "src/test/cpp/main.cpp is the GradleRIO boilerplate (HAL_Initialize + RUN_ALL_TESTS()) with zero test cases; discounted as empty harness.",
+    "D5": "Every subsystem publishes structured telemetry via typed nt:: publishers (nt::DoublePublisher, nt::StructPublisher, nt::StructArrayPublisher) under /1538/ prefix, and multiple AdvantageScope JSON layouts are committed; no AdvantageKit/DogLog.",
+    "D6": "44 Choreo .traj files are actively loaded via TrajectoryCache (choreo::Choreo::LoadTrajectory) and driven by the DrivePath command which samples SwerveTrajectory in AutoModes; Choreo is the sole path tool, no PathPlanner.",
+    "D7": "Localizer.cpp uses PhotonCamera with MULTI_TAG_PNP_ON_COPROCESSOR, feeds AddVisionMeasurement with area-based std-dev tuning and ambiguity rejection; GetClosestReefTag() computes game-piece scoring poses from the pose estimate — fused filtered estimation confirmed.",
+    "D8": "Four seasons tracked, a real README with calibration/build steps, CowLib utility library in-tree; no CI workflows and no separate versioned library repo — solid hygiene and onboarding docs but below CI+library threshold."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/include/Subsystems/Arm.h:80 — ctre::phoenix6::hardware::TalonFX m_PivotMotor owned directly",
+      "src/main/include/CowRobot.h:36 — subsystems as unique_ptr members, no IO interface layer",
+      "src/main/include/CowLib/CowLPF.h — CowLib is utilities only, not an IO abstraction"
+    ],
+    "D2": [
+      "src/main/include/Subsystems/Arm.h:18 — enum class State with 20 states",
+      "src/main/cpp/Controllers/OperatorController.cpp:173 — SuperstructureMode switch coordinates arm+claw",
+      "src/main/include/Subsystems/SwerveDrive/SwerveDrive.h:161 — std::variant<IdleState,LockedState,ManualState,...> m_State"
+    ],
+    "D3": [
+      "src/main/cpp/CowBase.cpp:34 — SimulatorControlBoard selected when IsSimulation()",
+      "src/main/cpp/Subsystems/SwerveDrive/SwerveDrive.cpp:47 — IsSimulation() branch for random IMU heading, no physics model",
+      "src/main/cpp/Autonomous/AutoModes.cpp:35 — IsSimulation() used for pose reset only"
+    ],
+    "D4": [
+      "src/test/cpp/main.cpp:1 — only file in test tree; HAL init + RUN_ALL_TESTS(), zero test cases"
+    ],
+    "D5": [
+      "src/main/cpp/Subsystems/Arm.cpp:36 — nt::DoublePublisher/StringPublisher for arm state and angles",
+      "src/main/cpp/Subsystems/SwerveDrive/SwerveDrive.cpp:28 — nt::StructPublisher<frc::ChassisSpeeds> published each loop",
+      "advantage_scope/AdvantageScope 2-25-2025.json — committed AS layout confirming systematic NT use"
+    ],
+    "D6": [
+      "src/main/cpp/TrajectoryCache.cpp:44 — choreo::Choreo::LoadTrajectory loading .traj files",
+      "src/main/cpp/Autonomous/Commands/DrivePath.cpp:64 — m_Trajectory.SampleAt(elapsedTime) driving SwerveDrive",
+      "src/main/deploy/choreo/ — 44 .traj files all referenced by name in AutoModes.cpp"
+    ],
+    "D7": [
+      "src/main/cpp/Localizer.cpp:147 — m_PoseEstimator.AddVisionMeasurement() with tuned std devs",
+      "src/main/cpp/Localizer.cpp:247 — ambiguity rejection and area-based xyStdDev computation",
+      "src/main/include/Localizer.h:44 — GetClosestReefTag() using pose estimate for scoring alignment"
+    ],
+    "D8": [
+      "README.md:29 — real calibration and build instructions with screenshots",
+      "frc_team_repos/1538-holy-cows/ — 4 seasons (2022-2025) plus library folder present",
+      "src/main/include/CowLib/ — in-tree utility library (CowLPF, CowConstants, TripleBuffer, etc.)"
+    ]
+  },
+  "confidence": "high"
+}

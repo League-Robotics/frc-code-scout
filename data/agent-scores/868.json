@@ -1,0 +1,63 @@
+{
+  "team": 868,
+  "year": 2026,
+  "D1": 1.5,
+  "D2": 2,
+  "D3": 2,
+  "D4": 0,
+  "D5": 2,
+  "D6": 2,
+  "D7": 3,
+  "D8": 3,
+  "rationale": {
+    "D1": "No *IO interfaces exist in this season repo; subsystems (Shooter, ShooterHood, Intake) directly own TalonFX/SparkMax hardware; the houndutil BaseShooter/BaseSwerveDrive interfaces provide swerve-level abstraction but are not the per-subsystem IO-layer pattern — no sim-impl or hardware-impl swap point for mechanisms.",
+    "D2": "Superstructure exists and aggregates subsystem references with command-factory methods (targetHubEasyCommand, passCommand, targetHubSotmCommand), but there is no goal-request API, no WantedState/SystemState enum, and no guarded transition logic — it is a command holder at the D2 boundary rather than a true D3 coordinator.",
+    "D3": "FlywheelSim wired into Shooter.simulationPeriodic, SingleJointedArmSim in ShooterHood and Intake, VisionSystemSim in Vision — multiple mechanism physics models confirmed used; no maple-sim or full drivetrain dynamics sim beyond Pigeon2 yaw integration.",
+    "D4": "No src/test directory found anywhere in the 2026 repo; no test files, no @Test annotations, no CI step running tests (CI workflow only runs `./gradlew build`).",
+    "D5": "Team's own houndutil houndlog framework with @LoggedObject/@Log/@Tunable annotations confirmed across 9+ subsystem files plus LoggingManager.registerObject and DataLogManager wiring in RobotContainer — structured systematic logging, not AdvantageKit processInputs but clearly beyond SmartDashboard scatter.",
+    "D6": "PathPlannerLib actively wired: followPathCommand and driveDeltaCommand use FollowPathCommand with PPHolonomicDriveController; driveToPoseCommand implemented; Choreo .traj/.chor files exist in deploy/choreo but zero Choreo API references found in Java source — discounted.",
+    "D7": "Two AprilTagPhotonCamera instances, addVisionMeasurement and addPreciseVisionMeasurement called with per-camera std-dev tuning (SINGLE_TAG_STD_DEVS, MULTI_TAG_STD_DEVS, MULTI_TAG_TELEOP_STD_DEVS), speed-based rejection (normSpeed < 0.8 check), and dual SwerveDrivePoseEstimator fused — confirmed D7=3; no TimeInterpolatableBuffer or dedicated RobotState class.",
+    "D8": "CI workflows confirmed in 2022-2025 season repos (GitHub Actions `./gradlew build`); houndutil consumed as a subproject (implementation project(':houndutil') in build.gradle) and maintained across 5+ seasons; README is a single-line stub — no contributing docs or formatter configured, but library-plus-CI pattern warrants D8=3."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/Shooter.java:44 — TalonFX primaryMotor owned directly, no IO interface",
+      "src/main/java/frc/robot/subsystems/Drivetrain.java:85 — implements BaseSwerveDrive (houndutil interface), KrakenCoaxialSwerveModule hardware-direct",
+      "src/main/java/frc/robot/subsystems/ShooterHood.java:1 — no *IO interface, direct CTRE/REV hardware"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/subsystems/Superstructure.java:27 — holds shooter/shooterHood/hopper/intake/leds, exposes command factories",
+      "src/main/java/frc/robot/subsystems/Superstructure.java:75 — targetHubEasyCommand fans out parallel shooter+hood commands, no state machine",
+      "src/main/java/frc/robot/GlobalStates.java:7 — INITIALIZED/MANUAL_DRIVING_OVERRIDE flags, not subsystem FSM transitions"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/Shooter.java:59 — FlywheelSim wired with LinearSystemId",
+      "src/main/java/frc/robot/subsystems/ShooterHood.java:1 — SingleJointedArmSim with simulationPeriodic",
+      "src/main/java/frc/robot/subsystems/Vision.java:65 — VisionSystemSim with addAprilTags and addCamera"
+    ],
+    "D4": [
+      "find src/test — no output, directory absent"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/subsystems/Superstructure.java:26 — @LoggedObject annotation",
+      "src/main/java/frc/robot/RobotContainer.java:99 — LoggingManager.getInstance().registerObject(this) and DataLogManager.start()",
+      "src/main/java/frc/robot/subsystems/Drivetrain.java:84 — @LoggedObject with 97 total @Log usages across codebase"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/subsystems/Drivetrain.java:908 — followPathCommand with FollowPathCommand + PPHolonomicDriveController",
+      "src/main/java/frc/robot/subsystems/Drivetrain.java:929 — driveDeltaCommand builds PathPlannerPath on-the-fly",
+      "src/main/deploy/choreo/TestPath.traj — Choreo file present but no Java reference found"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/Vision.java:87 — houndeye01 + houndeye02 AprilTagPhotonCamera dual-camera setup",
+      "src/main/java/frc/robot/subsystems/Vision.java:132 — per-camera std-dev update with SINGLE_TAG/MULTI_TAG_STD_DEVS",
+      "src/main/java/frc/robot/subsystems/Drivetrain.java:595 — addVisionMeasurement with thread-locked SwerveDrivePoseEstimator"
+    ],
+    "D8": [
+      "build.gradle:56 — implementation project(':houndutil') — team library as subproject",
+      "frc_team_repos/868-techhounds/2025/2025-Robot/.github/workflows/main.yml:1 — CI workflow runs gradlew build on push/PR",
+      "README.md:1 — minimal one-line README, no contributing docs"
+    ]
+  },
+  "confidence": "high"
+}

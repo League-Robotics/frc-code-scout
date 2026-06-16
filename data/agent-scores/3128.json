@@ -1,0 +1,58 @@
+{
+  "team": 3128,
+  "year": 2025,
+  "D1": 1,
+  "D2": 3,
+  "D3": 0,
+  "D4": 0,
+  "D5": 1,
+  "D6": 2.5,
+  "D7": 2.5,
+  "D8": 4,
+  "rationale": {
+    "D1": "Confirmed zero *IO interfaces and zero device-named impls in src/main; hardware (NAR_CANSpark, NAR_TalonFX, Pigeon2) is used directly inside subsystems — motor abstraction exists only in the team's own 3128-common library layer, not as per-subsystem IO interfaces with sim variants, so this is command-based baseline (L1).",
+    "D2": "Confirmed RobotManager extends FSMSubsystemBase<RobotStates> with a TransitionMap that registers commutative, coupled, converging, and diverging transitions; setStateCommand fans robot-wide goals out to all subsystems (Elevator, Manipulator, Intake, Climber, Swerve), with guarded kinematic delays (delayTransition, atElevatorDist) — this is a real centralized FSM coordinator (L3).",
+    "D3": "simulationPeriodic is commented out in Robot.java; no ElevatorSim, DCMotorSim, SwerveDriveSim, maple-sim, or any physics simulation classes found anywhere in src — confirmed no simulation (L0).",
+    "D4": "No src/test directory exists in the repo (find returns nothing); CI workflow runs './gradlew build' only, not './gradlew test'; no @Test, assertEquals, or HAL harness found — confirmed no testing (L0).",
+    "D5": "No AdvantageKit, DogLog, Epilogue, or URCL found; the team uses NAR_Shuffleboard (their own dashboard publishing in multiple subsystems) and common.utility.Log for typed logging, which is structured dashboard output but not a match for L2 structured lightweight logging frameworks — confirmed dashboard-level publishing (L1).",
+    "D6": "Confirmed PathPlanner actively configured via AutoBuilder.configure with LocalADStar pathfinder, 40 path files, 5 auto files, multiple competition autos hardcoded; pathfindToPose exists in AutoPrograms but only as a helper method, not wired into main teleop flow; no Choreo files or repulsor — solid L2 with pathfinding infrastructure but not L3.",
+    "D7": "Confirmed addVisionMeasurement wired through Camera.setResources callback in RobotContainer, two cameras with distance-based rejection thresholds (setThresholds), multi-camera AprilTag pose fusion with tag exclusion lists; no TimeInterpolatableBuffer, no dedicated RobotState class, no IO interface for vision — multi-cam fusion with filtering puts this solidly between L2 and L3.",
+    "D8": "Confirmed 4 seasons tracked, CI on season repo, separate 3128-common and 3128-swerve library repos with jitpack.yml and maven-publish plugin (versioned artifact infrastructure), library consumed as project dependency (:libs:3128-common) not copy-paste; README in 2025 repo is minimal (2 lines) but library README is substantive — strong program-grade infrastructure (L4)."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/team3128/subsystems/Elevator/ElevatorMechanism.java:18 — NAR_CANSpark left/right used directly, no IO interface",
+      "src/main/java/frc/team3128/subsystems/Swerve.java:12 — com.ctre.phoenix6.hardware.Pigeon2 imported directly above any abstraction"
+    ],
+    "D2": [
+      "src/main/java/frc/team3128/subsystems/Robot/RobotManager.java:37 — extends FSMSubsystemBase<RobotStates> with TransitionMap",
+      "src/main/java/frc/team3128/subsystems/Robot/RobotManager.java:74 — updateSubsystemStates fans goals to all subsystems with guarded transitions",
+      "src/main/java/frc/team3128/subsystems/Robot/RobotStates.java:67 — coupledStates list driving RPL2->RSL2 etc. transitions"
+    ],
+    "D3": [
+      "src/main/java/frc/team3128/Robot.java:175 — simulationPeriodic commented out, no sim classes anywhere"
+    ],
+    "D4": [
+      ".github/workflows/main.yml:34 — runs './gradlew build' only, no test task; no src/test directory exists"
+    ],
+    "D5": [
+      "src/main/java/frc/team3128/subsystems/Robot/RobotManager.java:60 — NAR_Shuffleboard.addData used for dashboard publishing",
+      "src/main/java/frc/team3128/Robot.java:80 — Log.Type.enable(STATE_MACHINE_PRIMARY, ...) custom typed logging"
+    ],
+    "D6": [
+      "src/main/java/frc/team3128/autonomous/AutoPrograms.java:99 — Pathfinding.setPathfinder(new LocalADStar())",
+      "src/main/java/frc/team3128/autonomous/AutoPrograms.java:121 — AutoBuilder.configure with full holonomic controller",
+      "src/main/deploy/pathplanner/autos/ — 5 competition auto files (MID_3pc_H_auto, RB_3pc_FCD_auto, etc.)"
+    ],
+    "D7": [
+      "src/main/java/frc/team3128/RobotContainer.java:226 — Camera.setResources with addVisionMeasurement callback",
+      "src/main/java/frc/team3128/RobotContainer.java:230 — backRightCamera.setThresholds(0.3, 3, 0.3) distance/ambiguity rejection"
+    ],
+    "D8": [
+      "libs/3128-common/jitpack.yml — JitPack build config for versioned artifact publishing",
+      "build.gradle:109 — implementation project(':libs:3128-common') consumed as project dependency",
+      "frc_team_repos/3128-aluminum-narwhals/library/ — 3128-common and 3128-swerve separate library repos"
+    ]
+  },
+  "confidence": "high"
+}

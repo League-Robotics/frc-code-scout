@@ -46,11 +46,49 @@ in 45 is table stakes. Confirm by reading regardless.*
 | generic `*StateMachine` | 12 | second coordination marker |
 | `*IOReal` | **5** | ⚠ rare — do **not** grep for this to find an IO layer |
 | `jgrapht` · `RobotManager` · `WantedState` enum · `*IONull` · replay IO variant · BehaviorTree | 3 · 2 · 2 · ~1 · 1 · 1 | true ceiling markers; a hit is a strong D2/D5 signal |
-| vendor type (`com.ctre`/`com.revrobotics`) imported *above* the IO line | 22 of 24 IO teams | clean vendor confinement is aspirational, not the norm |
+| vendor type (`com.ctre`/`com.revrobotics`) imported *above* the IO line | 22 of 24 IO teams | clean vendor confinement is aspirational, not the norm — but **judge it by reading, not by filename**: some teams confine vendor types in wrapper classes *not* named `*IO` (e.g. 4738's `Kraken.java`/`SafeSpark.java`), which a `*IO`-name heuristic wrongly flags as a leak |
 
 Most-common subsystems (by `subsystems/<dir>`): **vision · intake · drive · shooter ·
 climber · elevator**, then arm · LEDs · indexer · turret. (Manipulator is rare; subsystem
 names are game-dependent — score the IO/coordination *structure*, not the mechanism roster.)
+
+---
+
+## What predicts competition results — and why you must read the code
+
+*Measured 2026 against Statbotics EPA, leave-one-**team**-out cross-validated over 232 team-years /
+55 teams, cluster-bootstrap CIs. Full study: `notebooks/epa-prediction.ipynb`.*
+
+Three results that should shape how you use this rubric:
+
+1. **Confirming use, not presence, roughly doubles the rubric's predictive validity.** On the same 55
+   teams, the **agent-confirmed** D1–D8 (a model that opened the files) predicts EPA at Spearman
+   **ρ ≈ 0.53**; the **mechanical candidate** pass (grep/SQL hits, scored as presence) reaches only
+   **ρ ≈ 0.29**. The paired difference is significant (95% CI `[0.04, 0.44]`). *This is the empirical
+   case for the golden rule.* The cheap pass is a lead sheet, not a score.
+
+2. **Most of what predicts EPA from "code" is just size and program age — not engineering quality.**
+   A model of ~50 raw code features hits ρ ≈ 0.58, but **codebase size + program maturity alone scores
+   ≈ 0.60** while the *sophistication* features (the rubric's structural patterns, size removed) score
+   ≈ 0.38, and a within-team (fixed-effects) view collapses to ≈ 0.05. Bigger, older, better-resourced
+   programs have both more code and better results. Do not read a high raw correlation as "good code
+   wins" — and do not reward sheer volume.
+
+3. **The mechanical pass is trustworthy on some dimensions and not others.** Agreement (quadratic-κ)
+   between the mechanical candidate and the agent-confirmed level:
+
+   | Dimension | κ (mechanical vs confirmed) | Trust the grep? |
+   |---|---|---|
+   | D4 Testing | 0.86 | yes — `src/test` + asserts is unambiguous |
+   | D1 Architecture | 0.82 | yes — `*IO` interfaces are concrete |
+   | D3 Simulation | 0.81 | yes |
+   | D2 Coordination · D5 Logging | 0.74 | mostly — confirm the coordinator is real, logging covers all subsystems |
+   | **D6 Auto/Path · D7 Vision** | **0.60** | **no — confirm by reading** (files present ≠ trajectories driven / vision fused) |
+   | **D8 Sustainability** | **0.57** | **no — read the README/CI/library; history is shallow** |
+
+   Spend your reading budget where κ is low: **D6, D7, D8** are where "present" most diverges from
+   "used." (Equal-weighting the eight dimensions is fine — an EPA-optimal re-weighting was *not*
+   distinguishable from equal weight on this sample, so don't over-engineer the sum.)
 
 ---
 
@@ -96,7 +134,10 @@ not a holder), generic `*StateMachine` (12 teams). Rarer variants, each a strong
 present but few teams: `enum WantedState`/`SystemState` (2910 style — 2 teams), `RobotManager`
 (581/3128 centralized FSM — 2 teams), `handleStateTransitions`, `jgrapht` (3), `AStarSolver`,
 `BehaviorTree` (1). Don't weight `WantedState`/`RobotManager` as the default — they're niche;
-the common path is a `Superstructure` (level 3) optionally backed by a `*StateMachine`.
+the common path is a `Superstructure` (level 3) optionally backed by a `*StateMachine`. A newer L3
+marker worth recognizing: a **request-based API** — a `Goal`/`SuperstructureRequest` enum or sealed
+type plus a `requestGoal(...)`/`request(...)` method (often returning a `Command`) and a
+`handleStateTransitions`-style guard — which makes intent-vs-execution explicit.
 
 **Caution:** a class *named* Superstructure that just holds references is level 1 wearing a level 3 name. Look for an actual goal-request API and transition logic.
 
@@ -150,7 +191,7 @@ the common path is a `Superstructure` (level 3) optionally backed by a `*StateMa
 
 **Grep:** `doglog`, `Epilogue`, `@Logged`, `URCL`, `org.littletonrobotics.junction`, `Logger.processInputs`, `@AutoLog`, `FaultReporter`, `SystemCheck`, committed `.json` AdvantageScope layouts.
 
-**Caution:** AdvantageKit vendored but with `processInputs` on one subsystem out of ten is level 2, not 3. The level is about coverage, not presence.
+**Caution:** AdvantageKit vendored but with `processInputs` on one subsystem out of ten is level 2, not 3. The level is about coverage, not presence — gauge coverage by the *count* of `Logger.processInputs` / `recordOutput` call sites relative to the subsystem roster (a handful = partial; dozens across every subsystem = real L3).
 
 ---
 
@@ -166,7 +207,14 @@ the common path is a `Superstructure` (level 3) optionally backed by a `*StateMa
 | 3 | Optimized trajectories | Choreo (`.traj`/`.chor` files actually referenced in code) where time matters, typically alongside PathPlanner; on-the-fly driving to poses (align-to-target commands) |
 | 4 | Reactive planning | Repulsor/potential-field or equivalent dynamic obstacle avoidance; superstructure states exposed as auto actions; auto selection infrastructure |
 
-**Grep:** `pathplanner` dir under `src/main/deploy`, `PathPlannerLib.json`, `choreo` / `.traj` / `.chor`, `Repulsor`, `RepulsorField`, `AutoBuilder`.
+**Grep:** `pathplanner` dir under `src/main/deploy`, `PathPlannerLib.json`, `choreo` / `.traj` / `.chor`, `Repulsor`, `RepulsorField`, `AutoBuilder`, `AutoBuilder.pathfind*` (on-the-fly, L3).
+
+**Confirm use — this is the lowest-trust dimension (κ 0.60).** Choreo `.traj`/`.chor` *files* count
+for nothing on their own: in the corpus, 15 of the teams with Choreo files **never reference them in
+code**, and PathPlanner `.auto` files frequently carry `choreoAuto:false`. Require an actual code
+reference — `fromChoreoTrajectory(...)`, `Choreo.loadTrajectory(...)`, a `choreo.auto.AutoFactory` —
+before crediting Choreo at L3. Likewise confirm `AutoBuilder.configure(...)` is wired with real
+constraints, not just imported.
 
 ---
 
@@ -182,7 +230,9 @@ the common path is a `Superstructure` (level 3) optionally backed by a `*StateMa
 | 3 | Fused, filtered estimation | Vision std-dev tuning, multi-camera fusion, rejection logic; vision behind an IO interface with sim variant |
 | 4 | World model as architecture | A dedicated `RobotState` class owning pose + game-piece state with time-interpolated buffers; localization decoupled from control |
 
-**Grep:** `photonlib`, `PhotonCamera`, `LimelightHelpers`, `addVisionMeasurement`, `SwerveDrivePoseEstimator`, `RobotState`, `TimeInterpolatableBuffer`, `MegaTag`.
+**Grep:** `photonlib`, `PhotonCamera`, `LimelightHelpers`, `addVisionMeasurement`, `SwerveDrivePoseEstimator`, `RobotState`, `TimeInterpolatableBuffer`, `MegaTag`. For the **L3 fused-and-filtered** rung, the discriminating markers are `setVisionMeasurementStdDevs` (dynamic std-dev tuning) and a `VisionIO` interface with a sim variant (vision decoupled from `Drive`); for **L4**, a dedicated `RobotState` whose pose lives in a `TimeInterpolatableBuffer`/`ConcurrentTimeInterpolatableBuffer`.
+
+**Confirm use (κ 0.60).** `addVisionMeasurement` is near-universal (50/55 teams) — it is the L2 floor, not evidence of L3. The level is set by the *filtering* (rejection logic, per-tag std-devs) and *architecture* (IO seam, central world-model), which you must read to see.
 
 ---
 

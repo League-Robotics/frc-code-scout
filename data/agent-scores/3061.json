@@ -1,0 +1,63 @@
+{
+  "team": 3061,
+  "year": 2026,
+  "D1": 3,
+  "D2": 2,
+  "D3": 1.5,
+  "D4": 0,
+  "D5": 4,
+  "D6": 3,
+  "D7": 3.5,
+  "D8": 2.5,
+  "rationale": {
+    "D1": "Confirmed full IO layer across all game subsystems (IntakeIO, HopperIO, ShooterIO, SwerveDrivetrainIO, VisionIO) with hardware impls (IOTalonFX) and null-object fallbacks, selected in RobotContainer's switch; no generic servo base or replay IO variants to justify 4.",
+    "D2": "ShooterModes acts as a mode-state coordinator and CrossSubsystemsCommandsFactory fans shooter/hopper/intake interactions via mode-driven triggers and command groups, but there is no named Superstructure with a goal-request API and guarded transitions — closer to explicit per-subsystem state with cross-subsystem orchestration than a true level-3 coordinator.",
+    "D3": "Lib contains ArmSystemSim, ElevatorSystemSim, FlywheelSystemSim, and VisionIOSim (used for sim robot config), and a SIM run mode exists; however the competition game mechanisms (Shooter, Intake, Hopper) have no physics-backed IO implementations — sim-mode uses the anonymous null-object IO, so mechanism physics sim is not confirmed in use.",
+    "D4": "No src/test directory exists; no test files or assertion calls found anywhere in the repo.",
+    "D5": "AdvantageKit is fully wired: @AutoLog inputs structs on all subsystems, Logger.processInputs called in every subsystem periodic, LoggedTunableNumber/LoggedDashboardChooser throughout, replayWatch Gradle task present, REPLAY mode wired with null-object IOs in RobotContainer, and FaultReporter system-check commands provide operational diagnostics — confirmed D5=4.",
+    "D6": "63 PathPlanner path files with AutoBuilder/PathPlannerAuto/PathPlannerPath confirmed in AutonomousCommandsFactory, plus LocalADStarAK for AK-integrated pathfinding and a DriveToPose on-the-fly drive-to-pose command; no Choreo trajectories but on-the-fly pose driving confirms level 3.",
+    "D7": "VisionIO interface with VisionIOPhotonVision, VisionIONorthstar, and VisionIOSim implementations; addVisionMeasurement wired through RobotOdometry singleton with std-dev tuning and multi-camera fusion confirmed in Vision.java; strong level 3, one step short of a full world-model with TimeInterpolatableBuffer.",
+    "D8": "Comprehensive README with build/deploy instructions, links to tuning/configuration docs, and reference videos; Spotless google-java-format enforced in build.gradle; AdvantageScope.json and AdvantageScopeTuning.json layouts committed; multi-robot config system; lib package carried across seasons; no .github/workflows directory found in this repo clone, so CI cannot be confirmed."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/frc/robot/subsystems/intake/IntakeIO.java:5 — interface IntakeIO with @AutoLog inputs struct",
+      "src/main/java/frc/robot/subsystems/intake/IntakeIOTalonFX.java:37 — public class IntakeIOTalonFX implements IntakeIO",
+      "src/main/java/frc/robot/RobotContainer.java:100 — switch(Constants.getRobot()) factory selecting IOTalonFX vs null-object IO"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/commands/CrossSubsystemsCommandsFactory.java:343 — configureCrossSubsystemsTriggers wires mode-driven triggers across shooter/hopper/drivetrain",
+      "src/main/java/frc/robot/commands/CrossSubsystemsCommandsFactory.java:150 — getManualShootButton orchestrates hopper, intake, and shooter in concert",
+      "src/main/java/frc/robot/subsystems/shooter/ShooterModes.java — mode enum (MANUAL_SHOOT, SHOOT_OTM, etc.) drives coordination logic"
+    ],
+    "D3": [
+      "src/main/java/frc/lib/team3061/sim/FlywheelSystemSim.java:11 — FlywheelSim present in lib",
+      "src/main/java/frc/lib/team3061/vision/VisionIOSim.java — VisionIOSim used in createCTRESimSubsystems",
+      "src/main/java/frc/robot/RobotContainer.java:244 — ROBOT_SIMBOT uses VisionIOSim but intake/hopper/shooter use IntakeIOTalonFX (not a physics sim impl)"
+    ],
+    "D4": [
+      "src/ — no src/test directory exists; no @Test or assertEquals found anywhere in the repo"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/subsystems/shooter/Shooter.java:113 — Logger.processInputs(SUBSYSTEM_NAME, shooterInputs) in periodic",
+      "src/main/java/frc/lib/team3015/subsystem/FaultReporter.java:40 — FaultReporter singleton with system-check commands and Alert publishing",
+      "src/main/java/frc/robot/Constants.java:62 — Mode.REPLAY wired; build.gradle:85 — replayWatch JavaExec task"
+    ],
+    "D6": [
+      "src/main/java/frc/robot/commands/AutonomousCommandsFactory.java:5 — AutoBuilder, PathPlannerAuto, PathPlannerPath imports confirmed",
+      "src/main/java/frc/robot/LocalADStarAK.java — AK-integrated AD* pathfinder",
+      "src/main/java/frc/robot/commands/DriveToPose.java — on-the-fly drive-to-pose command"
+    ],
+    "D7": [
+      "src/main/java/frc/lib/team3061/vision/Vision.java:44 — Vision subsystem with VisionIO[] array, multi-camera fusion, std-dev tuning",
+      "src/main/java/frc/lib/team3061/util/RobotOdometry.java:26 — RobotOdometry singleton above AK layer for replay-safe pose estimation",
+      "src/main/java/frc/lib/team3061/util/SwerveRobotOdometry.java:86 — addVisionMeasurement wired to SwerveDrivePoseEstimator"
+    ],
+    "D8": [
+      "README.md:1 — comprehensive README with build, tuning, and reference documentation",
+      "build.gradle:204 — spotless with googleJavaFormat enforced on compile",
+      "AdvantageScope.json — committed AdvantageScope layout at repo root"
+    ]
+  },
+  "confidence": "high"
+}

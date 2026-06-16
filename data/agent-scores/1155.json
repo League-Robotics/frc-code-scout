@@ -1,0 +1,61 @@
+{
+  "team": 1155,
+  "year": 2026,
+  "D1": 3.5,
+  "D2": 1,
+  "D3": 2.5,
+  "D4": 4,
+  "D5": 2.5,
+  "D6": 3.5,
+  "D7": 3,
+  "D8": 2.5,
+  "rationale": {
+    "D1": "Confirmed IO interfaces (WheelIO, ClimbIO, SlapdownIO, TurretIO, HoodIO, ModuleIO, GyroIO) each with Real + Sim + No (null-object) implementations across virtually every mechanism — full layer with null-object pattern approaching L4, but no generic parameterized base.",
+    "D2": "Robot.java uses standard command-based button bindings with no Superstructure, no state machine, no WantedState enum, and no goal-fanout coordinator — confirmed by searching the entire src/main tree.",
+    "D3": "Confirmed ElevatorSim in SimClimb, SimModule (DCMotorSim-backed) for drive, VisionSystemSim with PhotonCameraSim for vision, and custom SpringLoadedClimbSim — multiple mechanism physics sims wired into IO impls; no maple-sim.",
+    "D4": "Confirmed 14 real test files using UnitTestingUtil.fastForward and runToCompletion (ClimbTest, SwerveTest, AlignTest, TurretTest, ShooterTest, etc.); CI runs gradle build which includes the test task; broad suite with sim-backed subsystem assertions.",
+    "D5": "Confirmed Epilogue @Logged annotations across Robot, Drive, Climb, Turret, Slapdown, Vision subsystems, plus URCL, DataLogManager, FaultLogger, and custom LoggingUtils.log() — broad structured logging but not AdvantageKit (no @AutoLog/processInputs); FaultLogger provides operational diagnostics.",
+    "D6": "Confirmed PathPlannerLib AutoBuilder fully configured with real constraints and a RepulsorFieldPlanner (reactive obstacle avoidance) wired into Alignment commands used in teleop and auto; Choreo SwerveSample type used for sample-following in Drive but no .traj files deployed.",
+    "D7": "Confirmed multi-camera PhotonPoseEstimator with std-dev tuning, per-tag weight/distance rejection, addVisionMeasurement with timestamps, and VisionSystemSim — fused filtered estimation; no dedicated RobotState class or TimeInterpolatableBuffer.",
+    "D8": "Confirmed GitHub Actions CI (gradle build includes tests), spotless + PMD with custom ruleset, real README with structure docs and a history.json; no separate season-independent library repo (lib/ lives in-tree)."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/java/org/sciborgs1155/robot/climb/ClimbIO.java:3 — interface ClimbIO extends AutoCloseable",
+      "src/main/java/org/sciborgs1155/robot/climb/NoClimb.java:6 — null-object impl NoClimb implements ClimbIO",
+      "src/main/java/org/sciborgs1155/robot/shooter/WheelIO.java:3 — interface WheelIO extends AutoCloseable with RealWheel/SimWheel impls"
+    ],
+    "D2": [
+      "src/main/java/org/sciborgs1155/robot/Robot.java:64 — @Logged class Robot extends CommandRobot with direct button bindings, no Superstructure or FSM"
+    ],
+    "D3": [
+      "src/main/java/org/sciborgs1155/robot/climb/SimClimb.java:18 — ElevatorSim wired into ClimbIO impl",
+      "src/main/java/org/sciborgs1155/robot/vision/Vision.java:96 — VisionSystemSim with PhotonCameraSim per camera in simulation"
+    ],
+    "D4": [
+      "src/test/java/org/sciborgs1155/robot/ClimbTest.java:36 — schedules and fastForwards sim-backed climb command then asserts position",
+      "src/test/java/org/sciborgs1155/robot/AlignTest.java:50 — runToCompletion on alignTo command with pose assertion",
+      "src/main/java/org/sciborgs1155/lib/UnitTestingUtil.java:101 — runToCompletion harness wiring HAL + SimHooks"
+    ],
+    "D5": [
+      "src/main/java/org/sciborgs1155/robot/Robot.java:117 — Epilogue.bind(this) wires structured logging at robot startup",
+      "src/main/java/org/sciborgs1155/robot/vision/Vision.java:38 — @Logged on Vision class covering filteredEstimates and camera state",
+      "src/main/java/org/sciborgs1155/lib/FaultLogger.java:39 — FaultLogger provides operational fault diagnostics via NetworkTables"
+    ],
+    "D6": [
+      "src/main/java/org/sciborgs1155/robot/commands/Autos.java:40 — AutoBuilder.configure with PathPlannerLib fully wired",
+      "src/main/java/org/sciborgs1155/robot/commands/Alignment.java:94 — RepulsorFieldPlanner.getCmd used in real pathfind commands",
+      "src/main/java/org/sciborgs1155/lib/RepulsorFieldPlanner.java:26 — full reactive repulsor field implementation with walls, obstacles, goal force"
+    ],
+    "D7": [
+      "src/main/java/org/sciborgs1155/robot/vision/Vision.java:303 — estimationStdDevs with per-tag weights, distance scaling, and multi-tag reduction",
+      "src/main/java/org/sciborgs1155/robot/drive/Drive.java:865 — odometry.addVisionMeasurement with timestamped poses and std-devs"
+    ],
+    "D8": [
+      ".github/workflows/gradle.yml:24 — gradle build (includes tests) on push and PR",
+      "build.gradle:4 — spotless and pmd plugins configured with custom ruleset",
+      "README.md:1 — substantive README with repo structure, dependencies, and modification guide"
+    ]
+  },
+  "confidence": "high"
+}

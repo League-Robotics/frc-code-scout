@@ -1,0 +1,64 @@
+{
+  "team": 3015,
+  "year": 2024,
+  "D1": 3,
+  "D2": 4,
+  "D3": 2,
+  "D4": 3,
+  "D5": 3,
+  "D6": 3,
+  "D7": 3,
+  "D8": 3,
+  "rationale": {
+    "D1": "Confirmed full IO layer across all mechanisms (ShooterIO, ClimberIO, IntakeIO, ArmJointIO, ArmExtensionIO, SwerveIO, SwerveModuleIO, etc.) with Phoenix (hardware) and Sim/Dummy implementations selected in RobotContainer, covering every subsystem; no generic reused base, so L4 not reached.",
+    "D2": "Confirmed a custom BehaviorTree runtime (Kotlin, frc/lib/behaviorTree/) with a Blackboard, composable nodes, and a dedicated TreeSubsystem used throughout teleop bindings (AutoUpperMech, AutoPilot trees) — this is a real behavior-tree runtime as data, not just commands, placing it at L4.",
+    "D3": "Confirmed WPILib LinearSystemSim in SwerveModuleIOSim for drive and rotation dynamics, and a lightweight kinematic SwerveIOSim; no whole-robot maple-sim or ElevatorSim/ArmSim for mechanisms beyond swerve, so max D3=2.",
+    "D4": "Confirmed 37 test files (Java + Kotlin), HAL harness used, CI workflow (run-tests.yaml) runs 'gradlew build' which includes tests on push/PR with Codecov coverage upload; tests cover AdvancedSubsystem, BehaviorTree nodes, RobotContainer init, SwerveSetpointGenerator, and utility math — meets L3; not SciBorgs runToCompletion style.",
+    "D5": "Confirmed @AutoLog + Logger.processInputs across every subsystem (Climber, ArmJoint, ArmExtension, Intake, ShooterJoint, SwerveModule, SwerveIO, LidarIO), AdvantageScope layout committed (AdvantageScope-layout.json), Logger.hasReplaySource() checked in Localization; AdvancedSubsystem fault reporting also wired — L3 met with operational diagnostics.",
+    "D6": "Confirmed Choreo .traj files loaded via PathPlannerPath.fromChoreoTrajectory() in multiple auto commands (SixNote, SixNoteBranching, SourceBranching), plus AutoBuilder.pathfindToPose() used for on-the-fly pathfinding to amp/chute poses — Choreo used for time-optimal paths, PathPlanner pathfinding for reactive alignment.",
+    "D7": "Confirmed custom PoseEstimator with TimeInterpolatableBuffer, multi-camera AprilTag fusion (3 Polaris cameras via AprilTagLocalizationIO with Limelight/Photon/Polaris impls), std-dev tuning by distance in Localization.periodic(), and ambiguity rejection logic; vision behind IO interface with Sim variant — fused, filtered multi-camera estimation at L3.",
+    "D8": "Confirmed README.md present, spotless formatter configured and enforced in CI (spotless check + apply in run-tests.yaml), AdvantageScope layout committed, codecov.yml present, custom dashboard (dashboard24) and behavior tree editor in the same repo — meets L3 on CI + formatting; no separate versioned library repo so L4 not reached."
+  },
+  "evidence": {
+    "D1": [
+      "RobotCode2024/src/main/java/frc/robot/RobotContainer.java:100 — SwerveIO selected between SwerveIOPhoenix and SwerveIOSim at construction",
+      "RobotCode2024/src/main/java/frc/robot/subsystems/shooter/ShooterIO.java — interface with @AutoLog Inputs",
+      "RobotCode2024/src/main/java/frc/robot/subsystems/climber/ClimberIOPhoenix.java — hardware impl"
+    ],
+    "D2": [
+      "RobotCode2024/src/main/kotlin/frc/lib/behaviorTree/BehaviorTreeCommand.kt:1 — full BehaviorTree runtime with Blackboard, composable nodes",
+      "RobotCode2024/src/main/java/frc/robot/RobotContainer.java:236 — BehaviorTrees.loadTree('AutoUpperMech') wired to driver button",
+      "RobotCode2024/src/main/java/frc/robot/RobotContainer.java:279 — BehaviorTrees.loadTree('AutoPilot') used for autonomous pilot mode"
+    ],
+    "D3": [
+      "RobotCode2024/src/main/java/frc/robot/subsystems/swerve_module/SwerveModuleIOSim.java:18 — LinearSystemSim for drive and rotation",
+      "RobotCode2024/src/main/java/frc/robot/subsystems/swerve/SwerveIOSim.java:8 — kinematic gyro sim"
+    ],
+    "D4": [
+      "RobotCode2024/.github/workflows/run-tests.yaml:42 — './gradlew build' runs tests in CI with Codecov upload",
+      "RobotCode2024/src/test/java/frc/lib/subsystem/AdvancedSubsystemTest.java:17 — HAL-backed subsystem fault tests",
+      "RobotCode2024/src/test/kotlin/frc/lib/behaviorTree/BehaviorTreeCommandTest.kt — behavior tree command tests"
+    ],
+    "D5": [
+      "RobotCode2024/src/main/java/frc/robot/subsystems/climber/Climber.java:52 — Logger.processInputs('Climber', inputs)",
+      "RobotCode2024/src/main/java/frc/lib/subsystem/AdvancedSubsystem.java:37 — Logger.recordOutput for fault reporting per subsystem",
+      "RobotCode2024/AdvantageScope-layout.json — committed AdvantageScope layout"
+    ],
+    "D6": [
+      "RobotCode2024/src/main/java/frc/robot/commands/auto/SixNote.java:29 — PathPlannerPath.fromChoreoTrajectory('SixNoteScumbag.1')",
+      "RobotCode2024/src/main/java/frc/robot/RobotContainer.java:388 — AutoBuilder.pathfindToPose for on-the-fly amp alignment",
+      "RobotCode2024/src/main/deploy/choreo/SixNoteScumbag.1.traj — Choreo trajectory file used in code"
+    ],
+    "D7": [
+      "RobotCode2024/src/main/java/frc/lib/swerve/PoseEstimator.java:19 — TimeInterpolatableBuffer<Pose2d> poseBuffer",
+      "RobotCode2024/src/main/java/frc/robot/subsystems/localization/Localization.java:155 — std-dev tuning: xyStdDev = coefficient * distance^2 / tagCount",
+      "RobotCode2024/src/main/java/frc/robot/RobotContainer.java:123 — 3 AprilTagLocalizationIOPolaris cameras fused"
+    ],
+    "D8": [
+      "RobotCode2024/build.gradle:4 — spotless formatter plugin configured",
+      "RobotCode2024/.github/workflows/run-tests.yaml:23 — spotlessCheck job in CI",
+      "RobotCode2024/README.md — real README present"
+    ]
+  },
+  "confidence": "high"
+}

@@ -1,0 +1,62 @@
+{
+  "team": 9573,
+  "year": 2026,
+  "D1": 2,
+  "D2": 1,
+  "D3": 1,
+  "D4": 0,
+  "D5": 1,
+  "D6": 1,
+  "D7": 1,
+  "D8": 1,
+  "rationale": {
+    "D1": "YAGSL vendored swerve abstraction (JSON configs in deploy/swerve/) confirmed used, but OutakeSubsystem holds SparkMax directly and ArmSubsystem/IntakeSubsystem are empty stubs; no IO interfaces found anywhere.",
+    "D2": "LaunchSequence is a SequentialCommandGroup (SpinUp + Launch) and button bindings in RobotContainer confirmed; no Superstructure, no state enums, no FSM coordinator found.",
+    "D3": "SwerveSubsystem.simulationPeriodic() is an empty stub and Robot.simulationPeriodic() is empty; VisionSystemSim wiring exists in Vision.java but Vision is never instantiated, so no sim runs at all.",
+    "D4": "No src/test directory, no test files, no GitHub Actions workflows found anywhere in the repo.",
+    "D5": "SmartDashboard.putNumber confirmed in OutakeSubsystem, SwerveSubsystem, and command classes; no AdvantageKit, DogLog, Epilogue, or URCL found.",
+    "D6": "PathPlannerLib vendordep present but zero PathPlanner Java imports in source; only autos are driveForward() (timed) and 'Do Nothing', both wired without trajectory following.",
+    "D7": "AimAtTarget and DriveAtTarget use raw PhotonCamera yaw for targeting/servoing confirmed; Vision.java has addVisionMeasurement at line 149 with dynamic std-dev tuning but Vision is never instantiated in RobotContainer or Robot, so pose estimation is dead code.",
+    "D8": "Organized Constants.java and consistent package structure confirmed; library folder contains a YAGSL example copy (not a maintained team library); no README beyond WPILib-License.md, no CI."
+  },
+  "evidence": {
+    "D1": [
+      "src/main/deploy/swerve/swervedrive.json — YAGSL config confirming vendored swerve abstraction",
+      "src/main/java/frc/robot/subsystems/OutakeSubsystem.java:6 — SparkMax imported directly, no IO interface",
+      "src/main/java/frc/robot/subsystems/ArmSubsystem.java:3 — empty stub class"
+    ],
+    "D2": [
+      "src/main/java/frc/robot/commands/LaunchSequence.java:19 — SequentialCommandGroup with SpinUp + Launch",
+      "src/main/java/frc/robot/RobotContainer.java:143 — button bindings only, no coordinator object"
+    ],
+    "D3": [
+      "src/main/java/frc/robot/subsystems/SwerveSubsystem.java:101 — empty simulationPeriodic()",
+      "src/main/java/frc/robot/Robot.java:97 — empty simulationPeriodic()",
+      "src/main/java/frc/robot/subsystems/Vision.java:92 — VisionSystemSim instantiated but Vision never constructed"
+    ],
+    "D4": [
+      "No src/test directory exists in the repo",
+      "No .github/workflows directory exists in the repo"
+    ],
+    "D5": [
+      "src/main/java/frc/robot/subsystems/OutakeSubsystem.java:48 — SmartDashboard.putNumber calls",
+      "src/main/java/frc/robot/subsystems/SwerveSubsystem.java:92 — SmartDashboard.putNumber for module encoders",
+      "src/main/java/frc/robot/RobotContainer.java:125 — SmartDashboard.putData for autoChooser"
+    ],
+    "D6": [
+      "vendordeps/PathplannerLib.json — vendordep present but no .path/.auto files in deploy",
+      "src/main/java/frc/robot/RobotContainer.java:122 — driveForward().withTimeout(1) is the only real auto"
+    ],
+    "D7": [
+      "src/main/java/frc/robot/subsystems/Vision.java:149 — addVisionMeasurement call with std-dev tuning (dead, never instantiated)",
+      "src/main/java/frc/robot/commands/AimAtTarget.java:65 — yaw * 0.021 * 2.5 raw targeting (no pose estimation)",
+      "src/main/java/frc/robot/RobotContainer.java — Vision class never imported or instantiated"
+    ],
+    "D8": [
+      "src/main/java/frc/robot/Constants.java:1 — organized constants with inner classes",
+      "frc_team_repos/9573-maraudertech/library/YAGSLexample — library folder is a YAGSL example, not a team library",
+      "frc_team_repos/9573-maraudertech/2026/2026-rebuilt/WPILib-License.md — only .md file, no real README"
+    ]
+  },
+  "confidence": "high"
+}
