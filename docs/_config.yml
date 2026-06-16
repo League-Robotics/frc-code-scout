@@ -1,0 +1,34 @@
+# Jekyll config for the FRC Code Scout book site (just-the-docs).
+# Pages are GENERATED from ../knowledge by scripts/build_site.py into docs/book/ (gitignored) —
+# knowledge/ is the single source of truth. Run that script before building.
+title: FRC Code Scout
+description: >-
+  An 8-dimension code-sophistication rubric and an elite-track build spec for FRC robot
+  software — derived from a survey of top teams' codebases.
+
+theme: just-the-docs
+
+# Markdown-to-markdown links between docs (e.g. subsystems/01-…​.md) resolve to permalinks.
+plugins:
+  - jekyll-relative-links
+relative_links:
+  enabled: true
+  collections: false
+
+# just-the-docs renders ```mermaid fenced blocks natively when this is set (20 diagrams in the book).
+mermaid:
+  version: "10.9.0"
+
+search_enabled: true
+heading_anchors: true
+color_scheme: dark
+aux_links:
+  "Repository": ["https://github.com/League-Robotics/frc-code-scout"]
+aux_links_new_tab: true
+
+# Don't process repo/site machinery as content.
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - .bundle

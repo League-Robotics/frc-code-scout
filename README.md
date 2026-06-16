@@ -1,9 +1,39 @@
 # FRC Code Scout
 
-A portable environment for scoring FRC (and FTC) team **software** against an
-8-dimension code-sophistication rubric — and the research corpus that the rubric was
-built from. Point an AI coding agent (Claude Code, Codex, Cursor, …) at this repo and ask
-it to analyze a team or rebuild the dataset.
+A portable environment for **scoring** FRC (and FTC) team **software** against an 8-dimension
+code-sophistication rubric, **building** that architecture into new robot projects, and the
+research corpus + book the rubric was built from. Point an AI coding agent (Claude Code, Codex,
+Cursor, …) at this repo to analyze a team, rebuild the dataset, or scaffold a robot.
+
+## Install as a Claude Code plugin
+
+```text
+/plugin marketplace add League-Robotics/frc-code-scout
+/plugin install frc-code-scout@frc-code-scout-marketplace
+```
+
+It ships two families of skills (plus the `team-analyst` and `corpus-builder` agents):
+
+| Analyze | Build |
+|---|---|
+| `analyze-team` · `score-rubric` · `index-code` | `scaffold-robot` (the 3 seams + run-mode) |
+| `reproduce-corpus` · `update-corpus` | `add-subsystem` (IO quartet + Sim + test, any archetype) |
+| | `setup-testing` · `setup-logging` · `setup-simulation` |
+| | `audit-architecture` (score your *own* project) |
+
+Validate the manifest with `claude plugin validate .`.
+
+## Read the book online
+
+The `knowledge/` folder is a five-part book (rubric → corpus analysis → build spec → survey →
+examples). It publishes to a [just-the-docs](https://just-the-docs.com) site on **GitHub Pages**:
+`scripts/build_site.py` injects nav front matter from `knowledge/` (the single source of truth) into
+`docs/book/`, and `.github/workflows/pages.yml` builds + deploys it. Enable once via *Settings →
+Pages → Source = GitHub Actions*. Local preview (needs Ruby ≥ 3.0):
+
+```bash
+python3 scripts/build_site.py && (cd docs && bundle install && bundle exec jekyll serve)
+```
 
 ## What's in here
 

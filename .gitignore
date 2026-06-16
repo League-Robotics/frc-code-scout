@@ -18,3 +18,11 @@ node_modules/
 __pycache__/
 *.pyc
 .DS_Store
+# Jekyll book site — generated from knowledge/ by scripts/build_site.py; build artifacts.
+docs/book/
+docs/_site/
+docs/.jekyll-cache/
+docs/.jekyll-metadata
+docs/.bundle/
+docs/vendor/
+docs/Gemfile.lock

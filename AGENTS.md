@@ -99,6 +99,26 @@ sgconfig.yml      ast-grep project config (points at rules/)
 5. To re-run the full San Diego scoring, score each team's latest real season repo and
    rebuild a master CSV in the shape of `knowledge/survey/sd-frc-master.csv`.
 
+## Workflow C — Build a robot the elite way
+
+The same architecture the rubric measures can be *built*, not just scored. The book is
+`knowledge/build-spec/` (the spec) → `subsystems/00-08` (per-archetype guides) → `logging.md` /
+`testing.md` / `simulation.md` (practices). The skills scaffold it:
+
+1. **`scaffold-robot`** — lay the three seams (per-subsystem IO layer, `RobotState`,
+   `Superstructure`) + a REAL/SIM/REPLAY run mode + a swerve `Drive`. Build the seams first;
+   everything else attaches to them.
+2. **`add-subsystem`** — given an archetype (linear / rotational / velocity / roller / vision) and a
+   name, stamp out the full IO quartet (`XxxIO`+inputs, `XxxIO<device>`, `XxxIOSim`, the subsystem,
+   constants) **plus a sim-backed unit test**. Skeleton templates ship beside the skill.
+3. **`setup-testing` / `setup-logging` / `setup-simulation`** — wire the practices.
+4. **`audit-architecture`** — turn the rubric inward: score the *current* project, flag missing
+   seams and vendor leaks, and name the one highest-leverage next step.
+
+**The build golden rule:** a vendor type (`com.ctre`, `com.revrobotics`, `org.photonvision`) appears
+**only** inside an `XxxIO<device>`/`XxxIOSim` file — never in a subsystem, command, `RobotState`, or
+`Superstructure`. That confinement is what makes the code simulatable, testable, and portable.
+
 ## Keeping the tool current (self-update)
 
 The `update-corpus` skill re-pulls every tracked repo (so scores reflect current code),

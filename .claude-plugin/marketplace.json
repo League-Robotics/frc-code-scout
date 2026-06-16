@@ -1,12 +1,16 @@
 {
   "name": "frc-code-scout-marketplace",
-  "owner": { "name": "San Diego FIRST Robotics Inventory project" },
+  "description": "FRC/FTC robot-software tooling: an 8-dimension code-sophistication rubric, a multi-team analysis corpus, and skills to scaffold an elite-track command-based architecture.",
+  "owner": {
+    "name": "League Robotics — San Diego FIRST Robotics Inventory project",
+    "url": "https://github.com/League-Robotics"
+  },
   "plugins": [
     {
       "name": "frc-code-scout",
       "source": "./",
-      "description": "Rubric-based FRC/FTC code analysis: download, index (ast-grep), score, and report.",
-      "version": "0.1.0"
+      "description": "Analyze and build FRC/FTC robot software: score team code against an 8-dimension rubric, and scaffold an elite-track command-based architecture into new projects.",
+      "version": "0.2.0"
     }
   ]
 }

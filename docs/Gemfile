@@ -1,0 +1,10 @@
+# Jekyll 4 + just-the-docs (current). NOT the github-pages gem (it pins Jekyll 3.9, too old for
+# current just-the-docs + native mermaid). The Pages workflow builds with `bundle exec jekyll build`.
+source "https://rubygems.org"
+
+gem "jekyll", "~> 4.3"
+gem "just-the-docs", "~> 0.10"
+gem "jekyll-relative-links", "~> 0.7"
+
+# Windows/JRuby helpers (harmless elsewhere)
+gem "webrick", "~> 1.8"

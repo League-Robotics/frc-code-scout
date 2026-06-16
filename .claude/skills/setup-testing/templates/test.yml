@@ -1,0 +1,18 @@
+# TEMPLATE — copy to .github/workflows/test.yml. Runs the unit-test suite on every push/PR (rubric D4 L3).
+name: Robot tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17" # match your WPILib year's JDK
+      - name: Run tests
+        run: ./gradlew test

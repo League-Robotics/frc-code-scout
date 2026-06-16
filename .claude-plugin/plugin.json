@@ -1,8 +1,26 @@
 {
   "name": "frc-code-scout",
-  "version": "0.1.0",
-  "description": "Score FRC/FTC team software against an 8-dimension code-sophistication rubric; download, index, and analyze team repositories.",
-  "author": "San Diego FIRST Robotics Inventory project",
-  "skills": "./.claude/skills",
-  "agents": "./.claude/agents"
+  "version": "0.2.0",
+  "description": "Analyze and build FRC/FTC robot software: score team code against an 8-dimension code-sophistication rubric, and scaffold an elite-track command-based architecture (IO seam, RobotState, Superstructure) into new projects.",
+  "author": {
+    "name": "League Robotics — San Diego FIRST Robotics Inventory project",
+    "url": "https://github.com/League-Robotics"
+  },
+  "homepage": "https://github.com/League-Robotics/frc-code-scout",
+  "repository": "https://github.com/League-Robotics/frc-code-scout",
+  "keywords": [
+    "frc",
+    "ftc",
+    "first-robotics",
+    "wpilib",
+    "command-based",
+    "code-review",
+    "architecture",
+    "rubric"
+  ],
+  "skills": ["./.claude/skills"],
+  "agents": [
+    "./.claude/agents/corpus-builder.md",
+    "./.claude/agents/team-analyst.md"
+  ]
 }
