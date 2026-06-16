@@ -14,6 +14,9 @@ Embedded research behind the rubric. Read `rubric/rubric.md` first for any scori
 
 ## build-spec/
 - `elite-architecture.md` — foundation-first build spec (three seams). Source of recommendations.
+- `logging.md` — D5: the inputs-struct contract; the println→SmartDashboard→DogLog/Epilogue→AdvantageKit+replay ladder.
+- `testing.md` — D4: kinds of tests, the IO-sim-as-mock idea, the HAL/sim-time harness, CI, the system-check trick.
+- `simulation.md` — D3: how sim works (run modes, HAL sim, sim time), the environments (WPILib sims, maple-sim, AdvantageScope), replay.
 
 ## build-spec/subsystems/  (per-subsystem deep dives — one per control archetype)
 - `00-anatomy-of-a-subsystem.md` — the shared template, the archetype map, and the
@@ -24,6 +27,8 @@ Embedded research behind the rubric. Read `rubric/rubric.md` first for any scori
 - `04-roller-gamepiece.md` — Intake, Indexer, Feeder, Manipulator. `DCMotorSim` + the game-piece sensor.
 - `05-vision-sensor.md` — Vision. Sensor-only IO (no actuation) feeding `RobotState`; the Photon/Limelight swap.
 - `06-swerve-drivetrain.md` — Drivetrain. The multi-interface special case (`ModuleIO` ×4 + `GyroIO`), kinematics, odometry.
+- `07-robotstate.md` — the **state seam**. The world model: observations in, fused pose out; pure logic, the most testable class. D7.
+- `08-superstructure.md` — the **coordination seam**. Goals in, guarded subsystem setpoints out; where interlocks live. D2.
 
 ## survey/  (the San Diego results the rubric produced)
 - `sd-frc-final-report.md` — 24 teams scored + correlated with Statbotics EPA.

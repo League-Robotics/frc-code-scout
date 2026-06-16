@@ -32,6 +32,21 @@ If your mechanism isn't listed by name, find its archetype: anything that goes t
 `01`; anything that goes to an angle is `02`; anything that spins to a speed is `03`; anything that
 moves game pieces past a sensor is `04`.
 
+**The other two seams.** `elite-architecture.md` defines three seams; the docs above are all
+instances of the **IO seam**. The other two get their own chapters — they are "subsystems" with no
+hardware (their IO is information, not motors), and the purest examples of the ethic below (zero
+vendor types, zero IO impls, hence the most testable):
+
+| Doc | Seam | Its IO is | Rubric |
+|---|---|---|---|
+| [`07-robotstate`](07-robotstate.md) | state | observations in (odometry, vision) → fused pose out | D7 |
+| [`08-superstructure`](08-superstructure.md) | coordination | goals in → guarded subsystem setpoints out | D2 |
+
+**See also — the cross-cutting practices** (one level up, in `build-spec/`). These are the IO seam's
+deferred dividends; every subsystem doc's §6 points into them:
+[`../testing.md`](../testing.md) (the IO sim *is* the mock) · [`../simulation.md`](../simulation.md)
+(what backs an `XxxIOSim`) · [`../logging.md`](../logging.md) (the inputs struct is the log).
+
 ## The four files that are a subsystem
 
 Every subsystem in this series is the same four-part shape (the "quartet"), defined in
