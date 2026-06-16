@@ -463,6 +463,74 @@ else:
 """)
 
 # ── Cell: export + caveats ────────────────────────────────────────────────────────────────
+md(r"""
+## 6. The communicable headline — top-30% vs. bottom-30% EPA
+
+Spearman ρ answers "how well do the ranks line up" — true but abstract. A more legible question:
+**given a top-30%-EPA team and a bottom-30%-EPA team, how often does the higher rubric score belong to
+the top team?** That's the AUC (we drop the murky middle 40% — which is exactly why this reads higher
+than ρ; the rubric is sharp at the extremes and fuzzy in the middle). We also report a single-team
+classification accuracy under honest leave-one-out thresholding. EPA is standardized within season.
+""")
+
+code(r"""
+from sklearn.metrics import roc_auc_score, roc_curve
+
+def tb_split(df, frac=0.30):
+    lo, hi = df.y_std.quantile(frac), df.y_std.quantile(1-frac)
+    k = df[(df.y_std<=lo) | (df.y_std>=hi)].copy(); k["is_top"] = (k.y_std>=hi).astype(int)
+    return k
+def loo_acc(scores, labels):           # each team classified by a threshold fit on the others
+    s, l = np.asarray(scores,float), np.asarray(labels,int); ok = 0
+    for i in range(len(s)):
+        m = np.ones(len(s),bool); m[i]=False
+        thr = (s[m][l[m]==1].mean() + s[m][l[m]==0].mean())/2
+        ok += ((s[i]>=thr) == (l[i]==1))
+    return ok/len(s)
+def tb_auc_ci(df, col, cluster, reps=2000):
+    out=[]; teams=df.team.unique()
+    for _ in range(reps):
+        if cluster:
+            idx=np.concatenate([np.where(df.team.values==t)[0] for t in RNG.choice(teams,len(teams),True)])
+            d=df.iloc[idx]
+        else:
+            d=df.sample(len(df), replace=True, random_state=int(RNG.integers(1e9)))
+        k=tb_split(d)
+        if k.is_top.nunique()==2: out.append(roc_auc_score(k.is_top, k[col]))
+    return np.percentile(out,[2.5,97.5])
+
+rows=[]; kp=tb_split(pan)
+rows.append({"rubric":"mechanical — full panel (232 team-yrs)", "n_top|bot": f"{kp.is_top.sum()}|{(kp.is_top==0).sum()}",
+             "AUC": roc_auc_score(kp.is_top, kp.cand_total), "CI": tb_auc_ci(pan,"cand_total",True),
+             "1-team acc": loo_acc(kp.cand_total, kp.is_top)})
+agp = ROOT/"data"/"agent-scores.csv"; ks=None
+if agp.exists():
+    ag = pd.read_csv(agp).rename(columns={"total":"agent_total"})[["team","year","agent_total"]]
+    sub = pan.merge(ag, on=["team","year"], how="inner"); ks = tb_split(sub)
+    for col,lab in [("cand_total","mechanical — 55-team cross-section"),
+                    ("agent_total","agent-confirmed — 55-team cross-section")]:
+        rows.append({"rubric":lab, "n_top|bot": f"{ks.is_top.sum()}|{(ks.is_top==0).sum()}",
+                     "AUC": roc_auc_score(ks.is_top, ks[col]), "CI": tb_auc_ci(sub,col,False),
+                     "1-team acc": loo_acc(ks[col], ks.is_top)})
+tbl = pd.DataFrame(rows)
+tbl["AUC"]=tbl.AUC.round(2); tbl["95% CI"]=tbl.CI.apply(lambda c: f"[{c[0]:.2f}, {c[1]:.2f}]")
+tbl["1-team acc"]=(tbl["1-team acc"]*100).round(0).astype(int).astype(str)+"%"
+display(tbl[["rubric","n_top|bot","AUC","95% CI","1-team acc"]].set_index("rubric"))
+
+if ks is not None:
+    fig, ax = plt.subplots(figsize=(6.6,6.6))
+    for col,c,lab in [("cand_total",NAT,"mechanical"),("agent_total",SD,"agent-confirmed")]:
+        fpr,tpr,_ = roc_curve(ks.is_top, ks[col])
+        ax.plot(fpr,tpr,color=c,lw=2.2,label=f"{lab} rubric (AUC={roc_auc_score(ks.is_top,ks[col]):.2f})")
+    ax.plot([0,1],[0,1],"--",color="#999",lw=1,label="coin flip (0.50)")
+    ax.set_xlabel("false-positive rate"); ax.set_ylabel("true-positive rate")
+    ax.set_title("Telling a top-30% from a bottom-30% EPA team (55 teams)")
+    ax.legend(loc="lower right"); ax.set_aspect("equal"); plt.tight_layout(); plt.show()
+print("AUC = P(a top-tier team outscores a bottom-tier team on the rubric). Dropping the middle 40% "
+      "is why this reads higher than Spearman ρ — and confirming use (agent) still beats grepping it.")
+""")
+
+# ── Cell: export + caveats ────────────────────────────────────────────────────────────────
 code(r"""
 cols = ["team","name","is_sandiego","year"]+DIMS+["cand_total","norm_epa","y_std",
         "state_pctile","winrate","epa_points"]

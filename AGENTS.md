@@ -99,6 +99,25 @@ sgconfig.yml      ast-grep project config (points at rules/)
 5. To re-run the full San Diego scoring, score each team's latest real season repo and
    rebuild a master CSV in the shape of `knowledge/survey/sd-frc-master.csv`.
 
+## Scoring accuracy: the mechanical pass is a *lead sheet*, not a score
+
+A 2026 study (`notebooks/epa-prediction.ipynb`, built by `scripts/build_prediction_notebook.py` from
+`scout/features.py`) measured how well code sophistication predicts Statbotics EPA, team-grouped CV
+over 232 team-years. Two results govern how to score:
+
+- **Confirming use, not presence, ~doubles predictive validity.** Mechanical (grep/SQL, presence-based)
+  candidate D1–D8 correlate with EPA at ρ≈0.29; **agent-confirmed** scores (a model that *opened the
+  files*) reach ρ≈0.53 (paired 95% CI of the gap `[0.04, 0.44]`). This is the empirical case for the
+  golden rule. `scripts/agent_score.py` runs that **agent-confirmation tier**: it builds a per-team
+  evidence packet (`prompt --team N`), an agent reads the cited files and writes a confirmed
+  `data/agent-scores/<team>.json`, and `consolidate` rolls them into `data/agent-scores.csv`. The
+  model-fidelity pilot (`tests/model-fidelity/report.md`) found **Sonnet 4.6** matches Opus closely;
+  Haiku loses D3/D6/D7 fidelity — score the corpus with Sonnet, not Opus.
+- **Raw code metrics mostly track program size/age, not engineering quality** — so weight the *rubric
+  structure*, not lines of code, and **spend reading budget where the grep is least trustworthy:
+  D6 (Auto), D7 (Vision), D8 (Sustainability)** (κ≈0.57–0.60 vs ≈0.82–0.86 for D1/D3/D4). See the
+  rubric's "What predicts competition results" section.
+
 ## Workflow C — Build a robot the elite way
 
 The same architecture the rubric measures can be *built*, not just scored. The book is

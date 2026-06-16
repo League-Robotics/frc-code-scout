@@ -255,9 +255,15 @@ def _lvl(*pairs):
 
 
 def candidate_levels(r) -> dict:
-    """The current production mechanical candidate D1–D8 (same thresholds as the original
-    `score()`), computed from a `build()` feature row. The *candidate* — to be confirmed by
-    reading files (the agent tier). Mirrored inline in the EPA-prediction notebook's baseline."""
+    """The mechanical candidate D1–D8, computed from a `build()` feature row.
+
+    This is the **as-studied baseline** (the original presence-based thresholds) that
+    `notebooks/epa-prediction.ipynb` reproduces and that the study compares against the agent tier
+    (mechanical CV ρ≈0.29 vs agent-confirmed ρ≈0.53) — kept frozen so that finding stays
+    reproducible. The post-study signal improvements (Choreo-used-not-present for D6, RobotState+
+    TimeInterpolatableBuffer for D7) live in `scripts/build_notebook.py:score()`; the validated
+    accuracy path is the agent confirmation tier (`scripts/agent_score.py`). A candidate is a *lead*,
+    confirmed by reading — see knowledge/rubric/rubric.md."""
     return {
         "D1": _lvl((r.d1_servomotor > 0 or r.d3_io_adv > 0, 4), (r.d1_io_iface >= 2, 3),
                    (r.d1_io_iface == 1 or r.d1_yagsl > 0 or r.d1_tuner > 0, 2), (r.size_files > 0, 1)),

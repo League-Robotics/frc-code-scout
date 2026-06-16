@@ -21,3 +21,21 @@ note: "[D1=2] CTRE Tuner-generated swerve (vendored abstraction). Mechanisms may
 rule:
   kind: class_declaration
   has: { field: superclass, has: { regex: 'TunerSwerveDrivetrain' } }
+---
+id: d1-generic-base
+language: java
+severity: hint
+note: "[D1=4] Generic/library-grade motor base reused across mechanisms (254-style)."
+rule:
+  any:
+    - pattern: 'class $C extends ServoMotorSubsystem<$$$>'
+    - kind: interface_declaration
+      has: { field: name, regex: 'MotorIO$' }
+---
+id: d1-device-impl
+language: java
+severity: hint
+note: "[D1>=3] Hardware IO impl named by device (the real naming, not *IOReal)."
+rule:
+  kind: class_declaration
+  has: { field: name, regex: 'IO(TalonFX|Kraken|SparkMax|Spark|Falcon|Neo|Pigeon2|CANcoder|NavX|Limelight|Photon)$' }

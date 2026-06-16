@@ -26,3 +26,20 @@ note: "[D7=4] Dedicated RobotState world model owning pose."
 rule:
   kind: class_declaration
   has: { field: name, regex: '^RobotState$' }
+---
+id: d7-time-buffer
+language: java
+severity: hint
+note: "[D7=4] Time-interpolated pose buffer — confirms a real world-model (with d7-robotstate)."
+rule:
+  any:
+    - pattern: 'TimeInterpolatableBuffer.$M($$$)'
+    - pattern: 'new ConcurrentTimeInterpolatableBuffer($$$)'
+---
+id: d7-vision-io
+language: java
+severity: hint
+note: "[D7>=3] Vision behind an IO interface (decoupled from Drive, sim-able)."
+rule:
+  kind: interface_declaration
+  has: { field: name, regex: '(Vision|Camera)IO$' }

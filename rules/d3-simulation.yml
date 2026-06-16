@@ -16,3 +16,21 @@ rule:
     - pattern: 'new SingleJointedArmSim($$$)'
     - pattern: 'new FlywheelSim($$$)'
     - pattern: 'new DCMotorSim($$$)'
+---
+id: d3-maple-sim
+language: java
+severity: hint
+note: "[D3>=3] maple-sim whole-robot rigid-body dynamics."
+rule:
+  any:
+    - pattern: 'new SwerveDriveSimulation($$$)'
+    - pattern: 'SimulatedArena.getInstance()'
+---
+id: d3-replay-mode
+language: java
+severity: hint
+note: "[D3=4 / D5=4] Deterministic log replay wired (setReplaySource / WPILOG reader)."
+rule:
+  any:
+    - pattern: 'Logger.setReplaySource($$$)'
+    - pattern: 'new WPILOGReader($$$)'

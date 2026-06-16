@@ -239,13 +239,15 @@ f_imp = q('''SELECT team,year,
   count(*) FILTER (WHERE target LIKE 'org.jgrapht%') jgrapht,
   count(*) FILTER (WHERE target LIKE 'org.junit%') junit,
   count(*) FILTER (WHERE target LIKE '%LimelightHelpers%') limelight,
-  count(*) FILTER (WHERE target LIKE '%PoseEstimator%') poseest
+  count(*) FILTER (WHERE target LIKE '%PoseEstimator%') poseest,
+  count(*) FILTER (WHERE target LIKE '%TimeInterpolatableBuffer%') tib
   FROM imports GROUP BY team,year''')
 f_call = q('''SELECT team,year,
   sum(n) FILTER (WHERE callee='addVisionMeasurement') addvision,
   sum(n) FILTER (WHERE callee='processInputs') processinputs,
   sum(n) FILTER (WHERE callee='assertEquals') asserts,
   sum(n) FILTER (WHERE callee='runToCompletion') runtocompletion,
+  sum(n) FILTER (WHERE callee IN ('fromChoreoTrajectory','loadTrajectory')) choreo_used,
   sum(n) FILTER (WHERE callee LIKE 'put%') dashboard
   FROM calls GROUP BY team,year''')
 f_ann = q('''SELECT team,year,
@@ -303,9 +305,14 @@ def score(r):
              (r.test_files>0 or r.test_ann>0, 1))
     D5 = lvl((r.faultreporter>0 or r.io_adv>0, 4), (r.advantagekit>0 and r.autolog>0, 3),
              (r.doglog>0 or r.logged>0 or r.epilogue>0, 2), (r.dashboard>0, 1))
-    D6 = lvl((r.repulsor>0, 4), (r.choreo>0 or r.choreo_files>0, 3),
-             (r.pathplanner>0 or r.pp_files>0, 2), (r.files>0, 1))
-    D7 = lvl((r.robotstate>0, 4), (r.photon>0 and r.addvision>0, 3),
+    # D6: credit Choreo at L3 only when it is USED in code (fromChoreoTrajectory call), not when
+    # .traj/.chor files merely exist — the agent study found ~15 teams ship Choreo files they never
+    # drive (κ 0.60, the lowest-trust dimension). Files alone now cap at the PathPlanner rung.
+    D6 = lvl((r.repulsor>0, 4), (r.choreo_used>0, 3),
+             (r.pathplanner>0 or r.pp_files>0 or r.choreo_files>0, 2), (r.files>0, 1))
+    # D7: L4 (world model) needs a RobotState whose pose lives in a TimeInterpolatableBuffer; a
+    # RobotState class alone is L3-grade (still confirm filtering/std-devs by reading).
+    D7 = lvl((r.robotstate>0 and r.tib>0, 4), (r.robotstate>0 or (r.photon>0 and r.addvision>0), 3),
              (r.poseest>0 or r.addvision>0, 2), (r.limelight>0, 1))
     D8 = lvl((r.seasons>=4 and r.has_library and r.ci_any>0, 4),
              (r.ci_any>0 and r.has_library, 3),
