@@ -30,6 +30,12 @@ Embedded research behind the rubric. Read `rubric/rubric.md` first for any scori
 - `07-robotstate.md` — the **state seam**. The world model: observations in, fused pose out; pure logic, the most testable class. D7.
 - `08-superstructure.md` — the **coordination seam**. Goals in, guarded subsystem setpoints out; where interlocks live. D2.
 
+## alternatives/  (uncommon-but-good patterns — legitimate deviations from the build-spec default)
+- `README.md` — what earns a place here: sound, uncommon, situational, guard-railed. Build-spec is canon; these are "also legitimate, for these reasons."
+- `01-capability-typed-devices.md` — device-level interfaces named by **capability, not vendor** (`PositionMotor`, not `ITalonMotor`) + a hardware object below the IO line. FOC modeled as an orthogonal opt-in capability.
+- `02-physical-plant-simulation.md` — a **plant** (true-state world model) as the dual of `RobotState`; settable truth + a fidelity dial make dynamics/observation/estimator independently testable; control law stays on one side of the seam.
+- `03-state-graph-coordination.md` — *(sketch)* coordination as **graph search** over a superstructure state graph; **A\*** over configuration space at the far end. Established but uncommon (254). Extends the superstructure seam (D2).
+
 ## survey/  (the San Diego results the rubric produced)
 - `sd-frc-final-report.md` — 24 teams scored + correlated with Statbotics EPA.
 - `sd-frc-master.csv` — per-team D1-D8 vectors + external metrics (peer-benchmark table).
