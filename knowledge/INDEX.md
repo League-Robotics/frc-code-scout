@@ -14,6 +14,7 @@ Embedded research behind the rubric. Read `rubric/rubric.md` first for any scori
 
 ## build-spec/
 - `elite-architecture.md` — foundation-first build spec (three seams). Source of recommendations.
+- `code-review-principles.md` — architecture-first code review guide for agents and humans; seam checks, leak detection, severity rubric, and report format.
 - `logging.md` — D5: the inputs-struct contract; the println→SmartDashboard→DogLog/Epilogue→AdvantageKit+replay ladder.
 - `testing.md` — D4: kinds of tests, the IO-sim-as-mock idea, the HAL/sim-time harness, CI, the system-check trick.
 - `simulation.md` — D3: how sim works (run modes, HAL sim, sim time), the environments (WPILib sims, maple-sim, AdvantageScope), replay.
