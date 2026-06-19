@@ -17,6 +17,7 @@ Embedded research behind the rubric. Read `rubric/rubric.md` first for any scori
 - `logging.md` — D5: the inputs-struct contract; the println→SmartDashboard→DogLog/Epilogue→AdvantageKit+replay ladder.
 - `testing.md` — D4: kinds of tests, the IO-sim-as-mock idea, the HAL/sim-time harness, CI, the system-check trick.
 - `simulation.md` — D3: how sim works (run modes, HAL sim, sim time), the environments (WPILib sims, maple-sim, AdvantageScope), replay.
+- `other-topics.md` — additive advanced techniques (not architectural alternatives): state-space/LQR control, swerve setpoint generator, threaded high-freq odometry, neural game-piece detection, self-check/fault diagnostics, replay-as-test, reactive autos, QuestNav. One paragraph each, with sources + the teams using them.
 
 ## build-spec/subsystems/  (per-subsystem deep dives — one per control archetype)
 - `00-anatomy-of-a-subsystem.md` — the shared template, the archetype map, and the
@@ -35,6 +36,7 @@ Embedded research behind the rubric. Read `rubric/rubric.md` first for any scori
 - `01-capability-typed-devices.md` — device-level interfaces named by **capability, not vendor** (`PositionMotor`, not `ITalonMotor`) + a hardware object below the IO line. FOC modeled as an orthogonal opt-in capability.
 - `02-physical-plant-simulation.md` — a **plant** (true-state world model) as the dual of `RobotState`; settable truth + a fidelity dial make dynamics/observation/estimator independently testable; control law stays on one side of the seam.
 - `03-state-graph-coordination.md` — *(sketch)* coordination as **graph search** over a superstructure state graph; **A\*** over configuration space at the far end. Established but uncommon (254). Extends the superstructure seam (D2).
+- `04-behavior-trees.md` — *(overview)* **behavior trees**: a re-ticked SUCCESS/FAILURE/RUNNING tree for reactive priority-driven decisions; the strategy-layer partner to doc 03. Explicit BTs ~absent in FRC; the command-group cousin is universal.
 
 ## survey/  (the San Diego results the rubric produced)
 - `sd-frc-final-report.md` — 24 teams scored + correlated with Statbotics EPA.

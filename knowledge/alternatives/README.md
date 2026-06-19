@@ -40,3 +40,7 @@ neighbors). Treat `build-spec/` as canon and `alternatives/` as "also legitimate
   as a state graph and search the safe transition path instead of hand-coding N² sequences; at the far end,
   **A\*** over a discretized configuration space. Established but uncommon in FRC (254 is the corpus's one
   full instance). Extends the build-spec superstructure seam (D2).
+- `04-behavior-trees.md` — *(overview)* **behavior trees**: a re-ticked tree (SUCCESS/FAILURE/RUNNING) for
+  reactive, priority-driven "what to do now?" decisions. The *strategy*-layer partner to doc 03's mechanism
+  layer. Explicit BTs are ~absent in FRC; the command-group cousin (`SequentialCommandGroup` etc.) is
+  universal — the delta is using it as a top-level reactive brain.
