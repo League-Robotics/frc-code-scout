@@ -23,12 +23,14 @@ SRC = ROOT / "knowledge"
 OUT = ROOT / "docs" / "book"
 
 # Section landing pages: dir relative to knowledge/ -> (Title, nav_order, parent-title|None)
+# A section dir may carry a README.md; if present it becomes the section landing body.
 SECTIONS = {
     "corpus-analysis": ("Corpus Analysis", 3, None),
     "build-spec": ("Build Spec", 4, None),
-    "build-spec/subsystems": ("Subsystems", 5, "Build Spec"),  # nav_order within Build Spec
-    "survey": ("Survey", 5, None),
-    "examples": ("Examples", 6, None),
+    "build-spec/subsystems": ("Subsystems", 7, "Build Spec"),  # nav_order within Build Spec
+    "alternatives": ("Alternatives", 5, None),
+    "survey": ("Survey", 6, None),
+    "examples": ("Examples", 7, None),
 }
 
 # Standalone top-level pages (no parent section): relpath -> (Title, nav_order)
@@ -38,7 +40,8 @@ STANDALONE = {
 
 # Explicit ordering for the build-spec direct files (not numbered in filenames).
 BUILDSPEC_ORDER = {
-    "elite-architecture.md": 1, "logging.md": 2, "testing.md": 3, "simulation.md": 4,
+    "elite-architecture.md": 1, "code-review-principles.md": 2, "logging.md": 3,
+    "testing.md": 4, "simulation.md": 5, "other-topics.md": 6,
 }
 
 SKIP = {"INDEX.md"}  # the repo index; the site home (docs/index.md) replaces it
@@ -105,11 +108,19 @@ def main() -> None:
     files = [p for p in SRC.rglob("*.md") if p.name not in SKIP]
     n_written = 0
 
-    # 1. Section landing pages.
+    # 1. Section landing pages. A section's README.md, if present, supplies the landing
+    #    body (its H1 is dropped — just-the-docs renders the front-matter title); it is then
+    #    not re-emitted as a child page.
+    readme_used: set[str] = set()
     for d, (title, nav_order, parent) in SECTIONS.items():
         dest = OUT / d / "index.md"
         dest.parent.mkdir(parents=True, exist_ok=True)
-        body = f"# {title}\n\nSelect a page from the navigation.\n"
+        readme = SRC / d / "README.md"
+        if readme.exists():
+            body = strip_first_h1(readme.read_text())
+            readme_used.add(readme.relative_to(SRC).as_posix())
+        else:
+            body = "Select a page from the navigation.\n"
         dest.write_text(
             fm(title=title, nav_order=nav_order, parent=parent, has_children=True) + body
         )
@@ -118,7 +129,7 @@ def main() -> None:
     by_parent: dict[str, list[Path]] = {}
     for p in files:
         rel = p.relative_to(SRC).as_posix()
-        if rel in STANDALONE:
+        if rel in STANDALONE or rel in readme_used:
             continue
         sec = section_of(rel)
         if sec and sec[2] is None:
@@ -131,6 +142,8 @@ def main() -> None:
     # 3. Content pages.
     for p in files:
         rel = p.relative_to(SRC).as_posix()
+        if rel in readme_used:
+            continue
         raw = p.read_text()
         title = h1_title(raw)
         body = strip_first_h1(raw)
