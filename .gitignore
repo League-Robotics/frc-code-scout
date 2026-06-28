@@ -26,3 +26,7 @@ docs/.jekyll-metadata
 docs/.bundle/
 docs/vendor/
 docs/Gemfile.lock
+# dotconfig — assembled env files contain decrypted secrets
+.env
+.env.*
+!.env.example

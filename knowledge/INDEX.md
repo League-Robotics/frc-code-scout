@@ -11,6 +11,7 @@ Embedded research behind the rubric. Read `rubric/rubric.md` first for any scori
 - `02-frc-37-team-survey.md` — 37 FRC teams, six coordination paradigms, the modularity ladder.
 - `03-io-layer-strategy-pattern.md` — the IO layer = Strategy pattern; the D1 spine.
 - `04-novice-to-elite-progression.md` — the five-phase ladder; "rewrite in the offseason".
+- `05-motor-io-interfaces.md` — how teams talk to motors; the 6 reusable `MotorIO` contracts in full + a proposed unified contract.
 
 ## build-spec/
 - `elite-architecture.md` — foundation-first build spec (three seams). Source of recommendations.
