@@ -1,0 +1,24 @@
+{{ define "main" }}
+<article class="session-page">
+  <nav class="breadcrumb">
+    <a href="{{ .Site.Home.RelPermalink }}">Home</a>
+    {{ with .Parent }}
+    / <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+    {{ end }}
+    / <span>{{ .Title }}</span>
+  </nav>
+
+  <section class="session-header" data-jump="Overview">
+    <span class="eyebrow">
+      <span>Chapter</span>
+      {{ with .Parent }}<span class="pos">· {{ .Title }}</span>{{ end }}
+    </span>
+    <h1 class="session-title">{{ .Title }}</h1>
+    {{ with .Summary }}<p class="session-summary">{{ . }}</p>{{ end }}
+  </section>
+
+  <section class="section-block" data-jump="Content">
+    {{ .Content }}
+  </section>
+</article>
+{{ end }}

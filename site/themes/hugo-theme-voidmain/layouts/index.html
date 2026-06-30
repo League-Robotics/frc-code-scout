@@ -1,0 +1,35 @@
+{{ define "main" }}
+<section class="session-header" data-jump="Overview">
+  <span class="eyebrow"><span>{{ .Site.Title }}</span><span class="pos">· Wiki</span></span>
+  <h1 class="session-title">{{ .Site.Title }}</h1>
+  {{ with .Site.Params.description }}<p class="session-summary">{{ . }}</p>{{ end }}
+</section>
+
+{{ if .Content }}
+<section class="section-block" data-jump="Overview">
+  {{ .Content }}
+</section>
+{{ end }}
+
+<section class="section-block" data-jump="Modules">
+  <div class="section-head">
+    <h2>Sections</h2>
+    <span class="section-meta">{{ len (where .Site.Pages "Kind" "section") }} total</span>
+  </div>
+  <div class="modules-grid">
+    {{ range where .Site.Pages "Kind" "section" }}
+    <article class="module-card">
+      <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+      {{ .Summary }}
+      {{ if .Pages }}
+      <ul>
+        {{ range .Pages }}
+        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+        {{ end }}
+      </ul>
+      {{ end }}
+    </article>
+    {{ end }}
+  </div>
+</section>
+{{ end }}

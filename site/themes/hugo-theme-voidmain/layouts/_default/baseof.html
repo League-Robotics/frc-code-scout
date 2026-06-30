@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.LanguageCode | default "en" }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ block "title" . }}{{ .Title }} — {{ .Site.Title }}{{ end }}</title>
+  {{ $main := resources.Get "css/main.css" }}
+  {{ if $main }}<style>{{ $main.Content | safeCSS }}</style>{{ end }}
+  {{ with .Site.Params.instructorGuide }}
+  {{ $ig := resources.Get "css/instructor-guide.css" }}
+  {{ if $ig }}<style>{{ $ig.Content | safeCSS }}</style>{{ end }}
+  {{ end }}
+  {{ $custom := resources.Get "css/custom.css" }}
+  {{ if $custom }}<style>{{ $custom.Content | safeCSS }}</style>{{ end }}
+  {{ block "head" . }}{{ end }}
+</head>
+<body>
+  {{/* Build flat page sequence: section → its pages, repeat (sorted by file path for 01- prefixes) */}}
+  {{ $allPages := slice }}
+  {{ $sections := sort (where .Site.Pages "Kind" "section") "File.Path" }}
+  {{ range $sections }}
+    {{ $allPages = $allPages | append . }}
+    {{ range sort .Pages "File.Path" }}
+      {{ $allPages = $allPages | append . }}
+    {{ end }}
+  {{ end }}
+  {{/* Find prev/next for current page */}}
+  {{ $prev := false }}
+  {{ $next := false }}
+  {{ $found := false }}
+  {{ range $i, $p := $allPages }}
+    {{ if eq $.RelPermalink $p.RelPermalink }}
+      {{ $found = true }}
+      {{ if gt $i 0 }}
+        {{ $prev = index $allPages (sub $i 1) }}
+      {{ end }}
+      {{ if lt $i (sub (len $allPages) 1) }}
+        {{ $next = index $allPages (add $i 1) }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+  {{/* Home page: next goes to first section/lesson */}}
+  {{ if and (not $found) (gt (len $allPages) 0) }}
+    {{ $next = index $allPages 0 }}
+  {{ end }}
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="page">
+    <aside class="sidebar-drawer" id="sidebar-drawer">
+      <div class="sidebar-container">
+        <a href="{{ .Site.Home.RelPermalink }}" class="sidebar-brand">
+          {{ with .Site.Params.brandLogo }}<img src="{{ . }}" alt="Logo" class="sidebar-logo">{{ end }}
+          <span class="sidebar-brand-text">{{ .Site.Title }}</span>
+        </a>
+        <nav class="sidebar-tree">
+          <ul>
+            {{ range .Site.Menus.main }}
+            <li{{ if $.IsMenuCurrent "main" . }} class="current"{{ end }}>
+              <a href="{{ .URL }}">{{ .Name }}</a>
+            </li>
+            {{ else }}
+            {{ range $sections }}
+            {{/* Module is "open" if the current page is this section or any page within it */}}
+            {{ $isOpen := eq $.RelPermalink .RelPermalink }}
+            {{ range .Pages }}
+              {{ if eq $.RelPermalink .RelPermalink }}{{ $isOpen = true }}{{ end }}
+            {{ end }}
+            <li class="sidebar-module{{ if $isOpen }} open{{ end }}{{ if eq $.RelPermalink .RelPermalink }} current{{ end }}">
+              <a href="{{ .RelPermalink }}" class="sidebar-module-link">{{ .Title }}</a>
+              {{ $pages := sort .Pages "File.Path" }}
+              {{ if $pages }}
+              <ul class="sidebar-lessons">
+                {{ range $pages }}
+                <li{{ if eq $.RelPermalink .RelPermalink }} class="current"{{ end }}>
+                  <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                </li>
+                {{ end }}
+              </ul>
+              {{ end }}
+            </li>
+            {{ end }}
+            {{ end }}
+          </ul>
+        </nav>
+        <div class="sidebar-nav-buttons">
+          {{ with $prev }}<a href="{{ .RelPermalink }}" class="sidebar-nav-prev">← Previous</a>{{ end }}
+          {{ with $next }}<a href="{{ .RelPermalink }}" class="sidebar-nav-next">Next →</a>{{ end }}
+        </div>
+        <div class="sidebar-footer">
+          <div class="sidebar-footer-meta">
+            {{ with .Site.Params.repoUrl }}<span><a href="{{ . }}" title="GitHub repository" class="sidebar-footer-icon">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            </a></span>{{ end }}
+            {{ with .Site.Params.copyright }}<span class="sidebar-footer-sep">&middot;</span><span class="sidebar-footer-copyright">&copy; {{ now.Year }} {{ . }}</span>{{ end }}
+            <span class="sidebar-footer-sep">&middot;</span>
+            <a href="#" class="sidebar-footer-about" id="about-toggle">About</a>
+          </div>
+        </div>
+      </div>
+      <div class="about-modal" id="about-modal" style="display:none;">
+        <div class="about-modal-content">
+          <div class="about-modal-header">
+            <strong>About</strong>
+            <button type="button" id="about-close" aria-label="Close">✕</button>
+          </div>
+          <div class="about-modal-body">
+            <h3 class="about-title">{{ .Site.Title }}</h3>
+            {{ with .Site.Params.description }}<p class="about-description">{{ . }}</p>{{ end }}
+            {{ with .Site.Params.repoUrl }}
+            <p class="about-repo"><a href="{{ . }}">{{ . }}</a></p>
+            {{ end }}
+            <table class="about-versions">
+              <tr><td>Hugo</td><td>{{ hugo.Version }}</td></tr>
+              {{ with .Site.Data.theme }}<tr><td>Theme</td><td>{{ .version }}</td></tr>{{ end }}
+            </table>
+          </div>
+        </div>
+      </div>
+    </aside>
+    <div class="main">
+      <div class="mobile-header">
+        <button class="hamburger" id="sidebar-toggle" aria-label="Open navigation">
+          <svg width="20" height="16" viewBox="0 0 20 16" fill="currentColor" aria-hidden="true">
+            <rect width="20" height="2" rx="1"/>
+            <rect y="7" width="20" height="2" rx="1"/>
+            <rect y="14" width="20" height="2" rx="1"/>
+          </svg>
+        </button>
+        <a href="{{ .Site.Home.RelPermalink }}" class="mobile-brand">
+          {{ with .Site.Params.brandLogo }}<img src="{{ . }}" alt="Logo" class="mobile-logo-img">{{ end }}
+          <span class="mobile-brand-title">{{ .Site.Title }}</span>
+        </a>
+      </div>
+      <header class="session-sticky">
+        <div class="session-sticky-row">
+          <div class="session-sticky-pos">
+            <span class="pos-class">{{ with .Parent }}{{ .Title }}{{ else }}Curriculum{{ end }}</span>
+            {{ .Title }}
+          </div>
+          {{ with $next }}<a href="{{ .RelPermalink }}" class="btn-next-mobile">Next →</a>{{ end }}
+          <button type="button" class="btn-resources" id="jump-overview">Overview</button>
+        </div>
+        <div class="jump-row" id="jump-row"></div>
+      </header>
+      <div class="content session-content">
+        {{ block "main" . }}
+          {{ .Content }}
+        {{ end }}
+      </div>
+      <footer class="bottom-of-page">
+        {{ if or $prev $next }}
+        <div class="prev-next">
+          <div>{{ with $prev }}<a href="{{ .RelPermalink }}">← {{ .Title }}</a>{{ end }}</div>
+          <div>{{ with $next }}<a href="{{ .RelPermalink }}">{{ .Title }} →</a>{{ end }}</div>
+        </div>
+        {{ end }}
+        <div class="footer-bottom">
+      </footer>
+    </div>
+  </div>
+  <script>
+  (function() {
+    // Mobile sidebar toggle
+    var sidebarToggle = document.getElementById('sidebar-toggle');
+    var sidebarDrawer = document.getElementById('sidebar-drawer');
+    var sidebarOverlay = document.getElementById('sidebar-overlay');
+    function openSidebar() {
+      sidebarDrawer.classList.add('open');
+      sidebarOverlay.classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+      sidebarDrawer.classList.remove('open');
+      sidebarOverlay.classList.remove('visible');
+      document.body.style.overflow = '';
+    }
+    if (sidebarToggle && sidebarDrawer) {
+      sidebarToggle.addEventListener('click', function() {
+        sidebarDrawer.classList.contains('open') ? closeSidebar() : openSidebar();
+      });
+      sidebarOverlay.addEventListener('click', closeSidebar);
+      // Lesson links close the sidebar; module section headers toggle expand/collapse and stay open
+      sidebarDrawer.querySelectorAll('.sidebar-lessons a').forEach(function(a) {
+        a.addEventListener('click', closeSidebar);
+      });
+      sidebarDrawer.querySelectorAll('.sidebar-module-link').forEach(function(a) {
+        a.addEventListener('click', function(e) {
+          e.preventDefault();
+          var li = a.closest('.sidebar-module');
+          if (li) li.classList.toggle('open');
+        });
+      });
+      // Non-module links (brand, footer links) still close the sidebar
+      sidebarDrawer.querySelectorAll('.sidebar-brand, .sidebar-footer a').forEach(function(a) {
+        a.addEventListener('click', closeSidebar);
+      });
+    }
+
+    // About modal
+    var aboutToggle = document.getElementById('about-toggle');
+    var aboutModal = document.getElementById('about-modal');
+    var aboutClose = document.getElementById('about-close');
+    if (aboutToggle && aboutModal) {
+      aboutToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        aboutModal.style.display = '';
+      });
+      aboutClose.addEventListener('click', function() {
+        aboutModal.style.display = 'none';
+      });
+      aboutModal.addEventListener('click', function(e) {
+        if (e.target === aboutModal) aboutModal.style.display = 'none';
+      });
+    }
+
+    // Build sticky jump chips from h2/h3 headings in content
+    var content = document.querySelector('.session-content');
+    var jumpRow = document.getElementById('jump-row');
+    var overviewBtn = document.getElementById('jump-overview');
+
+    function slugify(text) {
+      return (text || '').toLowerCase().trim()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+    }
+
+    if (content && jumpRow) {
+      var headings = Array.prototype.slice.call(content.querySelectorAll('h2, h3')).slice(0, 6);
+      var chips = [];
+
+      headings.forEach(function(h) {
+        if (!h.id) h.id = slugify(h.textContent);
+        if (!h.id) return;
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'jump-chip';
+        chip.textContent = h.textContent.trim();
+        chip.addEventListener('click', function() {
+          var target = document.getElementById(h.id);
+          if (!target) return;
+          var stickyOffset = document.querySelector('.session-sticky').offsetHeight +
+            (document.querySelector('.mobile-header') && window.getComputedStyle(document.querySelector('.mobile-header')).display !== 'none'
+              ? document.querySelector('.mobile-header').offsetHeight : 0);
+          var top = target.getBoundingClientRect().top + window.scrollY - stickyOffset - 8;
+          window.scrollTo({ top: top, behavior: 'smooth' });
+        });
+        jumpRow.appendChild(chip);
+        chips.push({ heading: h, chip: chip });
+      });
+
+      function setActiveChip() {
+        if (!chips.length) return;
+        var active = chips[0];
+        chips.forEach(function(pair) {
+          var box = pair.heading.getBoundingClientRect();
+          if (box.top <= 140) active = pair;
+        });
+        chips.forEach(function(pair) {
+          pair.chip.classList.toggle('active', pair === active);
+        });
+      }
+
+      if (chips.length) {
+        setActiveChip();
+        window.addEventListener('scroll', setActiveChip, { passive: true });
+      }
+    }
+
+    if (overviewBtn) {
+      overviewBtn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+  })();
+  </script>
+</body>
+</html>

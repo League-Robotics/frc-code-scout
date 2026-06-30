@@ -1,0 +1,20 @@
+baseURL = "https://league-robotics.github.io/frc-code-scout/"
+title = "Elite & League Architectures"
+theme = "hugo-theme-voidmain"
+enableEmoji = true
+
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = true
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = true
+    lineNos = false
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 4
+
+[params]
+  description = "Inside Competition Robot Code — a field guide to FRC robot software architecture: what sophisticated student code looks like, how to grade it, and how to build it."
+  repoUrl = "https://github.com/League-Robotics/frc-code-scout"
+  copyright = "FRC Code Scout"
