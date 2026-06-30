@@ -15,9 +15,16 @@
   {{ block "head" . }}{{ end }}
 </head>
 <body>
-  {{/* Build flat page sequence: sections sorted by weight */}}
+  {{/* Build flat page sequence: top-level sections sorted by weight */}}
   {{ $allPages := slice }}
-  {{ $sections := sort (where .Site.Pages "Kind" "section") "Params.weight" }}
+  {{ $allSections := where .Site.Pages "Kind" "section" }}
+  {{ $sections := slice }}
+  {{ range $allSections }}
+    {{ if .Parent.IsHome }}
+      {{ $sections = $sections | append . }}
+    {{ end }}
+  {{ end }}
+  {{ $sections = sort $sections "Params.weight" }}
   {{ range $sections }}
     {{ $allPages = $allPages | append . }}
     {{ range sort .Pages "Params.weight" }}

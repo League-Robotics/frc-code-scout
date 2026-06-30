@@ -1,9 +1,9 @@
 ---
-title: "How We Develop This"
+title: "How We Developed This"
 weight: 1
 ---
 
-# How We Develop This
+# How We Developed This
 
 *The method behind Part I — and how to find out where your own program stands.*
 

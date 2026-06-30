@@ -17,7 +17,7 @@ This part explains **what the architecture is** — at low resolution, the whole
 piece. It does not open the hood; the engineering detail of each component lives in
 [Part II](../part-2/). And it does not argue the *method* — how the corpus was read, how to score a
 team, and how a program climbs the maturity ladder are gathered in the
-[How We Develop This](../appendices/how-we-develop-this/) appendix, so the narrative here can stay on
+[How We Developed This](../appendices/how-we-developed-this/) appendix, so the narrative here can stay on
 the architecture itself.
 
 ## Chapters

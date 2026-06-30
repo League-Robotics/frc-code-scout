@@ -60,7 +60,7 @@ who need it — message-passing process isolation. The rungs are not adopted in 
 have a clean IO layer and no coordinator, or strong logging bolted onto baseline command code. That
 unevenness is why the architecture is worth seeing from several angles before judging any one team
 against it. (How to score where a program sits on these rungs is the subject of the
-[How We Develop This](../appendices/how-we-develop-this/) appendix.)
+[How We Developed This](../appendices/how-we-developed-this/) appendix.)
 
 Naming the baseline as the zero is not a way to disparage it. Baseline command-based is *correct*, and
 for most rungs of most seasons it is enough to win regional matches. The point of fixing it as the

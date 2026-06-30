@@ -30,7 +30,7 @@ constants — which is exactly what makes it trustworthy.
 
 A test constructs part of the robot, drives it, and asserts what it did. The defining FRC fact:
 almost no one does it. D4 is the rarest, most discriminating marker in the corpus — most teams score
-0 — and it barely correlates with winning ([What the architecture predicts](../appendices/how-we-develop-this/04-what-it-predicts.md)). That is the point.
+0 — and it barely correlates with winning ([What the architecture predicts](../appendices/how-we-developed-this/04-what-it-predicts.md)). That is the point.
 Tests don't put points on the board; they are the clearest signal of software-engineering culture and
 the thing that lets a program move fast without breaking itself.
 
@@ -70,4 +70,4 @@ The three practices chain: filling `IOSim` (an afternoon) unlocks both unit test
 finding is blunt: the IO seam exists in 24 teams, every one of them has the inputs struct replay
 consumes, and about **one** team actually ships a replay variant. The foundation already paid for the
 dividend; collecting it is the clearest marker of real software culture, and the subject of
-[Foundation-first](../appendices/how-we-develop-this/05-foundation-first.md).
+[Foundation-first](../appendices/how-we-developed-this/05-foundation-first.md).

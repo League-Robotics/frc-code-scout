@@ -1,34 +1,111 @@
 #!/usr/bin/env python3
-"""Render all .d2 files in docs/elite-arch/diagrams/ to site/static/diagrams/ as SVG."""
-import subprocess, os, sys
+"""Render D2 diagrams to SVG for Hugo.
+
+Two sources:
+  1. Standalone .d2 files in docs/elite-arch/diagrams/  →  site/static/diagrams/<name>.svg
+  2. ```d2 fenced blocks in .md files                    →  site/static/diagrams/d2_<path>_<n>.svg
+
+The Hugo render hook (render-codeblock-d2.html) embeds the pre-rendered SVGs
+by matching .Page.File.Path + .Ordinal to the filename pattern.
+"""
+import subprocess, sys, hashlib, re
 from pathlib import Path
 
 REPO = Path("/Volumes/Proj/proj/RobotProjects/frc-code-scout")
-SRC = REPO / "docs/elite-arch/diagrams"
+SRC_MD = REPO / "docs/elite-arch"
+SRC_D2 = SRC_MD / "diagrams"
 DST = REPO / "site/static/diagrams"
-
-if not SRC.exists():
-    print("No diagrams directory — nothing to render")
-    sys.exit(0)
 
 DST.mkdir(parents=True, exist_ok=True)
 
 rendered = 0
-for d2_file in sorted(SRC.glob("*.d2")):
-    svg_file = DST / f"{d2_file.stem}.svg"
-    # Only re-render if source is newer
-    if svg_file.exists() and svg_file.stat().st_mtime > d2_file.stat().st_mtime:
-        print(f"  skip {d2_file.name} (up to date)")
+
+
+def fix_multiline_strings(d2_text: str) -> str:
+    """Convert multi-line double-quoted strings to D2 block string syntax.
+
+    D2:  KEY: "text\nmore text"       → error
+    D2:  KEY: |  text\n       more text\n|  → ok
+    """
+    _pattern = re.compile(r'^(\s*\w+:\s*)"([^"]*\n[^"]*?)"', re.MULTILINE)
+
+    def _replace(m):
+        prefix = m.group(1)
+        content = m.group(2)
+        lines = content.split('\n')
+        result = f'{prefix}|  {lines[0].rstrip()}\n'
+        indent = ' ' * (len(prefix) - len(prefix.lstrip()) + 2)
+        for line in lines[1:]:
+            result += f'{indent}{line.rstrip()}\n'
+        result += f'{indent[:-2]}|'
+        return result
+
+    prev = None
+    while prev != d2_text:
+        prev = d2_text
+        d2_text = _pattern.sub(_replace, d2_text, count=1)
+    return d2_text
+
+
+# ── 1. Standalone .d2 files ──
+if SRC_D2.exists():
+    for d2_file in sorted(SRC_D2.glob("*.d2")):
+        svg_file = DST / f"{d2_file.stem}.svg"
+        if svg_file.exists() and svg_file.stat().st_mtime > d2_file.stat().st_mtime:
+            continue
+        result = subprocess.run(["d2", str(d2_file), str(svg_file)], capture_output=True, text=True)
+        if result.returncode == 0:
+            size = svg_file.stat().st_size
+            print(f"  {d2_file.name} → {svg_file.name} ({size:,} bytes)")
+            rendered += 1
+        else:
+            print(f"  FAILED {d2_file.name}: {result.stderr.strip()}", file=sys.stderr)
+
+# ── 2. ```d2 fenced blocks in markdown ──
+D2_BLOCK = re.compile(r'```d2\n(.*?)```', re.DOTALL)
+
+for md_file in sorted(SRC_MD.rglob("*.md")):
+    text = md_file.read_text()
+    blocks = list(D2_BLOCK.finditer(text))
+    if not blocks:
         continue
-    result = subprocess.run(
-        ["d2", str(d2_file), str(svg_file)],
-        capture_output=True, text=True
-    )
-    if result.returncode == 0:
-        size = svg_file.stat().st_size
-        print(f"  rendered {d2_file.name} → {svg_file.name} ({size:,} bytes)")
-        rendered += 1
-    else:
-        print(f"  FAILED {d2_file.name}: {result.stderr.strip()}", file=sys.stderr)
+
+    rel = md_file.relative_to(SRC_MD)
+    # Sanitize path for filename: replace / and . with _
+    safe_path = str(rel).replace("/", "_").replace(".md", "")
+
+    for idx, m in enumerate(blocks):
+        d2_content = m.group(1).strip()
+        if not d2_content:
+            continue
+
+        # Fix multi-line quoted strings for D2 compatibility
+        d2_content = fix_multiline_strings(d2_content)
+
+        svg_name = f"d2_{safe_path}_{idx}.svg"
+        svg_file = DST / svg_name
+
+        # Check if up to date (compare content hash stored in sidecar)
+        hash_file = DST / f"d2_{safe_path}_{idx}.txt"
+        content_hash = hashlib.sha256(d2_content.encode()).hexdigest()
+        if svg_file.exists() and hash_file.exists():
+            if hash_file.read_text().strip() == content_hash:
+                print(f"  {rel}:{idx} → {svg_name} (up to date)")
+                continue
+
+        # Write temp D2 file
+        tmp_d2 = DST / f"_tmp_{svg_name}.d2"
+        tmp_d2.write_text(d2_content)
+
+        result = subprocess.run(["d2", str(tmp_d2), str(svg_file)], capture_output=True, text=True)
+        tmp_d2.unlink()
+
+        if result.returncode == 0:
+            hash_file.write_text(content_hash)
+            size = svg_file.stat().st_size
+            print(f"  {rel}:{idx} → {svg_name} ({size:,} bytes)")
+            rendered += 1
+        else:
+            print(f"  FAILED {rel}:{idx}: {result.stderr.strip()}", file=sys.stderr)
 
 print(f"\n{rendered} diagram(s) rendered")

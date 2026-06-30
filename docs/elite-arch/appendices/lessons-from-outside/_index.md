@@ -1,6 +1,5 @@
 ---
 title: "Lessons from Outside"
-weight: 5
 ---
 
 # Lessons from Outside

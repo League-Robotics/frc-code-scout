@@ -1,4 +1,14 @@
 {{ define "main" }}
+{{/* Filter to top-level sections only */}}
+{{ $allSections := where .Site.Pages "Kind" "section" }}
+{{ $sections := slice }}
+{{ range $allSections }}
+  {{ if .Parent.IsHome }}
+    {{ $sections = $sections | append . }}
+  {{ end }}
+{{ end }}
+{{ $sections = sort $sections "Params.weight" }}
+
 <section class="session-header" data-jump="Overview">
   <span class="eyebrow"><span>{{ .Site.Title }}</span><span class="pos">· Wiki</span></span>
   <h1 class="session-title">{{ .Site.Title }}</h1>
@@ -14,16 +24,16 @@
 <section class="section-block" data-jump="Modules">
   <div class="section-head">
     <h2>Sections</h2>
-    <span class="section-meta">{{ len (where .Site.Pages "Kind" "section") }} total</span>
+    <span class="section-meta">{{ len $sections }} total</span>
   </div>
   <div class="modules-grid">
-    {{ range sort (where .Site.Pages "Kind" "section") "Params.weight" }}
+    {{ range $sections }}
     <article class="module-card">
       <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
       {{ .Summary }}
       {{ if .Pages }}
       <ul>
-        {{ range sort .Pages "Params.weight" }}
+        {{ range sort .RegularPages "Params.weight" }}
         <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
         {{ end }}
       </ul>
