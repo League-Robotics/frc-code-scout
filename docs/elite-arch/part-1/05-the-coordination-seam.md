@@ -1,6 +1,6 @@
 ---
-title: 7. The coordination seam — the superstructure
-weight: 7
+title: 5. The coordination seam — the superstructure
+weight: 5
 ---
 The third seam turns one robot-wide *goal* into a coordinated set of subsystem setpoints, through a
 single transition function that is allowed to *reorder or reject* a transition for safety. A button
@@ -16,17 +16,19 @@ goal — and walks away. The superstructure owns *how each mechanism gets there*
 setpoints. There is no control loop here; each subsystem still closes its own loop through its IO. The
 superstructure only decides which setpoint each subsystem should hold right now.
 
-```mermaid
-stateDiagram-v2
-    [*] --> STOW
-    STOW --> INTAKE : request INTAKE
-    INTAKE --> STOW : has piece
-    STOW --> SCORE_L4 : request SCORE_L4
-    note right of SCORE_L4
-      guarded: arm clears frame
-      before elevator raises
-    end note
-    SCORE_L4 --> STOW : scored
+```d2
+direction: right
+start: "" { shape: circle }
+STOW
+INTAKE
+SCORE_L4: "SCORE_L4
+(guarded: arm clears the
+frame before elevator raises)"
+start -> STOW
+STOW -> INTAKE: request INTAKE
+INTAKE -> STOW: has piece
+STOW -> SCORE_L4: request SCORE_L4
+SCORE_L4 -> STOW: scored
 ```
 
 Because only the transition function writes setpoints, a caller *cannot* drive a mechanism into an
@@ -54,7 +56,7 @@ a complete runtime with a visual editor), and **inter-process message passing** 
 OS, where each subsystem is a separate process behind a typed message contract). Those are the
 "transitions outgrew the FSM" tools; [Part II ch. 23](../part-2/23-coordination-graphs-trees.md) takes
 the graph and tree forms apart, and the message-bus extreme is covered in
-[ch. 13](13-lessons-from-outside.md).
+[Lessons from Outside](../lessons-from-outside/01-lessons-from-outside.md).
 
 The corpus shows `Superstructure` in 22 teams and a generic `*StateMachine` in 12, while the true
 ceiling markers — `jgrapht`, a `WantedState` enum, a behavior-tree runtime — appear in one to three
@@ -75,4 +77,4 @@ A clean coordination seam is also naturally vendor-free — it imports the subsy
 here is a loud signal that a subsystem has leaked its hardware upward.
 
 With the three seams named, the next chapter covers the one subsystem that behaves unlike all the
-others and earns its own treatment even in the overview: [the drivetrain](08-the-drivetrain.md).
+others and earns its own treatment even in the overview: [the drivetrain](06-the-drivetrain.md).

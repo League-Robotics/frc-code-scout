@@ -5,11 +5,11 @@ weight: 22
 
 # 22. Coordination I — state machines and the superstructure
 
-*Part I's chapter on [the coordination seam](../part-1/07-the-coordination-seam.md) named six paradigms and deferred their construction. This chapter builds the common ones: the superstructure as the single object that turns one robot-wide goal into a coordinated set of guarded subsystem setpoints, and the two finite-state-machine shapes the corpus uses to do it. The far end of the spectrum — transitions as data, searched as a graph or walked as a behavior tree — is the [next chapter](23-coordination-graphs-trees.md).*
+*Part I's chapter on [the coordination seam](../part-1/05-the-coordination-seam.md) named six paradigms and deferred their construction. This chapter builds the common ones: the superstructure as the single object that turns one robot-wide goal into a coordinated set of guarded subsystem setpoints, and the two finite-state-machine shapes the corpus uses to do it. The far end of the spectrum — transitions as data, searched as a graph or walked as a behavior tree — is the [next chapter](23-coordination-graphs-trees.md).*
 
 Code is quoted to study the technique, not to copy. Build the contract for your robot.
 
-This chapter is the deep dive [chapter 7](../part-1/07-the-coordination-seam.md) pointed to. Part I argued why a coordination seam exists and where it sits relative to the [control path](15-control-path.md), the [subsystem archetypes](18-subsystem-archetypes.md), and the [world model](20-the-world-model.md). It will not re-argue that here. What follows is the engineering: the I/O boundary the seam presents, the three implementations the corpus actually ships, the maturity ladder they fall on, where kinematic interlocks live, and how you test the safe ordering without a robot.
+This chapter is the deep dive [chapter 7](../part-1/05-the-coordination-seam.md) pointed to. Part I argued why a coordination seam exists and where it sits relative to the [control path](15-control-path.md), the [subsystem archetypes](18-subsystem-archetypes.md), and the [world model](20-the-world-model.md). It will not re-argue that here. What follows is the engineering: the I/O boundary the seam presents, the three implementations the corpus actually ships, the maturity ladder they fall on, where kinematic interlocks live, and how you test the safe ordering without a robot.
 
 ---
 

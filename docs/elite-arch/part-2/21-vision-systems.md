@@ -7,7 +7,7 @@ weight: 21
 
 *Vision is the subsystem that breaks the mold: no motor, no setpoint, no control loop. The IO is a pure sensor that produces observations, and the subsystem's only job is to hand them to the world model. This chapter follows the whole path — coprocessor to observation to `VisionIO` interface to `RobotState.addVisionMeasurement` — and shows where the trust gate sits, what the system produces, and who reads each output.*
 
-[Chapter 6, the state seam](../part-1/06-the-state-seam.md), named vision as the input that fuses into `RobotState` and pointed here for the rest. This is that deep dive. Vision feeds the world model of [chapter 20](20-the-world-model.md): everything downstream — auto, pathing, aiming — reads the *fused* pose from `RobotState` and never talks to the camera. Part I argued why localization matters; this chapter shows the vision system end to end.
+[Chapter 6, the state seam](../part-1/04-the-state-seam.md), named vision as the input that fuses into `RobotState` and pointed here for the rest. This is that deep dive. Vision feeds the world model of [chapter 20](20-the-world-model.md): everything downstream — auto, pathing, aiming — reads the *fused* pose from `RobotState` and never talks to the camera. Part I argued why localization matters; this chapter shows the vision system end to end.
 
 Code is quoted to study the technique, not to copy.
 
@@ -122,7 +122,7 @@ public void addVisionObservation(VisionObservation observation) { /* fuse into p
 public record VisionObservation(Pose2d visionPose, double timestamp, Matrix<N3, N1> stdDevs) {}
 ```
 
-This is the seam from [chapter 6](../part-1/06-the-state-seam.md) and the world model of [chapter 20](20-the-world-model.md). Vision attaches here, and *only* here. The coupling is intended — feeding `RobotState` is vision's whole purpose — but it should be a method on a small interface rather than a reference to the concrete `RobotState`, so the `vision/` package lifts out as a library. The package may import WPILib and, in the IO implementation, the vendor SDK; it must not import `Drive` or any other subsystem. If it imports a drivetrain, the one-direction rule has been broken.
+This is the seam from [chapter 6](../part-1/04-the-state-seam.md) and the world model of [chapter 20](20-the-world-model.md). Vision attaches here, and *only* here. The coupling is intended — feeding `RobotState` is vision's whole purpose — but it should be a method on a small interface rather than a reference to the concrete `RobotState`, so the `vision/` package lifts out as a library. The package may import WPILib and, in the IO implementation, the vendor SDK; it must not import `Drive` or any other subsystem. If it imports a drivetrain, the one-direction rule has been broken.
 
 Under the hood `RobotState` wraps a `SwerveDrivePoseEstimator`. The `stdDevs` matrix sets, per measurement, how much the estimator should trust this vision pose against the wheel odometry it already has. A measurement with small std-devs pulls the estimate toward the vision pose; one with large std-devs barely moves it. The trust gate, then, is mostly a matter of choosing those std-devs well — or refusing to fuse at all.
 
@@ -134,7 +134,7 @@ The discriminating markers, from the rubric, are `setVisionMeasurementStdDevs` (
 
 ## The D7 rubric ladder
 
-Dimension D7 of the [rubric](../part-1/03-the-rubric.md) measures what the robot believes about where it is and how that belief is maintained. The vision system maps onto its levels directly:
+Dimension D7 of the [rubric](../appendices/how-we-develop-this/02-the-rubric.md) measures what the robot believes about where it is and how that belief is maintained. The vision system maps onto its levels directly:
 
 | Level | Anchor | What it looks like in the vision system |
 |---|---|---|

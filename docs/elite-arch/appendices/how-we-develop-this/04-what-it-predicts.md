@@ -1,6 +1,6 @@
 ---
-title: 11. What the architecture predicts
-weight: 11
+title: 4. What the architecture predicts
+weight: 4
 ---
 A rubric is only worth trusting if its scores mean something. So the scores were tested: 24 San Diego
 teams scored on the eight dimensions, each paired with season-matched Statbotics EPA (a normalized
@@ -69,11 +69,11 @@ time-series. Re-cloned with full commit history and scored season by season, the
 monotonic climb — Σ ≈ 5 → 10 → 17.5 → 20. The finding only the history could reveal: the leap to
 elite-track scores happened **in the 2024 offseason, not in any build season.** The 2024 competition
 robot ran on simple logging with no IO layer; the IO-layer/AdvantageKit rebuild landed in
-July–August. That is [the "rewrite in the offseason" rule](10-the-maturity-ladder.md) showing up in a
+July–August. That is [the "rewrite in the offseason" rule](03-the-maturity-ladder.md) showing up in a
 real team's git log. The persistent gap across all four years, verified against every branch: not one
 unit test has ever been written — which became the team's single highest-leverage next step.
 
 The honest conclusion: the architecture is worth building because it makes a program *faster and more
 durable*, and it modestly tracks results — but it is not a substitute for a good robot. The next
 section turns from "is it true" to "how do you build it," starting with [the foundation-first
-order](12-foundation-first.md).
+order](05-foundation-first.md).

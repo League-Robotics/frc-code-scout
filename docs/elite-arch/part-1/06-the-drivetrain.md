@@ -1,6 +1,6 @@
 ---
-title: 8. The drivetrain — the special subsystem
-weight: 8
+title: 6. The drivetrain — the special subsystem
+weight: 6
 ---
 Ask "what is a drivetrain" and the easy answer is "the thing that makes the robot move." The corpus
 shows that undersells it. Every other subsystem is *either* an actuator (an arm moves) *or* a sensor
@@ -13,16 +13,22 @@ its own chapter even in the overview.
 A drivetrain is simultaneously three architectural things, and a team's sophistication is largely
 *which of the three it separates into its own layer*:
 
-```mermaid
-flowchart TB
-    subgraph DRIVE["Drivetrain"]
-        ANCHOR["3 — World-model anchor<br/>owns the pose estimator"]
-        SUB["2 — Subsystem<br/>the command target"]
-        DEV["1 — Device / plant<br/>4 modules + gyro"]
-    end
-    ANCHOR --- SUB --- DEV
-    DEV -.->|"below the IO line"| HW["hardware / CTRE swerve"]
-    ANCHOR -.->|"Pose"| WORLD["Auto · Aim · Vision"]
+```d2
+direction: down
+DRIVE: Drivetrain {
+  ANCHOR: "3 — World-model anchor
+owns the pose estimator"
+  SUB: "2 — Subsystem
+the command target"
+  DEV: "1 — Device / plant
+4 modules + gyro"
+  ANCHOR -- SUB
+  SUB -- DEV
+}
+HW: hardware / CTRE swerve
+WORLD: Auto · Aim · Vision
+DRIVE.DEV -> HW: below the IO line { style.stroke-dash: 4 }
+DRIVE.ANCHOR -> WORLD: Pose { style.stroke-dash: 4 }
 ```
 
 A novice team fuses all three into one `Drivetrain extends SubsystemBase` god-class. An elite team
@@ -70,8 +76,8 @@ The claim that the drivetrain is the world-model anchor is measurable. In the CT
 the `Pose` field is read **682 times across the corpus — more than any actuator field on any subsystem.**
 Auto, aiming, and vision all consume it. The drivetrain's most important output is not its motion
 command but its state estimate: *where am I*. That single number is why the drivetrain feeds the state
-seam of [ch. 6](06-the-state-seam.md), and why "what is a drivetrain" is finally a question about where
+seam of [ch. 4](04-the-state-seam.md), and why "what is a drivetrain" is finally a question about where
 you draw your boundaries.
 
 That closes the architectural core. The next section steps back to the practices that hang off these
-seams — [simulation, testing, and logging](09-cross-cutting-practices.md).
+seams — [simulation, testing, and logging](07-cross-cutting-practices.md).

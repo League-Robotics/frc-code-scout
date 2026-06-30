@@ -9,7 +9,7 @@ weight: 18
 
 Code is quoted to study the technique, not to copy.
 
-[Chapter 5](../part-1/05-the-io-seam.md) introduced the IO seam and the four-file quartet that hangs off it: an interface, a hardware implementation, a sim implementation, and the subsystem that holds one of them. That chapter argued the seam is worth its cost. It deferred the per-mechanism detail to here. This is that detail — the same seam drawn four times, once for each control type a robot actually builds.
+[Chapter 5](../part-1/03-the-io-seam.md) introduced the IO seam and the four-file quartet that hangs off it: an interface, a hardware implementation, a sim implementation, and the subsystem that holds one of them. That chapter argued the seam is worth its cost. It deferred the per-mechanism detail to here. This is that detail — the same seam drawn four times, once for each control type a robot actually builds.
 
 The companion chapters in this part fill in the surrounding machinery: the [control path](15-control-path.md) that runs above the seam, [hardware abstraction](16-hardware-abstraction.md) and [motor interfaces](17-motor-interfaces.md) that sit at and below it. The two seams that have no motors at all — the [world model](20-the-world-model.md) and the coordination layer ([state machines](22-coordination-state-machines.md), [graphs and trees](23-coordination-graphs-trees.md)) — are their own chapters. Vision, a sensor-only subsystem, is [chapter 21](21-vision-systems.md). The [drivetrain](19-the-drivetrain-subsystem.md), a special case with two interfaces and kinematics, comes next.
 

@@ -1,6 +1,6 @@
 ---
-title: 5. The IO seam — the spine
-weight: 5
+title: 3. The IO seam — the spine
+weight: 3
 ---
 The IO seam is the single most widely shared idea in serious FRC code — present in roughly two-thirds
 of the strong Java and Kotlin codebases, and the default rather than the exception among them. It is
@@ -26,18 +26,22 @@ hardware, to a physics simulation, or to nothing at all. The logic no longer kno
 `ElevatorIOTalonFX`, `ElevatorIOSim`, and a no-op replay variant are interchangeable strategies; the
 subsystem holds one of them without knowing which.
 
-```mermaid
-flowchart TB
-    SUB["Elevator subsystem<br/>(logic only — no vendor type)"]
-    IO["interface ElevatorIO<br/>(updateInputs + commands)"]
-    REAL["ElevatorIOTalonFX<br/>(real hardware)"]
-    SIM["ElevatorIOSim<br/>(physics model)"]
-    REPLAY["ElevatorIO {}<br/>(no-op; log feeds inputs)"]
-
-    SUB --> IO
-    IO --> REAL
-    IO --> SIM
-    IO --> REPLAY
+```d2
+direction: down
+SUB: "Elevator subsystem
+(logic only — no vendor type)"
+IO: "interface ElevatorIO
+(updateInputs + commands)"
+REAL: "ElevatorIOTalonFX
+(real hardware)"
+SIM: "ElevatorIOSim
+(physics model)"
+REPLAY: "ElevatorIO { }
+(no-op; log feeds inputs)"
+SUB -> IO
+IO -> REAL
+IO -> SIM
+IO -> REPLAY
 ```
 
 The value is the independence: a team writes the subsystem's logic *once* against the interface, then
@@ -83,4 +87,4 @@ struct or plain getters, when to collapse per-subsystem interfaces into one gene
 are mechanics, and they live in [Part II](../part-2/16-hardware-abstraction.md). What matters here is
 the shape: one interface, interchangeable strategies, selected in one place, swappable over time
 without touching the logic above it. Next: the seam that the IO layer feeds — [the state
-seam](06-the-state-seam.md).
+seam](04-the-state-seam.md).

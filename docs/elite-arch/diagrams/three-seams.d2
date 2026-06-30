@@ -1,0 +1,29 @@
+direction: down
+
+oi: Driver / Auto\n(RobotContainer) {
+  style.fill: "#f0f4ff"
+}
+sup: Superstructure\n(goal → setpoints, guarded) {
+  style.fill: "#fff0e8"
+}
+subs: Subsystems\n(logic only) {
+  style.fill: "#f0fff4"
+}
+io: IO seam\n(XxxIO + Inputs) {
+  style.fill: "#fff8f0"
+}
+hw: Hardware / Sim {
+  style.fill: "#f4f4f4"
+}
+rs: RobotState\n(world model) {
+  style.fill: "#fdf0ff"
+}
+
+oi -> sup: goal
+sup -> subs: setpoints
+subs -> io: command
+io -> hw: actuate
+hw -> io: sensor reads {style.stroke-dash: 1}
+io -> subs: Inputs {style.stroke-dash: 1}
+subs -> rs: odometry {style.stroke-dash: 1}
+rs -> sup: pose {style.stroke-dash: 1}

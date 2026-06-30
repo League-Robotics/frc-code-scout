@@ -1,8 +1,8 @@
 ---
-title: 12. Foundation-first
-weight: 12
+title: 5. Foundation-first
+weight: 5
 ---
-[Chapter 4](04-at-a-glance.md) said *what* the architecture is. This chapter says *in what order you
+[Chapter 2](../../part-1/02-five-views.md) said *what* the architecture is. This chapter says *in what order you
 build it and why that order is safe.* The organizing idea: **build the seams, defer the payoffs.**
 Every advanced capability attaches to one of the three seams, so if you cut the seams correctly in
 week one, each later feature is an *addition at a named point* rather than a refactor.
@@ -74,5 +74,5 @@ a lint rule rather than good intentions, and why clean vendor confinement is a d
 marker rather than a given.
 
 That confinement rule, generalized, is also where Part III begins. But first, [the next
-chapter](13-lessons-from-outside.md) looks at what the broader robotics field treats as table stakes
+chapter](../../lessons-from-outside/01-lessons-from-outside.md) looks at what the broader robotics field treats as table stakes
 that this architecture still skips.

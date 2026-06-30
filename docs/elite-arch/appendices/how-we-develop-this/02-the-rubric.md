@@ -1,10 +1,10 @@
 ---
-title: 3. Eight dimensions of sophistication
-weight: 3
+title: 2. Eight dimensions of sophistication
+weight: 2
 ---
 The patterns from the corpus become useful only when they become measurable. The instrument is a
 rubric of **eight dimensions, each scored 0–4** against anchored, observable indicators, with
-half-steps allowed. The full anchors are in [Appendix A](../appendices/a-rubric.md); this chapter is
+half-steps allowed. The full anchors are in [Appendix B — the rubric in full](../); this chapter is
 how to read it.
 
 ## The eight dimensions
@@ -27,7 +27,7 @@ central world model rather than pose estimation bolted onto the drivetrain.
 
 ## Why dimensions, not a single ladder score
 
-The maturity ladder ([ch. 10](10-the-maturity-ladder.md)) is right about *sequence within a
+The maturity ladder ([ch. 3](03-the-maturity-ladder.md)) is right about *sequence within a
 dimension* — nobody reaches unit tests without an IO layer, because the IO layer is what makes a
 subsystem testable. But teams adopt unevenly *across* dimensions. A team can have a clean IO layer
 and zero tests, AdvantageKit logging on top of tangled coordination, or Choreo trajectories driven by
@@ -75,4 +75,4 @@ step:
   whole corpus.
 
 With the baseline and the instrument in hand, the next section describes the architecture the rubric
-is measuring — starting with the whole thing [at a glance](04-at-a-glance.md).
+is measuring — starting with the whole thing [at a glance](../../part-1/02-five-views.md).

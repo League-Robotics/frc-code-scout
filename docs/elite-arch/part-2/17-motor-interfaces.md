@@ -9,9 +9,9 @@ weight: 17
 
 Code is quoted to study the technique, not to copy.
 
-This is a deep dive supporting [Part I ch.5, the IO seam](../part-1/05-the-io-seam.md). That chapter established the rule: a subsystem speaks mechanism semantics (`setHeight(m)`), and the vendor type (`TalonFX`, `SparkMax`) lives only inside the IO implementation. Here we look at what happens *below* that line — at the device-level abstractions a handful of teams build to talk to motors directly.
+This is a deep dive supporting [Part I ch.5, the IO seam](../part-1/03-the-io-seam.md). That chapter established the rule: a subsystem speaks mechanism semantics (`setHeight(m)`), and the vendor type (`TalonFX`, `SparkMax`) lives only inside the IO implementation. Here we look at what happens *below* that line — at the device-level abstractions a handful of teams build to talk to motors directly.
 
-Two questions drive the chapter. First, the corpus survey: how do FRC teams interact with motors in code, and what does the abstraction look like when they build a reusable one? Second, the alternative: the capability-typed-devices idea, which appeared in [Part I's alternatives entry](../part-1/14-alternatives.md) and is shown here in full — interfaces named by capability (`PositionMotor`, not `ITalonMotor`), a single hardware object that constructs and configures every device, and FOC modeled as an orthogonal opt-in.
+Two questions drive the chapter. First, the corpus survey: how do FRC teams interact with motors in code, and what does the abstraction look like when they build a reusable one? Second, the alternative: the capability-typed-devices idea, which appeared in [Part I's alternatives entry](../part-1/08-alternatives.md) and is shown here in full — interfaces named by capability (`PositionMotor`, not `ITalonMotor`), a single hardware object that constructs and configures every device, and FOC modeled as an orthogonal opt-in.
 
 Part III will propose a single portable motor interface distilled from this evidence; see [Part III](../part-3/) generally. This chapter is the history that proposal answers to.
 
@@ -438,7 +438,7 @@ The consensus telemetry, present in nearly every inputs struct: `connected`, `po
 
 ## Capability-typed devices
 
-The six contracts above abstract "a motor" — one interface, many control modes, and config types leaking through. The alternative seen in [Part I's alternatives entry](../part-1/14-alternatives.md) abstracts a **role** instead. It is shown here in full because it is the cleanest answer to the leak the survey exposes.
+The six contracts above abstract "a motor" — one interface, many control modes, and config types leaking through. The alternative seen in [Part I's alternatives entry](../part-1/08-alternatives.md) abstracts a **role** instead. It is shown here in full because it is the cleanest answer to the leak the survey exposes.
 
 The rule that makes it work: the interface name describes a capability the caller depends on, not the hardware that provides it.
 

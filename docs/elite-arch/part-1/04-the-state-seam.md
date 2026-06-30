@@ -1,6 +1,6 @@
 ---
-title: 6. The state seam — RobotState
-weight: 6
+title: 4. The state seam — RobotState
+weight: 4
 ---
 The second seam is a single object that owns the robot's best belief about the world — where it is on
 the field, and later its game-piece and mechanism state. Sensors *write* to it; decisions, pathing,
@@ -12,12 +12,17 @@ keeping its own guess.
 `RobotState` has no hardware and no control loop. Its "IO" is purely informational: observations in,
 a fused pose out.
 
-```mermaid
-flowchart LR
-    DR["Drive subsystem"] -->|"odometry (fast)"| RS
-    VIS["Vision subsystem"] -->|"vision obs (delayed)"| RS
-    RS["RobotState<br/>pose estimator + time buffer"] -->|"getPose()"| CONS["Auto / Path / Aim / Superstructure"]
-    RS -->|"sampleAt(t)"| VIS
+```d2
+direction: right
+DR: Drive subsystem
+VIS: Vision subsystem
+RS: "RobotState
+pose estimator + time buffer"
+CONS: Auto / Path / Aim / Superstructure
+DR -> RS: odometry (fast)
+VIS -> RS: vision obs (delayed)
+RS -> CONS: getPose()
+RS -> VIS: sampleAt(t)
 ```
 
 Two streams arrive at different rates and latencies. **Odometry** is fast and continuous but drifts.
@@ -65,4 +70,4 @@ highest-leverage test most teams are not writing, and it falls straight out of b
 all.
 
 The state seam and the IO seam together give the robot a body and a sense of place. The third seam
-decides what to do with them: [the coordination seam](07-the-coordination-seam.md).
+decides what to do with them: [the coordination seam](05-the-coordination-seam.md).

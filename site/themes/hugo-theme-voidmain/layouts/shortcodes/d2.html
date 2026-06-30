@@ -1,0 +1,18 @@
+{{/*
+  D2 diagram shortcode — embeds a pre-rendered SVG.
+  Source: docs/elite-arch/diagrams/<name>.d2
+  Output: site/static/diagrams/<name>.svg  (rendered by just build)
+  Usage:  {{< d2 "three-seams" width="1100px" >}}
+*/}}
+{{ $name := .Get 0 }}
+{{ $width := .Get 1 | default "100%" }}
+{{ $svg := printf "diagrams/%s.svg" $name }}
+{{ if fileExists (printf "static/%s" $svg) }}
+<figure class="d2-diagram" style="max-width:{{ $width }};max-height:{{ $width }};margin:1.5rem auto;overflow:hidden;">
+  <img src="{{ $svg | relURL }}" alt="Diagram: {{ $name }}" style="width:100%;height:auto;display:block;">
+</figure>
+{{ else }}
+<div class="d2-missing">
+  <p><em>Diagram "{{ $name }}" not rendered. Run <code>just build</code> or <code>just render-diagrams</code>.</em></p>
+</div>
+{{ end }}

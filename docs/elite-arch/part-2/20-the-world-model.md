@@ -9,7 +9,7 @@ weight: 20
 
 Code is quoted to study the technique, not to copy.
 
-[Part I chapter 6](../part-1/06-the-state-seam.md) made the case for the state seam: one fused estimate that vision, pathing, and auto all share, instead of each subsystem keeping its own guess. That chapter stopped at the boundary. This one crosses it — how observations come in, how a delayed vision frame gets reconciled against fast odometry, and what the class is and is not allowed to import.
+[Part I chapter 6](../part-1/04-the-state-seam.md) made the case for the state seam: one fused estimate that vision, pathing, and auto all share, instead of each subsystem keeping its own guess. That chapter stopped at the boundary. This one crosses it — how observations come in, how a delayed vision frame gets reconciled against fast odometry, and what the class is and is not allowed to import.
 
 ## A subsystem with no hardware
 

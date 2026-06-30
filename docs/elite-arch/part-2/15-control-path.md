@@ -7,7 +7,7 @@ weight: 15
 
 *This is the deep dive Part I deferred and the map for everything that follows in Part II. A button press or an autonomous routine becomes a robot-wide goal, becomes per-subsystem setpoints, becomes an IO call, becomes a motor voltage — and measured state flows back up the same structure to a single world model. Trace that path once and the rest of Part II is detail.*
 
-Part I argued for the shape of the architecture: three seams ([../part-1/04-at-a-glance.md](../part-1/04-at-a-glance.md)) built foundation-first in a fixed order ([../part-1/12-foundation-first.md](../part-1/12-foundation-first.md)). It did not show how data actually moves through that shape during a 20 ms cycle. That is this chapter. We trace one full control path — from a teleop binding or an auto routine all the way down to a motor voltage, and the measured state all the way back up — and then walk several concrete scenarios that are each a specialization of the same loop.
+Part I argued for the shape of the architecture: three seams ([../part-1/02-five-views.md](../part-1/02-five-views.md)) built foundation-first in a fixed order ([../appendices/how-we-develop-this/05-foundation-first.md](../appendices/how-we-develop-this/05-foundation-first.md)). It did not show how data actually moves through that shape during a 20 ms cycle. That is this chapter. We trace one full control path — from a teleop binding or an auto routine all the way down to a motor voltage, and the measured state all the way back up — and then walk several concrete scenarios that are each a specialization of the same loop.
 
 Code is quoted to study the technique, not to copy. The examples are abridged from the build spec; the point is the data flow, not a drop-in implementation.
 

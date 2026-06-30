@@ -5,11 +5,11 @@ weight: 19
 
 # 19. The drivetrain subsystem
 
-*The drivetrain is the one subsystem that breaks the single-IO rule. It is built from two interfaces (`ModuleIO` ×4 plus `GyroIO` ×1), a module is two control loops behind one contract, and it carries the only real math that belongs above the IO line. This chapter is the deep dive that [Part I, chapter 8](../part-1/08-the-drivetrain.md) deferred: where chapter 8 made the empirical case that the drivetrain is both an actuator and the robot's primary sensor, here we build it.*
+*The drivetrain is the one subsystem that breaks the single-IO rule. It is built from two interfaces (`ModuleIO` ×4 plus `GyroIO` ×1), a module is two control loops behind one contract, and it carries the only real math that belongs above the IO line. This chapter is the deep dive that [Part I, chapter 8](../part-1/06-the-drivetrain.md) deferred: where chapter 8 made the empirical case that the drivetrain is both an actuator and the robot's primary sensor, here we build it.*
 
 Code is quoted to study the technique, not to copy. Build the contract for your mechanism.
 
-[Part I, chapter 8](../part-1/08-the-drivetrain.md) established the facts. The drivetrain is the only subsystem that is both an actuator and the robot's primary sensor; its most-consumed output is `Pose`, read 682 times across the corpus — more than any actuator field on any subsystem. About 63% of teams stand on CTRE's generated drivetrain in some form (48% as-is, 14% wrapped), and only about 27% own a real IO seam. This chapter takes those facts as given and shows how the seam is built — at both altitudes teams cut it.
+[Part I, chapter 8](../part-1/06-the-drivetrain.md) established the facts. The drivetrain is the only subsystem that is both an actuator and the robot's primary sensor; its most-consumed output is `Pose`, read 682 times across the corpus — more than any actuator field on any subsystem. About 63% of teams stand on CTRE's generated drivetrain in some form (48% as-is, 14% wrapped), and only about 27% own a real IO seam. This chapter takes those facts as given and shows how the seam is built — at both altitudes teams cut it.
 
 The drivetrain is the load-bearing example for everything earlier in Part II: the IO seam ([chapter 16](16-hardware-abstraction.md)), the motor interface that a module composes ([chapter 17](17-motor-interfaces.md)), and the velocity and position archetypes a module fuses into one contract ([chapter 18](18-subsystem-archetypes.md)). It is also the bridge to [the world model](20-the-world-model.md): the pose it estimates is the value the rest of the robot reads.
 

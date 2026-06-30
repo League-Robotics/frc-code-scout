@@ -1,6 +1,6 @@
 ---
-title: 14. Alternatives — legitimate deviations
-weight: 14
+title: 8. Alternatives — legitimate deviations
+weight: 8
 ---
 The Elite Architecture is opinionated on purpose — it teaches one foundation-first path so a team can
 grow without rewrites. That path is the *default*, not the *only* correct design. This chapter

@@ -1,6 +1,6 @@
 ---
-title: 10. The novice-to-elite maturity ladder
-weight: 10
+title: 3. The novice-to-elite maturity ladder
+weight: 3
 ---
 The architecture is a destination; this chapter is the route. A program climbs to it over four or
 five seasons, and the climb is governed by three rules that matter more than any pattern.
@@ -68,4 +68,4 @@ The temptation is to skip ahead — adopt AdvantageKit's IO layer in Phase 1 bec
 it, and drown in boilerplate with no felt need behind it. Every rung must be motivated by a pain the
 team has actually hit. The three habits — simulate, review, retain — are what carry a team across the
 graduation cliff that kills most programs around year 3. Whether any of this actually correlates with
-winning is the question [the next chapter](11-what-it-predicts.md) tests.
+winning is the question [the next chapter](04-what-it-predicts.md) tests.

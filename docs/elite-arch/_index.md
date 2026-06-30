@@ -32,9 +32,10 @@ true, and does it matter*; Part II answers *how does it work and what do I build
 finishes Part I knows what the three seams are and how a goal becomes a motor voltage — in a
 sentence or two each. Part II is where the hood comes off.
 
-- **New to the project?** Read Part I straight through (ch. 1 → 14).
-- **Building a robot?** Read the at-a-glance overview (ch. 4) and the rubric (ch. 3), then work
-  through Part II for the mechanics, then Part III.
+- **New to the project?** Read Part I straight through (ch. 1 → 8).
+- **Building a robot?** Read the five-views overview (ch. 2), then the rubric and maturity ladder in
+  the [How We Develop This](appendices/how-we-develop-this/) appendix, then work through Part II for
+  the mechanics, then Part III.
 - **Need the detail on one component?** Jump straight to its Part II chapter (ch. 15 → 23).
 - **Evaluating the proposal?** Part III (ch. 24 → 32), ending on the open questions in ch. 32.
 
@@ -47,44 +48,31 @@ The numbering is the book order. The lettered sections are the shelf it sits on.
 *The architecture nobody designed and everybody arrived at. Reconstructed from the corpus, turned
 into a measurement instrument, and checked against who actually wins.*
 
-## A. Method and instrument
+## A. Orientation
 
-### 1. How we read the corpus
-How the study was conducted end to end: which teams, how repos were selected and cloned, the
-tree-sitter → DuckDB index that lets us count markers across 55 season repos, and the cardinal rule
-that makes the findings trustworthy — **score what's *used*, not what's *present*** (confirm every
-claim by opening the cited file). Establishes the evidentiary standard for the whole of Part I.
-*Sources: `examples/methodology.md`, `corpus-analysis/02-frc-37-team-survey.md` (corpus framing),
-`knowledge/INDEX.md`, the prevalence table in `rubric/rubric.md`, `AGENTS.md`.*
+### 1. The baseline and the shape
+The shared starting point and the two lenses the rest of Part I reads the architecture through. WPILib
+command-based — subsystems (things the robot *has*) and commands (things it *does*), wired in
+`RobotContainer` — and the two joints of coupling it leaves (command → concrete subsystem, subsystem →
+concrete devices) that every elite addition targets. Then the framing for the whole part: **positive
+space** (the views — where the parts are) and **negative space** (the seams — the joints between them),
+carrying the organizing rule **build the seams, defer the payoffs.**
+*Sources: `corpus-analysis/02-frc-37-team-survey.md` (baseline + "modularity is a ladder"),
+`build-spec/elite-architecture.md` (§1).*
 
-### 2. The baseline everyone starts from
-The WPILib command-based framework — subsystems (things the robot *has*) and commands (things the
-robot *does*), wired in `RobotContainer`. This is real but shallow modularity: a command still calls
-subsystem methods, a subsystem still holds motor objects. Everything interesting in the architecture
-is the layers elite teams insert *above and below* that line, so this chapter is the reference point
-the rest measures against.
-*Sources: `corpus-analysis/02-frc-37-team-survey.md` (baseline + "modularity is a ladder").*
+### 2. The architecture in five views
+The orienting overview, built on Kruchten's **4+1 view model**. The *logical* view (the six recurring
+components and how command flows down while state flows up), the *development* view (the library
+layering — WPILib floor, vendor libraries, and the rule that confines them below the IO line), the
+*process* view (the 20 ms read → log → decide → actuate loop and the path of a driver packet), the
+*physical* view (the robot schematic — roboRIO, the CAN and CANivore buses, coprocessors on Ethernet),
+and two *scenarios* that put the views in motion. A reader who stops here understands the architecture;
+the seams and Part II add resolution.
+*Sources: `build-spec/elite-architecture.md` (§1–§2 thesis + layered overview + runtime loop).*
 
-### 3. Eight dimensions of sophistication — the rubric
-The measuring instrument: D1 Architecture, D2 Coordination, D3 Simulation, D4 Testing, D5 Logging,
-D6 Autonomous/Path, D7 Vision/Localization, D8 Sustainability — each scored 0–4 against anchored,
-observable indicators. Explains *why dimensions rather than one ladder score* (teams adopt unevenly;
-the profile shape is the signal) and ships the measured corpus prevalence so a reader can calibrate a
-marker as "table stakes" vs "ceiling signal."
-*Sources: `rubric/rubric.md`.*
+## B. The seams *(the negative space — the joints between the parts)*
 
-## B. The architecture and its seams
-
-### 4. The architecture at a glance
-The orienting overview: the whole Elite Architecture in one chapter, at low resolution. The three
-structural **seams** (IO, state, coordination) and the one cross-cutting decision (the logging
-contract); how a goal flows down to motors and how state flows back up; and the organizing principle
-— **build the seams, defer the payoffs**, so every advanced capability is an addition at a known
-attachment point rather than a rewrite. A reader who stops here still understands the architecture.
-The mechanics of each piece are Part II.
-*Sources: `build-spec/elite-architecture.md` (§1–§2 thesis + layered overview).*
-
-### 5. The IO seam — the spine
+### 3. The IO seam — the spine
 The most important pattern in the corpus, stated and motivated: one `XxxIO` interface per subsystem
 at the line between subsystem logic and physical devices, with interchangeable real/sim/replay
 implementations — the **Strategy pattern at subsystem granularity**. What it is, how common it is
@@ -93,14 +81,14 @@ loop-above/below decision, the inputs struct, naming — are Part II ch. 16–17
 *Sources: `corpus-analysis/03-io-layer-strategy-pattern.md`,
 `build-spec/subsystems/00-anatomy-of-a-subsystem.md`.*
 
-### 6. The state seam — `RobotState` and the world model
+### 4. The state seam — `RobotState` and the world model
 A single object owning the robot's best estimate of the world behind a pose estimator: sensors
 write, decisions read. The corpus split that matters — pose estimation is near-universal
 (`addVisionMeasurement` in 50/55), but a *centralized* world model (26/55) is the elite move. Rubric
 D7. *(The estimator internals and fusion mechanics are Part II ch. 20.)*
 *Sources: `build-spec/subsystems/07-robotstate.md`, prevalence table in `rubric/rubric.md`.*
 
-### 7. The coordination seam — the superstructure
+### 5. The coordination seam — the superstructure
 Where teams actually diverge. One robot-wide *goal* fanned out to per-subsystem setpoints through a
 single guarded transition function — intent separated from execution, with interlocks in one place.
 Names the six coordination paradigms the corpus exhibits without yet dissecting them. Rubric D2.
@@ -108,7 +96,7 @@ Names the six coordination paradigms the corpus exhibits without yet dissecting 
 *Sources: `build-spec/subsystems/08-superstructure.md`,
 `corpus-analysis/02-frc-37-team-survey.md` (coordination paradigms).*
 
-### 8. The drivetrain — the architecturally special subsystem
+### 6. The drivetrain — the architecturally special subsystem
 Why the drivetrain gets its own chapter even in the overview: it is the only near-universal subsystem
 (94%) and the only thing that is both actuator and primary sensor — its `Pose` is the most-consumed
 value on the robot. The architecture spectrum from CTRE-generated (~63%) to teams that own a real
@@ -117,7 +105,7 @@ seam (~27%). *(The swerve internals — modules, kinematics, odometry — are Pa
 
 ## C. The practices around the seams
 
-### 9. Cross-cutting practices — simulation, testing, logging
+### 7. Cross-cutting practices — simulation, testing, logging
 The three disciplines that hang off the IO seam and separate engineering culture from cargo cult.
 Simulation (run modes, HAL sim, maple-sim, AdvantageScope — D3); testing (IO-sim-as-mock, the
 sim-time harness, CI — D4); logging (the inputs-struct contract; the println → DogLog/Epilogue →
@@ -125,43 +113,9 @@ AdvantageKit-with-replay ladder — D5). The corpus truth: almost everyone build
 one collects the test/replay dividend.
 *Sources: `build-spec/simulation.md`, `build-spec/testing.md`, `build-spec/logging.md`.*
 
-## D. Growth and proof
+## D. The frontier
 
-### 10. The novice-to-elite maturity ladder
-How a program actually climbs over four to five seasons — paired engineering and team-process leaps,
-sequenced by **pain, not prestige**, and the iron rule "you rewrite in the offseason, never during
-build season." The five phases, the motivating pain at each rung, and the three habits (simulate,
-review, retain) that carry a team across the graduation cliff.
-*Sources: `corpus-analysis/04-novice-to-elite-progression.md`.*
-
-### 11. What the architecture actually predicts
-The validation: 24 San Diego teams scored and correlated with Statbotics EPA. Code sophistication
-tracks results only moderately (ρ ≈ 0.55) — and the per-dimension breakdown is the real finding
-(D8, D6, D7 track results; D3, D4 barely do). The outliers carry the signal (sophisticated-but-
-losing 3647; modest-but-winning 4419). The honest caveats: correlation not causation, program-age
-confound, small n.
-*Sources: `survey/sd-frc-final-report.md`, `survey/sd-frc-correlations.csv`,
-`survey/sd-frc-scores-pilot.md`, `examples/patribots-four-year-scoring.md`,
-`examples/sample-score-output-reefscape2025.md`.*
-
-## E. Synthesis and frontier
-
-### 12. Foundation-first — how the architecture grows without rewrites
-The build philosophy that ties Part I together: the add-on progression (each rung an addition at a
-named seam), the deferred-dividend rungs teams skip and shouldn't (sim → tests → replay), the
-tool-per-seam map, and the one rule that carries it all — **no vendor type above the IO line.** Where
-ch. 4 says *what it is*, this says *in what order you build it and why that order is safe.*
-*Sources: `build-spec/elite-architecture.md` (§3–§7), `build-spec/code-review-principles.md`.*
-
-### 13. Lessons from outside FRC
-The outside-in view: what ROS / Nav2 / MoveIt / autonomous-driving treat as table stakes that FRC
-skips — graceful degradation, lifecycle, process discipline — and the spec-in/code-out generators
-(RobotBuilder, Tuner X, YAGSL, LLMs) scored against the IO seam (all optimize time-to-drive, not
-swappability). Sets up Part III by naming what the Elite Architecture is still missing.
-*Sources: `corpus-analysis/06-lessons-from-broader-robotics.md`,
-`corpus-analysis/07-code-generators.md`.*
-
-### 14. Alternatives — legitimate deviations
+### 8. Alternatives — legitimate deviations
 Sound, uncommon, situational patterns that aren't the default but earn a place: capability-typed
 devices (named by capability, not vendor), physical-plant simulation (truth as the dual of estimate),
 state-graph coordination, and behavior trees — each with its guardrails and an honest statement of
@@ -320,7 +274,7 @@ idea (ch. 16) generalized from leaves to executives.
 `build-spec/testing.md`, `build-spec/simulation.md`.*
 
 ### 30. Lifecycle and graceful degradation
-Baking in the discipline FRC most conspicuously skips (ch. 13). A real component has a ROS-style
+Baking in the discipline FRC most conspicuously skips (see Lessons from Outside). A real component has a ROS-style
 managed lifecycle; health is a field in `State.status`, not an exception; and the `*IONull`
 null-object *is* the block in its `fault` state. Degradation becomes a lifecycle transition of the
 standard shape rather than a special case bolted on.
@@ -350,34 +304,55 @@ What must close before `scaffold-robot`/`add-subsystem` emit to this contract by
 
 ---
 
-# Appendices *(reference, not narrative)*
+# Appendices
 
-- **Appendix A — The rubric in full.** The complete D1–D8 anchors and grep cheat-sheet, for scoring.
+- **Appendix A — How We Develop This.** The method behind Part I, as a five-chapter narrative: how the
+  corpus was read (and the *score what's used, not present* rule), the eight-dimension rubric, the
+  novice-to-elite maturity ladder, what the architecture actually predicts against competition
+  results, and the foundation-first build order. *Sources: `examples/methodology.md`, `rubric/rubric.md`,
+  `corpus-analysis/04-novice-to-elite-progression.md`, `survey/sd-frc-final-report.md`,
+  `build-spec/elite-architecture.md`.*
+- **Appendix B — The rubric in full.** The complete D1–D8 anchors and grep cheat-sheet, for scoring.
   *Source: `rubric/rubric.md`.*
-- **Appendix B — The San Diego scoresheet.** Full per-team D1–D8 vectors, EPA, and the per-dimension
+- **Appendix C — The San Diego scoresheet.** Full per-team D1–D8 vectors, EPA, and the per-dimension
   correlation table. *Sources: `survey/sd-frc-final-report.md`, `survey/*.csv`,
   `survey/sd-frc-inventory.md`, `survey/sd-ftc-inventory.md`.*
-- **Appendix C — Worked example: the Patribots, four years.** A full single-team, multi-season
+- **Appendix D — Worked example: the Patribots, four years.** A full single-team, multi-season
   analysis to imitate. *Sources: `examples/patribots-four-year-scoring.md` (+ `.pdf`).*
-- **Appendix D — Glossary and naming decisions.** Block, seam, IO line, `u`/`x`, estimate vs status,
+- **Appendix E — Glossary and naming decisions.** Block, seam, IO line, `u`/`x`, estimate vs status,
   and why `Block` over `Component`/`Node`/`Unit`/`Module`. *Sources:
   `specs/portable-component-model.md` (§12), `corpus-analysis/03-io-layer-strategy-pattern.md`.*
-- **Appendix E — Other advanced topics.** Additive techniques that aren't architectural alternatives:
+- **Appendix F — Other advanced topics.** Additive techniques that aren't architectural alternatives:
   state-space/LQR, swerve setpoint generator, threaded odometry, self-check, replay-as-test, QuestNav.
   *Source: `build-spec/other-topics.md`.*
-- **Appendix F — Source-document crosswalk.** A table mapping every `knowledge/` file to the
+- **Appendix G — Source-document crosswalk.** A table mapping every `knowledge/` file to the
   chapter(s) that absorb it, so nothing in the corpus is orphaned by the rewrite.
+
+---
+
+# Lessons from Outside *(the closing section — what the broader field treats as table stakes)*
+
+*Stepping outside FRC to name what the Elite Architecture is still missing. A single survey chapter
+today; each lesson will grow its own treatment over time.*
+
+### Lessons from outside FRC
+The outside-in view: what ROS / Nav2 / MoveIt / autonomous-driving treat as table stakes that FRC
+skips — graceful degradation, lifecycle, process discipline — and the spec-in/code-out generators
+(RobotBuilder, Tuner X, YAGSL, LLMs) scored against the IO seam (all optimize time-to-drive, not
+swappability). Sets up Part III by naming what the Elite Architecture is still missing.
+*Sources: `corpus-analysis/06-lessons-from-broader-robotics.md`,
+`corpus-analysis/07-code-generators.md`.*
 
 ---
 
 ## Open decisions for the next pass
 
 1. **Part I ↔ Part II overlap is real and intended — keep it honest.** Several components appear in
-   both (IO seam: ch. 5 + 16–17; world model: ch. 6 + 20; coordination: ch. 7 + 22–23; drivetrain:
-   ch. 8 + 19). The rule is depth: Part I states and motivates, Part II builds. When drafting, each
+   both (IO seam: ch. 3 + 16–17; world model: ch. 4 + 20; coordination: ch. 5 + 22–23; drivetrain:
+   ch. 6 + 19). The rule is depth: Part I states and motivates, Part II builds. When drafting, each
    Part I seam chapter should end with an explicit "deep dive: Part II ch. X" pointer, and Part II
-   should not re-argue *why* — only *how*. Decide if the two overview chapters (ch. 4 at-a-glance,
-   ch. 12 foundation-first) stay distinct or merge.
+   should not re-argue *why* — only *how*. (The old at-a-glance and foundation-first chapters are now ch. 2 and the
+   How We Develop This appendix respectively.)
 2. **Chapter granularity in Part II's instances and Part III.** The motor and swerve specs are long
    (752 and 530 lines); ch. 26–27 and possibly ch. 17/19 may each split into 2–3 wiki pages. The
    subsystem-archetype chapter (ch. 18) folds five source docs — it may want to be five short pages

@@ -26,7 +26,13 @@ jobs:
           hugo-version: "latest"
           extended: true
 
-      - name: Build
+      - name: Install D2
+        run: curl -fsSL https://d2lang.com/install.sh | sh -s --
+
+      - name: Render D2 diagrams
+        run: python3 scripts/render_diagrams.py
+
+      - name: Build Hugo
         run: hugo --minify --source site
 
       - name: Upload artifact

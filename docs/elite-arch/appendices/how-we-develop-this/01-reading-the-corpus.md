@@ -63,6 +63,5 @@ most from "used." Spend the reading budget there.
 ## What to carry forward
 
 Read the best code first to learn what good looks like; name the structures before scoring anything;
-confirm every claim by reading. The next two chapters set the two reference points the rest of Part I
-measures against — the command-based baseline ([ch. 2](02-the-baseline.md)) and the eight-dimension
-rubric ([ch. 3](03-the-rubric.md)).
+confirm every claim by reading. Two touchstones anchor everything that follows — the command-based baseline
+([ch. 1](../../part-1/01-baseline-and-shape.md)) and the eight-dimension rubric ([the next chapter](02-the-rubric.md)).
