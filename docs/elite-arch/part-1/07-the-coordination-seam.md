@@ -1,12 +1,7 @@
 ---
 title: 7. The coordination seam — the superstructure
-parent: Part I — The Elite Architecture
-grand_parent: The Elite & League Architectures
-nav_order: 7
+weight: 7
 ---
-
-# 7. The coordination seam — the superstructure
-
 The third seam turns one robot-wide *goal* into a coordinated set of subsystem setpoints, through a
 single transition function that is allowed to *reorder or reject* a transition for safety. A button
 asks for `SCORE_L4`; the superstructure decides the legal sequence — clear the frame, raise the

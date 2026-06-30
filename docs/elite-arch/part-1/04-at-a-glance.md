@@ -1,12 +1,7 @@
 ---
 title: 4. The architecture at a glance
-parent: Part I — The Elite Architecture
-grand_parent: The Elite & League Architectures
-nav_order: 4
+weight: 4
 ---
-
-# 4. The architecture at a glance
-
 This chapter is the whole Elite Architecture in one sitting, at low resolution. A reader who stops
 here understands the shape; the chapters that follow add detail one seam at a time, and
 [Part II](../part-2/) opens the hood.

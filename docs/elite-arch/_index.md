@@ -1,6 +1,9 @@
 ---
 title: The Elite & League Architectures
+weight: 1
 ---
+
+# Inside Competition Robot Code — The Elite and League Architectures
 
 **A three-part wiki.** Part I documents the **Elite Architecture**: the architecture that top FRC
 teams have actually converged on, reconstructed empirically from reading dozens of public codebases

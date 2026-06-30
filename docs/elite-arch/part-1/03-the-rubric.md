@@ -1,12 +1,7 @@
 ---
 title: 3. Eight dimensions of sophistication
-parent: Part I — The Elite Architecture
-grand_parent: The Elite & League Architectures
-nav_order: 3
+weight: 3
 ---
-
-# 3. Eight dimensions of sophistication
-
 The patterns from the corpus become useful only when they become measurable. The instrument is a
 rubric of **eight dimensions, each scored 0–4** against anchored, observable indicators, with
 half-steps allowed. The full anchors are in [Appendix A](../appendices/a-rubric.md); this chapter is

@@ -1,12 +1,7 @@
 ---
 title: 5. The IO seam — the spine
-parent: Part I — The Elite Architecture
-grand_parent: The Elite & League Architectures
-nav_order: 5
+weight: 5
 ---
-
-# 5. The IO seam — the spine
-
 The IO seam is the single most widely shared idea in serious FRC code — present in roughly two-thirds
 of the strong Java and Kotlin codebases, and the default rather than the exception among them. It is
 the spine the rest of the architecture hangs from, so it gets named first.

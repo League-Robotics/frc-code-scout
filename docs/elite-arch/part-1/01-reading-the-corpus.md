@@ -1,12 +1,7 @@
 ---
 title: 1. How we read the corpus
-parent: Part I — The Elite Architecture
-grand_parent: The Elite & League Architectures
-nav_order: 1
+weight: 1
 ---
-
-# 1. How we read the corpus
-
 The architecture in this book was not designed from first principles. It was read out of source
 code — dozens of public FRC repositories, plus a wider base of Botball, FLL, and WRO programs — and
 then turned into something you can teach and grade. This chapter is the method, because the method is

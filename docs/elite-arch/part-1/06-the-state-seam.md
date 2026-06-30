@@ -1,12 +1,7 @@
 ---
 title: 6. The state seam — RobotState
-parent: Part I — The Elite Architecture
-grand_parent: The Elite & League Architectures
-nav_order: 6
+weight: 6
 ---
-
-# 6. The state seam — `RobotState`
-
 The second seam is a single object that owns the robot's best belief about the world — where it is on
 the field, and later its game-piece and mechanism state. Sensors *write* to it; decisions, pathing,
 and autonomous *read* from it. One fused estimate that everything shares, rather than each subsystem

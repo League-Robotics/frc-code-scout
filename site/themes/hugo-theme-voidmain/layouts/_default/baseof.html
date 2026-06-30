@@ -15,12 +15,12 @@
   {{ block "head" . }}{{ end }}
 </head>
 <body>
-  {{/* Build flat page sequence: section → its pages, repeat (sorted by file path for 01- prefixes) */}}
+  {{/* Build flat page sequence: sections sorted by weight */}}
   {{ $allPages := slice }}
-  {{ $sections := sort (where .Site.Pages "Kind" "section") "File.Path" }}
+  {{ $sections := sort (where .Site.Pages "Kind" "section") "Params.weight" }}
   {{ range $sections }}
     {{ $allPages = $allPages | append . }}
-    {{ range sort .Pages "File.Path" }}
+    {{ range sort .Pages "Params.weight" }}
       {{ $allPages = $allPages | append . }}
     {{ end }}
   {{ end }}
@@ -67,7 +67,7 @@
             {{ end }}
             <li class="sidebar-module{{ if $isOpen }} open{{ end }}{{ if eq $.RelPermalink .RelPermalink }} current{{ end }}">
               <a href="{{ .RelPermalink }}" class="sidebar-module-link">{{ .Title }}</a>
-              {{ $pages := sort .Pages "File.Path" }}
+              {{ $pages := sort .Pages "Params.weight" }}
               {{ if $pages }}
               <ul class="sidebar-lessons">
                 {{ range $pages }}
@@ -86,7 +86,17 @@
           {{ with $prev }}<a href="{{ .RelPermalink }}" class="sidebar-nav-prev">← Previous</a>{{ end }}
           {{ with $next }}<a href="{{ .RelPermalink }}" class="sidebar-nav-next">Next →</a>{{ end }}
         </div>
+        <div class="sidebar-curriculum-link">
+          <a href="https://curriculum.jointheleague.org">← All Curricula</a>
+        </div>
         <div class="sidebar-footer">
+          <div class="sidebar-footer-brand">
+            <a href="https://www.jointheleague.org" class="sidebar-footer-league">
+              <img src="https://images.jointheleague.org/logos/flag.png" alt="" class="sidebar-footer-flag">
+              <span class="sidebar-footer-org">The League of<br>Amazing Programmers</span>
+            </a>
+          </div>
+          <div class="sidebar-footer-tagline">Igniting Young Minds Through Coding</div>
           <div class="sidebar-footer-meta">
             {{ with .Site.Params.repoUrl }}<span><a href="{{ . }}" title="GitHub repository" class="sidebar-footer-icon">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
@@ -138,9 +148,7 @@
             {{ .Title }}
           </div>
           {{ with $next }}<a href="{{ .RelPermalink }}" class="btn-next-mobile">Next →</a>{{ end }}
-          <button type="button" class="btn-resources" id="jump-overview">Overview</button>
         </div>
-        <div class="jump-row" id="jump-row"></div>
       </header>
       <div class="content session-content">
         {{ block "main" . }}
@@ -191,7 +199,7 @@
         });
       });
       // Non-module links (brand, footer links) still close the sidebar
-      sidebarDrawer.querySelectorAll('.sidebar-brand, .sidebar-footer a').forEach(function(a) {
+      sidebarDrawer.querySelectorAll('.sidebar-brand, .sidebar-curriculum-link a, .sidebar-footer a').forEach(function(a) {
         a.addEventListener('click', closeSidebar);
       });
     }
@@ -213,65 +221,6 @@
       });
     }
 
-    // Build sticky jump chips from h2/h3 headings in content
-    var content = document.querySelector('.session-content');
-    var jumpRow = document.getElementById('jump-row');
-    var overviewBtn = document.getElementById('jump-overview');
-
-    function slugify(text) {
-      return (text || '').toLowerCase().trim()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-');
-    }
-
-    if (content && jumpRow) {
-      var headings = Array.prototype.slice.call(content.querySelectorAll('h2, h3')).slice(0, 6);
-      var chips = [];
-
-      headings.forEach(function(h) {
-        if (!h.id) h.id = slugify(h.textContent);
-        if (!h.id) return;
-        var chip = document.createElement('button');
-        chip.type = 'button';
-        chip.className = 'jump-chip';
-        chip.textContent = h.textContent.trim();
-        chip.addEventListener('click', function() {
-          var target = document.getElementById(h.id);
-          if (!target) return;
-          var stickyOffset = document.querySelector('.session-sticky').offsetHeight +
-            (document.querySelector('.mobile-header') && window.getComputedStyle(document.querySelector('.mobile-header')).display !== 'none'
-              ? document.querySelector('.mobile-header').offsetHeight : 0);
-          var top = target.getBoundingClientRect().top + window.scrollY - stickyOffset - 8;
-          window.scrollTo({ top: top, behavior: 'smooth' });
-        });
-        jumpRow.appendChild(chip);
-        chips.push({ heading: h, chip: chip });
-      });
-
-      function setActiveChip() {
-        if (!chips.length) return;
-        var active = chips[0];
-        chips.forEach(function(pair) {
-          var box = pair.heading.getBoundingClientRect();
-          if (box.top <= 140) active = pair;
-        });
-        chips.forEach(function(pair) {
-          pair.chip.classList.toggle('active', pair === active);
-        });
-      }
-
-      if (chips.length) {
-        setActiveChip();
-        window.addEventListener('scroll', setActiveChip, { passive: true });
-      }
-    }
-
-    if (overviewBtn) {
-      overviewBtn.addEventListener('click', function() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    }
   })();
   </script>
 </body>

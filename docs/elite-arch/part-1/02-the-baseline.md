@@ -1,12 +1,7 @@
 ---
 title: 2. The baseline everyone starts from
-parent: Part I — The Elite Architecture
-grand_parent: The Elite & League Architectures
-nav_order: 2
+weight: 2
 ---
-
-# 2. The baseline everyone starts from
-
 Every WPILib team inherits the same starting point, so it is the reference against which everything
 elite teams add can be measured. That starting point is the **command-based framework**, and the
 whole of Part I is the story of the layers the best teams insert above and below it.

@@ -41,15 +41,20 @@ is depth: Part I states and motivates; Part II builds.
 
 **C. The practices around the seams**
 
-9. Cross-cutting practices — simulation, testing, logging — *(coming next)*
+9. [Cross-cutting practices](09-cross-cutting-practices.md) — simulation, testing, and logging as
+   dividends of the IO seam.
 
 **D. Growth and proof**
 
-10. The novice-to-elite maturity ladder
-11. What the architecture actually predicts
+10. [The novice-to-elite maturity ladder](10-the-maturity-ladder.md) — the five-season climb,
+    sequenced by pain.
+11. [What the architecture predicts](11-what-it-predicts.md) — the validation against competition
+    results, honestly.
 
 **E. Synthesis and frontier**
 
-12. Foundation-first — how the architecture grows without rewrites
-13. Lessons from outside FRC
-14. Alternatives — legitimate deviations
+12. [Foundation-first](12-foundation-first.md) — the build order, the deferred dividends, and the one
+    rule that carries it all.
+13. [Lessons from outside FRC](13-lessons-from-outside.md) — what the broader field treats as table
+    stakes that FRC skips.
+14. [Alternatives](14-alternatives.md) — legitimate deviations, and the bridge to Part III.

@@ -1,12 +1,7 @@
 ---
 title: 8. The drivetrain — the special subsystem
-parent: Part I — The Elite Architecture
-grand_parent: The Elite & League Architectures
-nav_order: 8
+weight: 8
 ---
-
-# 8. The drivetrain — the architecturally special subsystem
-
 Ask "what is a drivetrain" and the easy answer is "the thing that makes the robot move." The corpus
 shows that undersells it. Every other subsystem is *either* an actuator (an arm moves) *or* a sensor
 (a camera measures). The drivetrain is the only one that is **both at once** — and what it measures is

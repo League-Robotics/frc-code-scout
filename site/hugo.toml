@@ -3,6 +3,11 @@ title = "Elite & League Architectures"
 theme = "hugo-theme-voidmain"
 enableEmoji = true
 
+# Mount docs/elite-arch/ as content — edit files there, site rebuilds automatically
+[[module.mounts]]
+  source = "../docs/elite-arch"
+  target = "content"
+
 [markup]
   [markup.goldmark.renderer]
     unsafe = true
@@ -17,4 +22,5 @@ enableEmoji = true
 [params]
   description = "Inside Competition Robot Code — a field guide to FRC robot software architecture: what sophisticated student code looks like, how to grade it, and how to build it."
   repoUrl = "https://github.com/League-Robotics/frc-code-scout"
-  copyright = "FRC Code Scout"
+  copyright = "The League of Amazing Programmers"
+  brandLogo = "https://images.jointheleague.org/logos/logo4.png"

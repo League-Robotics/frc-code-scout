@@ -17,13 +17,13 @@
     <span class="section-meta">{{ len (where .Site.Pages "Kind" "section") }} total</span>
   </div>
   <div class="modules-grid">
-    {{ range where .Site.Pages "Kind" "section" }}
+    {{ range sort (where .Site.Pages "Kind" "section") "Params.weight" }}
     <article class="module-card">
       <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
       {{ .Summary }}
       {{ if .Pages }}
       <ul>
-        {{ range .Pages }}
+        {{ range sort .Pages "Params.weight" }}
         <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
         {{ end }}
       </ul>
