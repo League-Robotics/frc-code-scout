@@ -11,7 +11,10 @@ Embedded research behind the rubric. Read `rubric/rubric.md` first for any scori
 - `02-frc-37-team-survey.md` — 37 FRC teams, six coordination paradigms, the modularity ladder.
 - `03-io-layer-strategy-pattern.md` — the IO layer = Strategy pattern; the D1 spine.
 - `04-novice-to-elite-progression.md` — the five-phase ladder; "rewrite in the offseason".
-- `05-motor-io-interfaces.md` — how teams talk to motors; the 6 reusable `MotorIO` contracts in full + a proposed unified contract.
+- `05-motor-io-interfaces.md` — how *other* teams talk to motors (prior art): the 6 reusable `MotorIO` contracts in full + the design axes. (Our own design lives in `specs/portable-motor-interface.md`.)
+- `06-lessons-from-broader-robotics.md` — outside-in view: what ROS/Nav2/MoveIt/autonomous-driving treat as table stakes that FRC skips. 7 importable runtime/process disciplines, mapped to the seams and rubric.
+- `07-code-generators.md` — spec-in/code-out tools (RobotBuilder, CTRE Tuner X swerve gen, YAGSL, AI/LLM) scored against the IO seam. All optimize time-to-drive, not swappability; the fix is "generate the constants, own the architecture" (Tuner X → AdvantageKit).
+- `08-drivetrain-as-architecture.md` — what a drivetrain *is*, empirically (55 teams via duckdb): the only universal subsystem (94%), and the only one that's both actuator and primary sensor — its `Pose` is the most-consumed value on the robot (682×). Architecture spectrum (≈63% CTRE-generated, ≈27% own a seam), the 254/2910 elite package layout, seam granularity, and the `CommandSwerveDrivetrain`/`SwerveRequest`/`SwerveDriveState` usage rankings. Evidence companion to specs/portable-swerve-interface.
 
 ## build-spec/
 - `elite-architecture.md` — foundation-first build spec (three seams). Source of recommendations.
@@ -39,6 +42,11 @@ Embedded research behind the rubric. Read `rubric/rubric.md` first for any scori
 - `02-physical-plant-simulation.md` — a **plant** (true-state world model) as the dual of `RobotState`; settable truth + a fidelity dial make dynamics/observation/estimator independently testable; control law stays on one side of the seam.
 - `03-state-graph-coordination.md` — *(sketch)* coordination as **graph search** over a superstructure state graph; **A\*** over configuration space at the far end. Established but uncommon (254). Extends the superstructure seam (D2).
 - `04-behavior-trees.md` — *(overview)* **behavior trees**: a re-ticked SUCCESS/FAILURE/RUNNING tree for reactive priority-driven decisions; the strategy-layer partner to doc 03. Explicit BTs ~absent in FRC; the command-group cousin is universal.
+
+## specs/  (forward-looking design specifications)
+- `portable-component-model.md` — **the parent abstraction** the other two specs are instances of. Every active thing (motor, sensor, subsystem, `RobotState`, superstructure) is a *block*: a configured transfer function with memory — `Config` once, then `(State, Command_out[]) = update(Command_in, Observations)`. The fill-pattern of its four channels *is* the component taxonomy; emission is a return value not a side-effect; it's a discipline not a base class; it's the in-process ROS 2 node. Recommends the name `Block`.
+- `portable-motor-interface.md` — **our** motor interface (the partner to corpus-analysis/05's survey of others): a language-neutral, ROS-translatable design — two serializable PODs (`Command`/`MotorState`, named `u`/`x` not inputs/outputs), nullable payloads, `oneof` control modes, capability tiers, REP-103 units, proto3 source-of-truth + generated ROS bridge. Appendix A preserves the Java v1 it evolved from.
+- `portable-swerve-interface.md` — **our** swerve drivetrain interface, distilled from reading CTRE Phoenix 6, AdvantageKit (6328), YAGSL, and WPILib source. The 5-layer model (L0 WPILib math → L1 `ModuleIO`/`GyroIO` seam → L2 module logic → L3 drive + optional `SwerveSetpointGenerator` → L4 `SwerveRequest` vocabulary); "AdvantageKit's seam + CTRE's vocabulary on WPILib's math." L1 composes the motor interface; the 254→6328→PathPlannerLib setpoint-generator lineage. Twin to corpus-analysis/07.
 
 ## survey/  (the San Diego results the rubric produced)
 - `sd-frc-final-report.md` — 24 teams scored + correlated with Statbotics EPA.
