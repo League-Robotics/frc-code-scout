@@ -64,10 +64,10 @@ box you can't trace (YAGSL).
 The reconciling move is the practical takeaway and the one elite teams already make: **generate the
 constants, own the architecture.** Ingest the generator's tuned numbers — the swerve offsets, the
 characterization gains — but keep them behind your own IO seam as files you own, so the vendor stops at
-the line. This is the [foundation-first](../appendices/how-we-develop-this/05-foundation-first.md) discipline applied to the tools
+the line. This is the [foundation-first](../how-we-developed-this/05-foundation-first.md) discipline applied to the tools
 themselves.
 
 These gaps — degradation, lifecycle, a versioned interface standard, one shape that spans devices and
-executives — are exactly what [Part III](../part-3/) sets out to close. But the corpus also holds sound
+executives — are exactly what [Part III](../../part-3/) sets out to close. But the corpus also holds sound
 patterns that aren't the default and don't fit Part III's single model; [the next
-chapter](../part-1/08-alternatives.md) catalogs them.
+chapter](../../part-1/08-alternatives.md) catalogs them.

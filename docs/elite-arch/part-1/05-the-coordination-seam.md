@@ -56,7 +56,7 @@ a complete runtime with a visual editor), and **inter-process message passing** 
 OS, where each subsystem is a separate process behind a typed message contract). Those are the
 "transitions outgrew the FSM" tools; [Part II ch. 23](../part-2/23-coordination-graphs-trees.md) takes
 the graph and tree forms apart, and the message-bus extreme is covered in
-[Lessons from Outside](../lessons-from-outside/01-lessons-from-outside.md).
+[Lessons from Outside](../appendices/lessons-from-outside/01-lessons-from-outside.md).
 
 The corpus shows `Superstructure` in 22 teams and a generic `*StateMachine` in 12, while the true
 ceiling markers — `jgrapht`, a `WantedState` enum, a behavior-tree runtime — appear in one to three

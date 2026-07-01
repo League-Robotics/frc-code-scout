@@ -74,5 +74,5 @@ a lint rule rather than good intentions, and why clean vendor confinement is a d
 marker rather than a given.
 
 That confinement rule, generalized, is also where Part III begins. But first, [the next
-chapter](../../lessons-from-outside/01-lessons-from-outside.md) looks at what the broader robotics field treats as table stakes
+chapter](../lessons-from-outside/01-lessons-from-outside.md) looks at what the broader robotics field treats as table stakes
 that this architecture still skips.

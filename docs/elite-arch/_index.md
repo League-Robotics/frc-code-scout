@@ -34,7 +34,7 @@ sentence or two each. Part II is where the hood comes off.
 
 - **New to the project?** Read Part I straight through (ch. 1 → 8).
 - **Building a robot?** Read the five-views overview (ch. 2), then the rubric and maturity ladder in
-  the [How We Develop This](appendices/how-we-develop-this/) appendix, then work through Part II for
+  the [How We Develop This](appendices/how-we-developed-this/) appendix, then work through Part II for
   the mechanics, then Part III.
 - **Need the detail on one component?** Jump straight to its Part II chapter (ch. 15 → 23).
 - **Evaluating the proposal?** Part III (ch. 24 → 32), ending on the open questions in ch. 32.

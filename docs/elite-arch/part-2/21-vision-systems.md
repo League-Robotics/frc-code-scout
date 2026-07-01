@@ -134,7 +134,7 @@ The discriminating markers, from the rubric, are `setVisionMeasurementStdDevs` (
 
 ## The D7 rubric ladder
 
-Dimension D7 of the [rubric](../appendices/how-we-develop-this/02-the-rubric.md) measures what the robot believes about where it is and how that belief is maintained. The vision system maps onto its levels directly:
+Dimension D7 of the [rubric](../appendices/how-we-developed-this/02-the-rubric.md) measures what the robot believes about where it is and how that belief is maintained. The vision system maps onto its levels directly:
 
 | Level | Anchor | What it looks like in the vision system |
 |---|---|---|
