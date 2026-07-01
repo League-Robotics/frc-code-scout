@@ -62,11 +62,15 @@ if SRC_D2.exists():
             print(f"  FAILED {d2_file.name}: {result.stderr.strip()}", file=sys.stderr)
 
 # ── 2. ```d2 fenced blocks in markdown ──
-D2_BLOCK = re.compile(r'```d2\n(.*?)```', re.DOTALL)
+# Match EVERY fenced code block, not just ```d2, so the index matches Hugo's
+# .Ordinal — which counts all code blocks on the page regardless of language.
+# (Numbering only the d2 blocks drifts out of sync on any page that also has
+# ```java etc. before a diagram, and the render hook then can't find the SVG.)
+FENCE_BLOCK = re.compile(r'^```(\w*)[^\n]*\n(.*?)^```', re.DOTALL | re.MULTILINE)
 
 for md_file in sorted(SRC_MD.rglob("*.md")):
     text = md_file.read_text()
-    blocks = list(D2_BLOCK.finditer(text))
+    blocks = list(FENCE_BLOCK.finditer(text))
     if not blocks:
         continue
 
@@ -75,7 +79,9 @@ for md_file in sorted(SRC_MD.rglob("*.md")):
     safe_path = str(rel).replace("/", "_").replace(".md", "")
 
     for idx, m in enumerate(blocks):
-        d2_content = m.group(1).strip()
+        if m.group(1) != "d2":
+            continue
+        d2_content = m.group(2).strip()
         if not d2_content:
             continue
 
