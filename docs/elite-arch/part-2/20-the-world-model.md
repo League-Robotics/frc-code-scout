@@ -3,8 +3,6 @@ title: 20. The world model
 weight: 20
 ---
 
-# 20. The world model
-
 *Part I argued for centralizing the robot's pose estimate into one shared object; it deferred the mechanics. This chapter shows them: RobotState as a subsystem with no hardware, the two input streams it reconciles, the time-interpolating buffer that rewinds and replays them, and the unit test that makes it the easiest class on the robot to verify.*
 
 Code is quoted to study the technique, not to copy.
@@ -33,12 +31,17 @@ Vision → addVisionObservation(pose, t, stdDevs)          ├→ RobotState →
 
 RobotState reconciles the two with a **time-interpolating buffer**. It keeps roughly two seconds of timestamped odometry poses. When a delayed vision measurement arrives, it rewinds to where the robot *was* at that observation's timestamp, blends the correction in by a Kalman gain, and replays odometry forward to now. The "IO" here is purely informational — observations in, a fused `Pose2d` out.
 
-```mermaid
-flowchart LR
-    DR["Drive subsystem"] -->|"odometry (fast)"| RS
-    VIS["Vision subsystem"] -->|"vision obs (delayed)"| RS
-    RS["RobotState<br/>pose estimator + time buffer"] -->|"getPose()"| AUTO["Auto / Path / Aim / Superstructure"]
-    RS -->|"sampleAt(t)"| VIS
+```d2
+direction: right
+DR: "Drive subsystem"
+VIS: "Vision subsystem"
+RS: "RobotState
+pose estimator + time buffer"
+AUTO: "Auto / Path / Aim / Superstructure"
+DR -> RS: "odometry (fast)"
+VIS -> RS: "vision obs (delayed)"
+RS -> AUTO: "getPose()"
+RS -> VIS: "sampleAt(t)"
 ```
 
 The diagram has an arrow most readers skip: `sampleAt(t)` runs *back* toward Vision. Vision asks RobotState what the pose was at a past instant so it can latency-correct its own measurement before handing it back. The buffer is shared infrastructure, not a one-way sink.

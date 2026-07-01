@@ -3,8 +3,6 @@ title: 21. Vision systems
 weight: 21
 ---
 
-# 21. Vision systems
-
 *Vision is the subsystem that breaks the mold: no motor, no setpoint, no control loop. The IO is a pure sensor that produces observations, and the subsystem's only job is to hand them to the world model. This chapter follows the whole path — coprocessor to observation to `VisionIO` interface to `RobotState.addVisionMeasurement` — and shows where the trust gate sits, what the system produces, and who reads each output.*
 
 [Chapter 6, the state seam](../part-1/04-the-state-seam.md), named vision as the input that fuses into `RobotState` and pointed here for the rest. This is that deep dive. Vision feeds the world model of [chapter 20](20-the-world-model.md): everything downstream — auto, pathing, aiming — reads the *fused* pose from `RobotState` and never talks to the camera. Part I argued why localization matters; this chapter shows the vision system end to end.
@@ -30,12 +28,20 @@ Camera → VisionIO.updateInputs(observations) → Vision subsystem (filter by a
 
 The governing rule: **vision never talks to drive.** It writes a measurement to `RobotState`; drive, auto, and aiming all read pose *from* `RobotState`. Swapping PhotonVision for Limelight is a new `VisionIO` implementation and touches nothing else.
 
-```mermaid
-flowchart LR
-    CAM["Camera (PhotonVision / Limelight)"] --> VIO["VisionIO impl<br/>(vendor confined HERE)"]
-    VIO -->|"PoseObservation(pose, t, stdDevs)"| VSUB["Vision subsystem<br/>(reject high-ambiguity)"]
-    VSUB -->|"addVisionObservation"| RS["RobotState<br/>(pose estimator)"]
-    RS -->|"getPose()"| DRIVE["Drive / Auto / Aim (read only)"]
+```d2
+direction: right
+CAM: "Camera (PhotonVision / Limelight)"
+VIO: "VisionIO impl
+(vendor confined HERE)"
+VSUB: "Vision subsystem
+(reject high-ambiguity)"
+RS: "RobotState
+(pose estimator)"
+DRIVE: "Drive / Auto / Aim (read only)"
+CAM -> VIO
+VIO -> VSUB: "PoseObservation(pose, t, stdDevs)"
+VSUB -> RS: "addVisionObservation"
+RS -> DRIVE: "getPose()"
 ```
 
 Each stage has a job. The camera and coprocessor detect tags and, in most stacks, compute a candidate pose. The `VisionIO` implementation receives that result and packages it as an observation — pose, timestamp, and the evidence needed to weight it. The subsystem applies the trust gate, rejecting or downweighting weak frames. `RobotState` blends the surviving observations into the pose estimator. The rest of the robot reads only the fused result.

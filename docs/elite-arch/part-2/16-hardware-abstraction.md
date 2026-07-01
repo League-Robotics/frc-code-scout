@@ -3,8 +3,6 @@ title: 16. Hardware abstraction and the IO line
 weight: 16
 ---
 
-# 16. Hardware abstraction and the IO line
-
 *Part I argued that a subsystem should depend on a contract, not on a motor. This chapter shows the mechanics: the IO layer is the Strategy pattern, "IO layer" and "hardware abstraction" name two different axes, and a single diagnostic — which side of the line the control loop is on — classifies any interface you find. Code is quoted to study the technique, not to copy.*
 
 Part I, [chapter 5](../part-1/03-the-io-seam.md), motivated the IO seam and then deferred the implementation. This is that deferred deep dive. The case for the seam is made; here we open the files and show how the boundary is actually built, what every implementation in the corpus shares, and the choices that distinguish one team's IO layer from another's.

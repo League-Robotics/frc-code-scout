@@ -55,8 +55,7 @@ RIO: "roboRIO — one process" {
 }
 COP: "Coprocessor — separate process
 (PhotonVision / Orange Pi)"
-COP -> RIO: "the ONE real message
-(vision pose over the wire)"
+COP -> RIO: "the ONE real message (vision pose over the wire)"
 RIO.style.fill: "#1f3a5a"
 RIO.style.font-color: "#ffffff"
 ```

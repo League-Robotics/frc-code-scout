@@ -3,8 +3,6 @@ title: 19. The drivetrain subsystem
 weight: 19
 ---
 
-# 19. The drivetrain subsystem
-
 *The drivetrain is the one subsystem that breaks the single-IO rule. It is built from two interfaces (`ModuleIO` ×4 plus `GyroIO` ×1), a module is two control loops behind one contract, and it carries the only real math that belongs above the IO line. This chapter is the deep dive that [Part I, chapter 8](../part-1/06-the-drivetrain.md) deferred: where chapter 8 made the empirical case that the drivetrain is both an actuator and the robot's primary sensor, here we build it.*
 
 Code is quoted to study the technique, not to copy. Build the contract for your mechanism.
@@ -25,32 +23,36 @@ Three pieces of logic live in or around the subsystem:
 - **Kinematics** (`SwerveDriveKinematics`) lives in the `Drive` subsystem, above the line. It converts a robot-level `ChassisSpeeds` into four `SwerveModuleState`s and back. This is the one subsystem with real math above the IO line, and that is correct — kinematics is vendor-free geometry.
 - **Odometry**: each module reports its drive distance and turn angle, the gyro reports yaw, and a `SwerveDrivePoseEstimator` fuses them into a pose. Vision then corrects it ([chapter 21](21-vision-systems.md)).
 
-```mermaid
-classDiagram
-    class Drive {
-        -ModuleIO[4] modules
-        -GyroIO gyro
-        -SwerveDriveKinematics kinematics
-        -SwerveDrivePoseEstimator estimator
-        +drive(ChassisSpeeds)
-        +pose() Pose2d
-    }
-    class ModuleIO {
-        <<interface>>
-        +updateInputs(ModuleIOInputs)
-        +runDriveVelocitySetpoint(v, ff)
-        +runTurnPositionSetpoint(angle)
-    }
-    class GyroIO {
-        <<interface>>
-        +updateInputs(GyroIOInputs)
-    }
-    Drive --> "4" ModuleIO : holds
-    Drive --> GyroIO : holds
-    ModuleIO <|.. ModuleIOTalonFX
-    ModuleIO <|.. ModuleIOSim
-    GyroIO <|.. GyroIOPigeon2
-    GyroIO <|.. GyroIOSim
+```d2
+Drive: {
+  shape: class
+  -modules: "ModuleIO[4]"
+  -gyro: GyroIO
+  -kinematics: SwerveDriveKinematics
+  -estimator: SwerveDrivePoseEstimator
+  +drive(ChassisSpeeds)
+  +pose(): Pose2d
+}
+ModuleIO: {
+  shape: class
+  +updateInputs(ModuleIOInputs)
+  +runDriveVelocitySetpoint(v, ff)
+  +runTurnPositionSetpoint(angle)
+}
+GyroIO: {
+  shape: class
+  +updateInputs(GyroIOInputs)
+}
+ModuleIOTalonFX: { shape: class }
+ModuleIOSim: { shape: class }
+GyroIOPigeon2: { shape: class }
+GyroIOSim: { shape: class }
+Drive -> ModuleIO: "holds (4)"
+Drive -> GyroIO: holds
+ModuleIOTalonFX -> ModuleIO: implements
+ModuleIOSim -> ModuleIO: implements
+GyroIOPigeon2 -> GyroIO: implements
+GyroIOSim -> GyroIO: implements
 ```
 
 ### High-frequency odometry

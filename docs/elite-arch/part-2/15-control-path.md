@@ -3,8 +3,6 @@ title: 15. The control path, end to end
 weight: 15
 ---
 
-# 15. The control path, end to end
-
 *This is the deep dive Part I deferred and the map for everything that follows in Part II. A button press or an autonomous routine becomes a robot-wide goal, becomes per-subsystem setpoints, becomes an IO call, becomes a motor voltage — and measured state flows back up the same structure to a single world model. Trace that path once and the rest of Part II is detail.*
 
 Part I argued for the shape of the architecture: three seams ([../part-1/02-five-views.md](../part-1/02-five-views.md)) built foundation-first in a fixed order ([../appendices/how-we-developed-this/05-foundation-first.md](../appendices/how-we-developed-this/05-foundation-first.md)). It did not show how data actually moves through that shape during a 20 ms cycle. That is this chapter. We trace one full control path — from a teleop binding or an auto routine all the way down to a motor voltage, and the measured state all the way back up — and then walk several concrete scenarios that are each a specialization of the same loop.
@@ -19,52 +17,56 @@ Treat this chapter as the orienting map for Part II. Each later chapter zooms in
 
 Everything in the control path lives inside a small core: the IO seam, the state seam, and the coordination seam, plus a logging facade. Each advanced capability — vision fusion, pathfinding, replay, unit tests, a state graph — attaches to one of these seams as an addition, not a rewrite.
 
-```mermaid
-flowchart TB
-    subgraph FOUND["FOUNDATION — the core control path"]
-        direction TB
-        OI["Driver / Operator bindings<br/>(RobotContainer)"]
-        SUP["Superstructure coordinator<br/>(goal in, setpoints out, guarded transitions)"]
-        subgraph SUBS["Subsystems (logic only)"]
-            DR["Drive"]
-            EL["Elevator"]
-            AR["Arm"]
-            MAN["Manipulator"]
-        end
-        RS["RobotState<br/>(pose estimator + world model)"]
-        subgraph IOSEAM["IO seam — one interface per subsystem"]
-            IOI["XxxIO interface + XxxIOInputs struct"]
-            REAL["XxxIOReal (hardware)"]
-            SIM["XxxIOSim (stub now, physics later)"]
-        end
-        LOG["Logging facade<br/>(AdvantageKit or DogLog — swappable)"]
-    end
+```d2
+direction: down
 
-    OI --> SUP
-    SUP --> SUBS
-    SUBS --> IOI
-    IOI --> REAL
-    IOI --> SIM
-    SUBS --> RS
-    RS --> SUP
-    SUBS -. "publish Inputs" .-> LOG
-    RS -. "publish pose" .-> LOG
+FOUND: "FOUNDATION — the core control path" {
+  OI: "Driver / Operator bindings
+(RobotContainer)"
+  SUP: "Superstructure coordinator
+(goal in, setpoints out, guarded transitions)"
+  SUBS: "Subsystems (logic only)" {
+    DR: Drive
+    EL: Elevator
+    AR: Arm
+    MAN: Manipulator
+  }
+  RS: "RobotState
+(pose estimator + world model)"
+  IOSEAM: "IO seam — one interface per subsystem" {
+    IOI: "XxxIO interface + XxxIOInputs struct"
+    REAL: "XxxIOReal (hardware)"
+    SIM: "XxxIOSim (stub now, physics later)"
+  }
+  LOG: "Logging facade
+(AdvantageKit or DogLog — swappable)"
+}
 
-    subgraph ADD["ADD-ONS — attach to seams later"]
-        VIS["Vision (VisionIO) → RobotState"]
-        PP["PathPlanner / Choreo autos"]
-        PF["On-the-fly pathfinding"]
-        REPLAY["Log replay (AdvantageKit)"]
-        TESTS["Unit tests vs XxxIOSim"]
-        GRAPH["State-graph / motion planner"]
-    end
+FOUND.OI -> FOUND.SUP
+FOUND.SUP -> FOUND.SUBS
+FOUND.SUBS -> FOUND.IOSEAM.IOI
+FOUND.IOSEAM.IOI -> FOUND.IOSEAM.REAL
+FOUND.IOSEAM.IOI -> FOUND.IOSEAM.SIM
+FOUND.SUBS -> FOUND.RS
+FOUND.RS -> FOUND.SUP
+FOUND.SUBS -> FOUND.LOG: "publish Inputs" { style.stroke-dash: 3 }
+FOUND.RS -> FOUND.LOG: "publish pose" { style.stroke-dash: 3 }
 
-    VIS -. "writes vision measurements" .-> RS
-    PP -. "requests Superstructure goals" .-> SUP
-    PF -. "consumes RobotState pose" .-> RS
-    REPLAY -. "feeds logged Inputs" .-> IOI
-    TESTS -. "construct subsystem w/ Sim" .-> SIM
-    GRAPH -. "replaces transition fn" .-> SUP
+ADD: "ADD-ONS — attach to seams later" {
+  VIS: "Vision (VisionIO) → RobotState"
+  PP: "PathPlanner / Choreo autos"
+  PF: "On-the-fly pathfinding"
+  REPLAY: "Log replay (AdvantageKit)"
+  TESTS: "Unit tests vs XxxIOSim"
+  GRAPH: "State-graph / motion planner"
+}
+
+ADD.VIS -> FOUND.RS: "writes vision measurements" { style.stroke-dash: 3 }
+ADD.PP -> FOUND.SUP: "requests Superstructure goals" { style.stroke-dash: 3 }
+ADD.PF -> FOUND.RS: "consumes RobotState pose" { style.stroke-dash: 3 }
+ADD.REPLAY -> FOUND.IOSEAM.IOI: "feeds logged Inputs" { style.stroke-dash: 3 }
+ADD.TESTS -> FOUND.IOSEAM.SIM: "construct subsystem w/ Sim" { style.stroke-dash: 3 }
+ADD.GRAPH -> FOUND.SUP: "replaces transition fn" { style.stroke-dash: 3 }
 ```
 
 Read the solid arrows top to bottom and that is the command path: bindings call the Superstructure, the Superstructure sets goals on subsystems, subsystems call their IO, IO drives hardware. Read the arrows that feed `RobotState` and the logging facade and that is the data path coming back up. The dotted add-ons all hang off one of the three seams; none of them reach into a subsystem to do their job.
@@ -77,15 +79,24 @@ The signature of the foundation, on disk, is a four-file quartet per mechanism �
 
 The same code runs in three modes. The only thing that changes between them is which IO implementation is constructed, and that choice happens in exactly one place — the robot constructor, keyed off the run mode.
 
-```mermaid
-flowchart LR
-    START["Robot constructor"] --> MODE{Run mode?}
-    MODE -->|REAL| R["new ElevatorIOReal()<br/>new VisionIOPhoton()"]
-    MODE -->|SIM| S["new ElevatorIOSim()<br/>new VisionIOSim()"]
-    MODE -->|REPLAY| Z["new ElevatorIO() {}<br/>(no-op; inputs come from log)"]
-    R --> BUILD["construct subsystems"]
-    S --> BUILD
-    Z --> BUILD
+```d2
+direction: right
+START: "Robot constructor"
+MODE: "Run mode?" { shape: diamond }
+R: "new ElevatorIOReal()
+new VisionIOPhoton()"
+S: "new ElevatorIOSim()
+new VisionIOSim()"
+Z: "new ElevatorIO() {}
+(no-op; inputs come from log)"
+BUILD: "construct subsystems"
+START -> MODE
+MODE -> R: REAL
+MODE -> S: SIM
+MODE -> Z: REPLAY
+R -> BUILD
+S -> BUILD
+Z -> BUILD
 ```
 
 Three things follow from this one selection point.
@@ -102,30 +113,29 @@ Because the rest of the codebase only ever holds an `XxxIO` reference, the subsy
 
 This is the heartbeat. Every scenario later in the chapter is a specialization of it. The `CommandScheduler` runs each subsystem's `periodic()` every cycle, and within a cycle the order is fixed.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Sched as CommandScheduler
-    participant Sub as Subsystem
-    participant IO as XxxIO impl
-    participant HW as Hardware / Sim
-    participant Log as Logging facade
-    participant RS as RobotState
-    participant Sup as Superstructure
+```d2
+shape: sequence_diagram
+Sched: CommandScheduler
+Sub: Subsystem
+IO: XxxIO impl
+HW: Hardware / Sim
+Log: Logging facade
+RS: RobotState
+Sup: Superstructure
 
-    Sched->>Sub: periodic()
-    Sub->>IO: updateInputs(inputs)
-    IO->>HW: read sensors
-    HW-->>IO: raw values
-    IO-->>Sub: inputs filled
-    Sub->>Log: publish "Xxx/Inputs"
-    Note over Sub,Log: in REPLAY, log OVERWRITES inputs here
-    Sub->>RS: contribute odometry / mechanism state
-    Sched->>Sup: (command) requested goal
-    Sup->>RS: read pose / state
-    Sup->>Sub: setGoal(...) → setpoint
-    Sub->>IO: setVoltage / setSetpoint
-    IO->>HW: actuate
+Sched -> Sub: periodic()
+Sub -> IO: updateInputs(inputs)
+IO -> HW: read sensors
+HW -> IO: raw values
+IO -> Sub: inputs filled
+Sub -> Log: publish Xxx/Inputs
+Sub."in REPLAY, log OVERWRITES inputs here"
+Sub -> RS: contribute odometry / mechanism state
+Sched -> Sup: (command) requested goal
+Sup -> RS: read pose / state
+Sup -> Sub: setGoal(...) → setpoint
+Sub -> IO: setVoltage / setSetpoint
+IO -> HW: actuate
 ```
 
 The invariant is **read → log → decide → actuate**, in that order, every cycle.
@@ -211,30 +221,29 @@ The loop above is the general case. Here are concrete control paths through it.
 
 *Goal: see the field, decide where to score, drive there.* This flow touches all three seams in sequence: **VisionIO → RobotState → Superstructure → pathfinder → DriveIO.**
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Cam as Coprocessor<br/>(PhotonVision/Limelight)
-    participant VIO as VisionIO impl
-    participant RS as RobotState
-    participant Sup as Superstructure
-    participant PF as Pathfinder<br/>(PathPlanner/Choreo)
-    participant Drive as Drive subsystem
-    participant DIO as DriveIO
+```d2
+shape: sequence_diagram
+Cam: "Coprocessor (PhotonVision/Limelight)"
+VIO: VisionIO impl
+RS: RobotState
+Sup: Superstructure
+PF: "Pathfinder (PathPlanner/Choreo)"
+Drive: Drive subsystem
+DIO: DriveIO
 
-    Cam->>VIO: AprilTag observation (pose + tags + latency)
-    VIO->>RS: addVisionMeasurement(pose, t, stdDevs)
-    Note over RS: fuse with odometry<br/>(reject if stdDev/ambiguity high)
-    Sup->>RS: getPose()  (where am I?)
-    Sup->>Sup: pick target = nearest legal scoring pose
-    Sup->>PF: generate path(currentPose → targetPose)
-    PF-->>Drive: trajectory / chassis speeds
-    loop until at target
-        Drive->>RS: getPose() (closed-loop on fused pose)
-        Drive->>DIO: setModuleStates(...)
-    end
-    Drive-->>Sup: at target
-    Sup->>Sup: applyGoal(SCORE_L4)
+Cam -> VIO: AprilTag observation (pose + tags + latency)
+VIO -> RS: addVisionMeasurement(pose, t, stdDevs)
+RS."fuse with odometry (reject if stdDev/ambiguity high)"
+Sup -> RS: getPose() (where am I?)
+Sup -> Sup: pick target = nearest legal scoring pose
+Sup -> PF: generate path(currentPose → targetPose)
+PF -> Drive: trajectory / chassis speeds
+"until at target": {
+  Drive -> RS: getPose() (closed-loop on fused pose)
+  Drive -> DIO: setModuleStates(...)
+}
+Drive -> Sup: at target
+Sup -> Sup: applyGoal(SCORE_L4)
 ```
 
 The camera writes a measurement to `RobotState`; everything downstream reads pose from the one fused estimate. **Vision never talks to drive.** Swapping PhotonVision for Limelight is a new `VisionIO` impl. Swapping PathPlanner for Choreo, or adding on-the-fly pathfinding, changes only the pathfinder participant. The seams localize every change. This is the same `getPose()` from §15.4 and the same `applyGoal` from §15.5 — the scenario just chains them.
@@ -243,17 +252,26 @@ The camera writes a measurement to `RobotState`; everything downstream reads pos
 
 *Constraint: the manipulator/scoop must not be open while the elevator is raised (they collide).* This lives in exactly one place — the Superstructure's guarded transition — never scattered across subsystems.
 
-```mermaid
-flowchart TB
-    REQ["requestGoal(SCORE_L4)"] --> GUARD{"Guard:<br/>is scoop open<br/>AND elevator low?"}
-    GUARD -->|"safe to raise"| RAISE["elevator.setGoal(L4)"]
-    GUARD -->|"unsafe"| SEQ["sequence the safe order"]
-    SEQ --> S1["1. manipulator.setGoal(CLOSED)"]
-    S1 --> S2["2. waitUntil(manipulator.isClosed)"]
-    S2 --> S3["3. elevator.setGoal(L4)"]
-    S3 --> S4["4. manipulator.setGoal(SCORE)"]
-    RAISE --> DONE["goal active"]
-    S4 --> DONE
+```d2
+direction: down
+REQ: "requestGoal(SCORE_L4)"
+GUARD: "Guard: is scoop open AND elevator low?" { shape: diamond }
+RAISE: "elevator.setGoal(L4)"
+SEQ: "sequence the safe order"
+S1: "1. manipulator.setGoal(CLOSED)"
+S2: "2. waitUntil(manipulator.isClosed)"
+S3: "3. elevator.setGoal(L4)"
+S4: "4. manipulator.setGoal(SCORE)"
+DONE: "goal active"
+REQ -> GUARD
+GUARD -> RAISE: safe to raise
+GUARD -> SEQ: unsafe
+SEQ -> S1
+S1 -> S2
+S2 -> S3
+S3 -> S4
+RAISE -> DONE
+S4 -> DONE
 ```
 
 In the foundation, `applyGoal` hand-sequences the safe order with `Commands.sequence(...)` and `waitUntil(...)`, where each subsystem exposes a cheap predicate (`isClosed()`, `isStowed()`) read from its inputs struct. Later, a declarative transition table or a motion planner that knows mechanism geometry can compute the safe interpolation automatically — and because every transition already routes through `applyGoal`, you replace the body, not the callers.
@@ -264,20 +282,19 @@ The subsystems stay dumb: they execute setpoints and report state. The knowledge
 
 *An operator presses "score L4."* This shows why intent is separated from execution.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Op as Operator
-    participant RC as RobotContainer
-    participant Sup as Superstructure
-    participant El as Elevator
-    participant Man as Manipulator
-    Op->>RC: button "L4"
-    RC->>Sup: requestGoal(SCORE_L4)
-    Sup->>Sup: applyGoal — runs interlock (§15.6.B)
-    Sup->>El: setGoal(L4)
-    Sup->>Man: setGoal(SCORE) (after guard clears)
-    Note over El,Man: each subsystem closes its own loop<br/>to its setpoint via its IO
+```d2
+shape: sequence_diagram
+Op: Operator
+RC: RobotContainer
+Sup: Superstructure
+El: Elevator
+Man: Manipulator
+Op -> RC: button L4
+RC -> Sup: requestGoal(SCORE_L4)
+Sup -> Sup: applyGoal — runs interlock (§15.6.B)
+Sup -> El: setGoal(L4)
+Sup -> Man: setGoal(SCORE) (after guard clears)
+Man."each subsystem closes its own loop to its setpoint via its IO"
 ```
 
 The operator expresses *intent* (a goal). The Superstructure owns *execution* (the legal, sequenced setpoints). The operator binding never commands a motor, so re-tuning the scoring sequence is a one-place change — and the same `SCORE_L4` goal is reusable as an autonomous action (it is the final `applyGoal(SCORE_L4)` step in scenario 15.6.A). One goal, two callers, identical execution.
@@ -286,20 +303,19 @@ The operator expresses *intent* (a goal). The Superstructure owns *execution* (t
 
 *The robot mis-scored in qualifier 42; reproduce it at your desk.* This scenario requires zero code written for the purpose. It is the dividend of the inputs-struct IO seam (§15.3) plus the REPLAY run mode (§15.2).
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Log as Match WPILOG
-    participant Robot as Your code (unchanged)
-    participant IO as XxxIO (REPLAY no-op)
-    participant AS as AdvantageScope
-    Log->>Robot: launch in REPLAY mode, feed log
-    loop every logged cycle
-        Log->>IO: overwrite Inputs with logged values
-        Robot->>Robot: run real decision code on logged inputs
-        Robot->>AS: emit NEW computed outputs alongside originals
-    end
-    Note over Robot,AS: step through, add fields, see exactly<br/>what the superstructure decided and why
+```d2
+shape: sequence_diagram
+Log: Match WPILOG
+Robot: Your code (unchanged)
+IO: XxxIO (REPLAY no-op)
+AS: AdvantageScope
+Log -> Robot: launch in REPLAY mode, feed log
+"every logged cycle": {
+  Log -> IO: overwrite Inputs with logged values
+  Robot -> Robot: run real decision code on logged inputs
+  Robot -> AS: emit NEW computed outputs alongside originals
+}
+Robot."step through, add fields, see exactly what the superstructure decided and why"
 ```
 
 Recall the loop's order: read → log → decide → actuate. Replay intercepts at the log step. Instead of reading hardware, the recorded log overwrites the inputs struct, and then the actual decision code runs against the actual sensor inputs from the match, deterministically. You can add new logged fields to inspect decisions that were not logged live — see exactly what the Superstructure decided and why. The only prerequisites are that the foundation logged the inputs struct and wired a REPLAY mode, both of which §15.2 and §15.3 already did. Nothing in the subsystems changes; the no-op IO simply has nothing to do because the inputs arrive from the log.

@@ -3,8 +3,6 @@ title: 18. Subsystem archetypes
 weight: 18
 ---
 
-# 18. Subsystem archetypes
-
 *Part I motivated the IO quartet in the abstract; this chapter applies it per mechanism. Game mechanisms — elevator, arm, shooter, intake — collapse to a small set of control archetypes, and the archetype, not the game name, decides the IO contract, the WPILib sim model, and the test. This chapter walks the four actuating archetypes, each with its sim model, an abridged real example, the one control decision it forces, and the testability point it turns on.*
 
 Code is quoted to study the technique, not to copy.

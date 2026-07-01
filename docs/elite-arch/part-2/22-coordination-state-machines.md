@@ -3,8 +3,6 @@ title: 22. Coordination I — state machines and the superstructure
 weight: 22
 ---
 
-# 22. Coordination I — state machines and the superstructure
-
 *Part I's chapter on [the coordination seam](../part-1/05-the-coordination-seam.md) named six paradigms and deferred their construction. This chapter builds the common ones: the superstructure as the single object that turns one robot-wide goal into a coordinated set of guarded subsystem setpoints, and the two finite-state-machine shapes the corpus uses to do it. The far end of the spectrum — transitions as data, searched as a graph or walked as a behavior tree — is the [next chapter](23-coordination-graphs-trees.md).*
 
 Code is quoted to study the technique, not to copy. Build the contract for your robot.
@@ -26,17 +24,19 @@ Operator/Auto → requestGoal(Goal) → [ one guarded transition function ] → 
 
 The split is intent vs execution: a caller expresses *what it wants* (a goal) and walks away; the superstructure owns *how each mechanism gets there* (the legal, sequenced setpoints). Callers cannot drive a mechanism into an illegal configuration because only the transition function writes setpoints. There is no control loop here — each subsystem still closes its own loop behind its [IO line](16-hardware-abstraction.md) and its [motor interface](17-motor-interfaces.md). The superstructure only decides which setpoint each subsystem should have right now.
 
-```mermaid
-stateDiagram-v2
-    [*] --> STOW
-    STOW --> INTAKE : request INTAKE
-    INTAKE --> STOW : has piece
-    STOW --> SCORE_L4 : request SCORE_L4
-    note right of SCORE_L4
-      guarded: arm clears frame
-      before elevator raises
-    end note
-    SCORE_L4 --> STOW : scored
+```d2
+direction: right
+start: "" { shape: circle }
+STOW
+INTAKE
+SCORE_L4: "SCORE_L4
+(guarded: arm clears frame
+before elevator raises)"
+start -> STOW
+STOW -> INTAKE: request INTAKE
+INTAKE -> STOW: has piece
+STOW -> SCORE_L4: request SCORE_L4
+SCORE_L4 -> STOW: scored
 ```
 
 ### 1.1 The contract

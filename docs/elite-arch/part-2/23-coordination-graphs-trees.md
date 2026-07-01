@@ -3,8 +3,6 @@ title: 23. Coordination II — state graphs and behavior trees
 weight: 23
 ---
 
-# 23. Coordination II — state graphs and behavior trees
-
 *The state machine in [the previous chapter](22-coordination-state-machines.md) is the coordination layer most elite teams stop at. This chapter walks the two rungs past it: modeling the superstructure as a graph of legal states and searching for a safe path, and ticking a behavior tree as a reactive whole-robot brain. Part I named both as the far end of the coordination ladder — the [D2 ceiling and the legitimate deviations](../part-1/08-alternatives.md). Here we show how they work. Code is quoted to study the technique, not to copy.*
 
 [Chapter 7](../part-1/05-the-coordination-seam.md) drew the coordination seam and [chapter 14](../part-1/08-alternatives.md) pointed past it to two paradigms it called sound-but-uncommon. This chapter is that deep dive. It continues directly from [chapter 22](22-coordination-state-machines.md): the wanted/current FSM and the centralized `RobotManager` are the rungs below; the state graph and the behavior tree are the two rungs above. Part I argued *why* a team would climb here. This chapter does not re-argue that. It shows the machinery and, for each, says plainly when it earns its complexity and when it is over-engineering.
@@ -36,18 +34,18 @@ Model it as a graph instead:
 
 You declare the safety rules once, locally, at edge-construction time, then let a shortest-path search compose any `from → to` request into a globally safe sequence. The interlocks stop being scattered `if` checks spread across thirty transition bodies and become *edge existence*. If a move would collide, the edge is not in the graph, so no path can route through it. That representation is the payoff; the search algorithm is a detail set by graph size.
 
-```mermaid
-graph LR
-    STOW --> CORAL_INTAKE
-    STOW --> L1
-    CORAL_INTAKE --> STOW
-    CORAL_INTAKE --> L2
-    L1 --> L2
-    L2 --> L3
-    L3 --> L4
-    L4 --> L3
-    L2 --> STOW
-    L4 -. blocked: wrist clips elevator .-> STOW
+```d2
+direction: right
+STOW -> CORAL_INTAKE
+STOW -> L1
+CORAL_INTAKE -> STOW
+CORAL_INTAKE -> L2
+L1 -> L2
+L2 -> L3
+L3 -> L4
+L4 -> L3
+L2 -> STOW
+L4 -> STOW: "blocked: wrist clips elevator" { style.stroke-dash: 3 }
 ```
 
 The dashed edge is the point: `L4 → STOW` directly would clip the wrist on the elevator, so that edge is simply absent. A request to go from `L4` to `STOW` finds the path `L4 → L3 → L2 → STOW` automatically. Nobody wrote that sequence. The search found it because those are the only edges that exist.

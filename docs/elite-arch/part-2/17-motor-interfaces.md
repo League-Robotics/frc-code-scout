@@ -3,8 +3,6 @@ title: 17. Motor interfaces
 weight: 17
 ---
 
-# 17. Motor interfaces
-
 *Part I drew the IO seam at the subsystem: one `ElevatorIO` per mechanism, vendor types sealed inside the implementation. This chapter goes one level lower, to the device. It surveys how teams in the corpus actually talk to motors in code — the reusable `MotorIO` contracts six teams build, the design axes they disagree on, and the rarer idea of capability-typed devices where an interface is named for what it does, not the brand that does it. It is the prior art on which Part III will build a single portable motor interface.*
 
 Code is quoted to study the technique, not to copy.
