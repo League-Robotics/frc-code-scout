@@ -1,3 +1,5 @@
+> **Archived — absorbed into the elite-arch wiki.** See Part I ch. 3 (the IO seam), Part II ch. 16–17 (hardware abstraction, motor interfaces), and Appendix B (glossary) under `docs/elite-arch/`. Retained here for historical reference.
+
 The IO Layer in FRC
 
 **The IO Layer in FRC**

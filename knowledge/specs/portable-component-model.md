@@ -359,9 +359,9 @@ it generalizes. The lineage:
 - [`portable-swerve-interface.md`](portable-swerve-interface.md) — the **mid-level** instance (a drive
   subsystem block over module blocks over motor blocks); its seam-granularity = where you draw block
   boundaries.
-- [`../corpus-analysis/06-lessons-from-broader-robotics.md`](../corpus-analysis/06-lessons-from-broader-robotics.md) —
+- [`../corpus-analysis/06-lessons-from-broader-robotics.md`](../archived/corpus-analysis/06-lessons-from-broader-robotics.md) —
   the ROS-node/lifecycle/three-layer lineage and the "semantics not transport" rule (§0, §5, §7).
-- [`../corpus-analysis/03-io-layer-strategy-pattern.md`](../corpus-analysis/03-io-layer-strategy-pattern.md) —
+- [`../corpus-analysis/03-io-layer-strategy-pattern.md`](../archived/corpus-analysis/03-io-layer-strategy-pattern.md) —
   why the leaf edge is ports-and-adapters.
 - [`../corpus-analysis/08-drivetrain-as-architecture.md`](../corpus-analysis/08-drivetrain-as-architecture.md) —
   the empirical drivetrain-as-three-roles (device / subsystem / world-model anchor) that this model

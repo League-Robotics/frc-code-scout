@@ -1,3 +1,5 @@
+> **Tool-facing spec** — bundled source for the `setup-testing` skill; kept here as the source of truth. The human-facing narrative is elite-arch Part I ch. 7 + Part II under `docs/elite-arch/`.
+
 # Testing FRC Robot Code
 
 > A companion to [`elite-architecture.md`](elite-architecture.md) and the

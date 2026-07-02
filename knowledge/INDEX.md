@@ -2,27 +2,41 @@
 
 Embedded research behind the rubric. Read `rubric/rubric.md` first for any scoring task.
 
+**How this relates to the wiki.** The **primary human-facing narrative is the elite-arch wiki**
+(`docs/elite-arch/`), which absorbs this research into a teachable book. The files here are the
+**research sources and tool-facing specs** behind it. They fall in three tiers:
+
+- **Reference** — survey/, examples/, alternatives/, specs/, and `corpus-analysis/{04,05,07,08}`:
+  kept as the deep evidence and worked examples the wiki cites.
+- **Tool dependency** — `rubric/rubric.md` and `build-spec/{elite-architecture,logging,simulation,testing}.md`:
+  kept in place because the scoring and build skills read them as source of truth. The wiki supersedes
+  them *for human readers* (see the chapter each maps to), but the files stay.
+- **Archived** — content fully absorbed into the wiki and moved to `archived/` with a back-pointer:
+  `corpus-analysis/{02,03,06}`, `build-spec/other-topics.md`, `build-spec/code-review-principles.md`.
+
+The full source-to-chapter map is [Appendix C — the crosswalk](../docs/elite-arch/appendices/source-crosswalk.md).
+
 ## rubric/
 - `rubric.md` — the 8-dimension (D1-D8) scoring rubric: anchors, grep cheat-sheet, profile shapes.
 
 ## corpus-analysis/  (national derivation — why the rubric looks the way it does)
 - `00-sd-education-landscape.md` — market context for the whole project.
 - `01-botball-fll-wro-teardown.md` — 21 non-FRC repos; the universal three-layer structure.
-- `02-frc-37-team-survey.md` — 37 FRC teams, six coordination paradigms, the modularity ladder.
-- `03-io-layer-strategy-pattern.md` — the IO layer = Strategy pattern; the D1 spine.
+- `02-frc-37-team-survey.md` — **[archived → `archived/corpus-analysis/`]** 37 FRC teams, six coordination paradigms, the modularity ladder. Absorbed into Part I + Appendix A.
+- `03-io-layer-strategy-pattern.md` — **[archived → `archived/corpus-analysis/`]** the IO layer = Strategy pattern; the D1 spine. Absorbed into Part I ch.3, Part II ch.16–17, Appendix B (glossary).
 - `04-novice-to-elite-progression.md` — the five-phase ladder; "rewrite in the offseason".
 - `05-motor-io-interfaces.md` — how *other* teams talk to motors (prior art): the 6 reusable `MotorIO` contracts in full + the design axes. (Our own design lives in `specs/portable-motor-interface.md`.)
-- `06-lessons-from-broader-robotics.md` — outside-in view: what ROS/Nav2/MoveIt/autonomous-driving treat as table stakes that FRC skips. 7 importable runtime/process disciplines, mapped to the seams and rubric.
+- `06-lessons-from-broader-robotics.md` — **[archived → `archived/corpus-analysis/`]** outside-in view: what ROS/Nav2/MoveIt/autonomous-driving treat as table stakes that FRC skips. 7 importable runtime/process disciplines, mapped to the seams and rubric. Absorbed into Lessons from Outside ch.1.
 - `07-code-generators.md` — spec-in/code-out tools (RobotBuilder, CTRE Tuner X swerve gen, YAGSL, AI/LLM) scored against the IO seam. All optimize time-to-drive, not swappability; the fix is "generate the constants, own the architecture" (Tuner X → AdvantageKit).
 - `08-drivetrain-as-architecture.md` — what a drivetrain *is*, empirically (55 teams via duckdb): the only universal subsystem (94%), and the only one that's both actuator and primary sensor — its `Pose` is the most-consumed value on the robot (682×). Architecture spectrum (≈63% CTRE-generated, ≈27% own a seam), the 254/2910 elite package layout, seam granularity, and the `CommandSwerveDrivetrain`/`SwerveRequest`/`SwerveDriveState` usage rankings. Evidence companion to specs/portable-swerve-interface.
 
-## build-spec/
-- `elite-architecture.md` — foundation-first build spec (three seams). Source of recommendations.
-- `code-review-principles.md` — architecture-first code review guide for agents and humans; seam checks, leak detection, severity rubric, and report format.
-- `logging.md` — D5: the inputs-struct contract; the println→SmartDashboard→DogLog/Epilogue→AdvantageKit+replay ladder.
-- `testing.md` — D4: kinds of tests, the IO-sim-as-mock idea, the HAL/sim-time harness, CI, the system-check trick.
-- `simulation.md` — D3: how sim works (run modes, HAL sim, sim time), the environments (WPILib sims, maple-sim, AdvantageScope), replay.
-- `other-topics.md` — additive advanced techniques (not architectural alternatives): state-space/LQR control, swerve setpoint generator, threaded high-freq odometry, neural game-piece detection, self-check/fault diagnostics, replay-as-test, reactive autos, QuestNav. One paragraph each, with sources + the teams using them.
+## build-spec/  (tool-facing specs — the build/scoring skills read these; wiki supersedes them for humans)
+- `elite-architecture.md` — **[tool dep — kept]** foundation-first build spec (three seams). Source of recommendations; read by `scaffold-robot`, `analyze-team`, the `team-analyst` agent. Human narrative: Part I–II.
+- `code-review-principles.md` — **[archived → `archived/build-spec/`]** architecture-first code review guide; seam checks, leak detection, severity rubric, report format. Absorbed into Appendix D.
+- `logging.md` — **[tool dep — kept]** D5: the inputs-struct contract; the println→SmartDashboard→DogLog/Epilogue→AdvantageKit+replay ladder. Bundled source for `setup-logging`. Human narrative: Part I ch.7 + Part III ch.29.
+- `testing.md` — **[tool dep — kept]** D4: kinds of tests, the IO-sim-as-mock idea, the HAL/sim-time harness, CI, the system-check trick. Bundled source for `setup-testing`. Human narrative: Part I ch.7 + Part II.
+- `simulation.md` — **[tool dep — kept]** D3: how sim works (run modes, HAL sim, sim time), the environments (WPILib sims, maple-sim, AdvantageScope), replay. Bundled source for `setup-simulation`. Human narrative: Part I ch.7 + Part II.
+- `other-topics.md` — **[archived → `archived/build-spec/`]** additive advanced techniques (not architectural alternatives): state-space/LQR control, swerve setpoint generator, threaded high-freq odometry, neural game-piece detection, self-check/fault diagnostics, replay-as-test, reactive autos, QuestNav. Absorbed into Part I ch. 9.
 
 ## build-spec/subsystems/  (per-subsystem deep dives — one per control archetype)
 - `00-anatomy-of-a-subsystem.md` — the shared template, the archetype map, and the

@@ -1,0 +1,56 @@
+---
+title: 35. The Patribots, four years
+weight: 35
+---
+
+
+**One team, four seasons, a clean monotonic climb — 5.0 → 10.0 → 17.5 → 20.0 — and one number that never moved.** This is the worked longitudinal case study: FRC 4738, the Patribots, scored against the full [D1–D8 rubric](34-the-san-diego-scoresheet.md) across RapidReact 2022, ChargedUp 2023, Crescendo 2024, and Reefscape 2025. Unlike the corpus survey — shallow clones with `.git` stripped — these are full clones with complete commit history, which is what lets us say not just *what* the code became but *when* it became it. Every level below was confirmed by opening the files behind the grep hits; presence alone was never enough. Read down a column and you see a team improving. Read across the years and you see two rules proven on the same repo: **rewrite in the offseason**, and **great code can still have a glaring gap.**
+
+## The four-year scoresheet
+
+| Season | D1 Arch | D2 Coord | D3 Sim | D4 Test | D5 Log | D6 Auto | D7 Vision | D8 Sustain | **Σ /32** |
+|---|---|---|---|---|---|---|---|---|---|
+| **2022** RapidReact | 1 | 0.5 | 0 | 0 | 1 | 1 | 1 | 0.5 | **5.0** |
+| **2023** ChargedUp | 1.5 | 1 | 0 | 0 | 1 | 2.5 | 2 | 2 | **10.0** |
+| **2024** Crescendo | 3 | 2 | 1.5 | 0 | 3 | 3 | 2.5 | 2.5 | **17.5** |
+| **2025** Reefscape | 3 | 3 | 2 | 0 | 3 | 3 | 3 | 3 | **20.0** |
+
+The score doubles, then nearly doubles again, then settles — a textbook trace up [the maturity ladder](../appendices/how-we-developed-this/03-the-maturity-ladder.md). Six of eight dimensions rise. One column — **D4, testing — reads 0 for all four years.** Hold onto that; it is the whole moral of the second half.
+
+## What each season actually was
+
+**2022 RapidReact — 5.0 — pre-framework.** Not command-based at all. `Robot.java extends TimedRobot` with hand-rolled device wrappers — `Motor`, `MotorGroup`, `Falcon`, `Gamepad`, `Turret` — and joystick values flowing straight to motor groups inside the periodic loop. No `SubsystemBase`, no command composition, no README, no CI. The one forward-looking piece is a Limelight-aimed turret (`tx`/`ty` targeting across fifteen files) — targeting only, no pose estimation. A small team (four contributors, ninety-two commits) brute-forcing a working robot. This is the baseline everything else is measured against.
+
+**2023 ChargedUp — 10.0 — custom framework, strong on the field.** Still not WPILib command-based — zero `SubsystemBase`, zero `CommandBase`. The telling move is in the *first week* of the season: "Convert command to iterative" and "Refactor DriveSubsystem.java to Swerve.java — Delete RobotContainer.java." They started from a command-based swerve template and deliberately tore out WPILib's command framework to run their own iterative architecture, organized into `hardware/`, `calc/`, and `auto/` packages. What is striking is how much capability they reached *without* the modern scaffolding: PhotonVision AprilTag pose estimation feeding `addVisionMeasurement` into a `SwerveDrivePoseEstimator`, dual-camera ambiguity comparison for rejection, drive-to-pose auto-alignment, forty-five PathPlanner paths driven by `AutoBuilder`. Logging is still `SmartDashboard`-only; no sim, no tests. README and a build CI arrive. The story of this repo is good results on a foundation they were about to abandon.
+
+**2024 Crescendo — 17.5 — two robots in one repo.** This is the discontinuity — but the commit history shows the score is *half in-season, half offseason rebuild, and the rubric scores the final state.* During the actual competition season (January–April) this repo was command-based on the **Monologue** logging library with **no IO layer**. Then, entirely in summer, the inflection: `2024-07-30` "switch to loggedrobot and basic setup before big io division," `2024-08-02` "ampper adapted to adv kit," `2024-08-21` "gyro???" — the first `GyroIO` interface. The IO-layer + AdvantageKit architecture that earns the D1/D5 = 3 was built **after the season, in July–August 2024**, on the same repo. So 17.5 is the repo's *final* state; the 2024 *competition* robot scored closer to ~12. In its final form it carries per-subsystem `*IO` interfaces across all eleven mechanisms (`GyroIO`, `ShooterIO`, `PivotIO`, `IntakeIO`, `IndexerIO`, `ClimbIO`, `ElevatorIO`, `AmpperIO`, `LimelightIO`, `PicoColorSensorIO`, `MAXSwerveModuleIO`), full AdvantageKit `@AutoLog` inputs, and its autonomous high-water mark — PathPlanner *plus* Choreo actually wired *plus* `LocalADStar` on-the-fly pathfinding. Coordination is command-manager classes (`PieceControl`, `ShooterCmds`, `ShooterCalc`), richer than plain composition but not yet a guarded state machine.
+
+**2025 Reefscape — 20.0 — consolidation and a real coordinator.** Refinement of the 2024 platform rather than another leap, and it *opens* already modern — the `2025-01-10` commit is "add claw with akit and logged constants." The IO seam matures into **dual real implementations**: `*IOKraken` and `*IONeo` for the same interface across elevator, wrist, climb, coral/algae claw, and module — clean hardware portability, one interface, two motors. The season's intellectual work is coordination: "add superstructure control" (`2025-01-12`) and a deliberate "start state implementation" (`2025-02-12`) that becomes a genuine `Superstructure`. `SuperState` objects bundle a robot-wide goal into per-subsystem states; a `targetState` is the requested intent, and transitions are **guarded** — `() -> elevator.atPosition(...)` conditions, `waitUntil` gates — so intent is separated from execution. That is the D2 = 3 anchor. Vision reaches D7 = 3: two Limelights behind a `VisionIO` interface, MegaTag2, dynamic std-dev tuning and rejection. Fewer commits than 2024, because less was being invented — a refinement year on a stable base.
+
+## The leap happened in the offseason
+
+Every season shares the same heartbeat: a January kickoff spike, heavy February–March build-and-compete, an April taper, then a fall bump that is *not* rewrite work but **Beach Blitz** — the San Diego offseason event, all "day 1 bb" and tuning commits. The architecture decisions, by contrast, happen at kickoff or in deep summer.
+
+From 2022 to 2023 the Patribots improved *within* a custom, non-command-based framework — better vision, better autos, the same architectural ceiling. The jump to elite-track scores came from a clean-sheet adoption of the IO-layer + AdvantageKit stack in **July–August 2024** — between the Crescendo season and the Reefscape season, on the Crescendo repo, *not* during any build season. That is why Reefscape 2025 opens already on AdvantageKit with logged constants: the foundation was a finished offseason project *before* kickoff. The pattern across four years is unambiguous — **architecture is decided when there is no game to play, and refined under competition pressure.** They are a team that paid the architectural cost most teams never pay, and paid it in the summer. This is the concrete proof behind the [foundation-first](../appendices/how-we-developed-this/05-foundation-first.md) rule: you do not rewrite your framework in week three of build season; you do it in July.
+
+## The four-year zero
+
+Now the gap. Run `git log --all -S"@Test"` across every branch of every season repo and it returns nothing. Not one unit test has ever been written — the D4 = 0 column is not a snapshot, it is a four-year fact, and D4 is the single rarest marker in the entire San Diego corpus, the clearest signal of a real software-engineering culture.
+
+The cruelty of it is that Patribots own the *exact* infrastructure that makes testing cheap. The elite-track architecture frames advanced capability as dividends that attach to three seams — the **IO seam** (D1), the **coordination seam** (D2), and the **state seam** (D7/RobotState). They cut the IO seam in 2024 and the coordination seam in 2025. Their `@AutoLog` inputs structs and per-subsystem IO interfaces are precisely what makes unit testing "a deferred dividend you populate, not a refactor you rebuild." They built the plumbing and never opened the tap. The simulation story is the same gap wearing a different hat: D3 has never cleared ~2, stuck at a generic `DCMotorSim` buried in the motor wrappers, instead of mechanism physics in a proper `XxxIOSim`. These are not two problems. They are one — both attach to the IO seam that already exists.
+
+## Prioritized next steps
+
+The retrospective ends where every good one should: with a short, ordered list of the highest-leverage moves, chosen so the top item is the cheapest and rarest.
+
+1. **Collect the testing dividend (D4: 0 → 2).** The move. Add a real `XxxIOSim` for *one* mechanism — start with the elevator or wrist for clean 1-DOF physics — using WPILib `ElevatorSim` / `SingleJointedArmSim` inside `updateInputs`, looping *above the line* so sim and real share one controller. Write *one* test that constructs the subsystem with its `IOSim` and asserts it reaches a setpoint. Then change one line of `gradle.yml` so CI runs `test`, not just `build`, gating merges — which simultaneously pushes toward D4 = 3.
+2. **Promote simulation from the motor wrapper to the IO layer (D3: 2 → 3).** Same seam, same work as step 1: filling `XxxIOSim` with mechanism physics *is* the simulation upgrade. Then add a `SIM`/`REPLAY` mode switch at the single subsystem-construction point and get AdvantageKit replay of real matches for free — a path to D5 = 4.
+3. **Build the state seam — a `RobotState` world model (D7: 3 → 4).** The one seam they have not cut. Today the pose estimator lives privately inside `Swerve`. Extract a dedicated `RobotState` that owns the `SwerveDrivePoseEstimator` (later a pose history and game-piece state); subsystems feed it, vision corrects it, pathing and decisions read from it. That is the difference between "pose estimation exists" and "a world model *is* the architecture."
+
+**When:** their own history says summer — the IO layer was a July–August project, the Superstructure a kickoff project. The summer of 2026 is the slot, and unlike 2024 this one needs no demolition, only filling seams that already exist.
+
+**If they do exactly one thing:** write the first unit test. It is the rarest, longest-standing gap — four years and zero attempts in the entire history — it requires the least new architecture, and it is the clearest available signal that 4738 is an engineering program and not just a strong-results team.
+
+## Why this belongs in the book
+
+Use it as a template. Any team can produce this document about itself: pull full history, score each season honestly against the rubric by *opening the files*, read the scoresheet across time instead of down a column, and let the commit log — not memory — say when the sophistication actually landed. Do that and you will likely find the same two truths the Patribots demonstrate. First, the leap you are proud of probably happened in an offseason, because that is the only time there is room to rewrite a foundation. Second, a genuinely strong codebase — 20 out of 32, elite by any measure — can still carry a single glaring zero for four straight years, precisely because nothing on the field forces you to close it. The retrospective is how you find your own uncollected dividend before someone else scores you and points at it.

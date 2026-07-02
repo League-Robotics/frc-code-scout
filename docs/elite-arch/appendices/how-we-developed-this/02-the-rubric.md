@@ -4,7 +4,8 @@ weight: 2
 ---
 The patterns from the corpus become useful only when they become measurable. The instrument is a
 rubric of **eight dimensions, each scored 0–4** against anchored, observable indicators, with
-half-steps allowed. The full anchors are in [Appendix B — the rubric in full](../); this chapter is
+half-steps allowed. The full anchors are in
+[the rubric in full](../../scoring/33-the-rubric.md); this chapter is
 how to read it.
 
 ## The eight dimensions

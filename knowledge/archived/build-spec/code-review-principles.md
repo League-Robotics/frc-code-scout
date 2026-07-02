@@ -1,3 +1,5 @@
+> **Archived — absorbed into the elite-arch wiki.** See Appendix D — Reviewing for the seams (`docs/elite-arch/appendices/reviewing-for-the-seams.md`). Retained here for historical reference.
+
 # Code Review Principles for Elite Architecture
 
 > Companion to `elite-architecture.md`, `testing.md`, `simulation.md`, and `logging.md`.

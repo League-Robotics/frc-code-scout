@@ -1,3 +1,5 @@
+> **Archived — absorbed into the elite-arch wiki.** See Part I ch. 9 — Other advanced topics (`docs/elite-arch/part-1/09-other-advanced-topics.md`). Retained here for historical reference.
+
 # Other Topics — Additional Elite Techniques
 
 Beyond the three seams (`elite-architecture.md`) and the cross-cutting practices (`logging.md`,

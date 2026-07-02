@@ -58,7 +58,7 @@ motor could be substituted. The six teams in the bottom row — **254, 1678, 971
 2706, 5137** — instead define one motor contract and implement it once per device family
 (`...TalonFX`, `...Sim`, `...SparkMax`). That single decision is what makes simulation
 (D3), unit tests (D4), and log replay (D5) attach *for free* later. See also
-[`03-io-layer-strategy-pattern.md`](03-io-layer-strategy-pattern.md).
+[`03-io-layer-strategy-pattern.md`](../archived/corpus-analysis/03-io-layer-strategy-pattern.md).
 
 ---
 

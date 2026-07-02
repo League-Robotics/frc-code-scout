@@ -1,3 +1,5 @@
+> **Archived — absorbed into the elite-arch wiki.** See Lessons from Outside ch. 1 (`docs/elite-arch/appendices/lessons-from-outside/01-lessons-from-outside.md`). Retained here for historical reference.
+
 # Lessons From Broader Robotics — What FRC Should Import From the Field at Large
 
 *How professional, academic, and industrial robotics structure code — and which of their

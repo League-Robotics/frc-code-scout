@@ -11,7 +11,10 @@ Nav2, MoveIt, and the autonomous-driving stack converged on disciplines that FRC
 adopts — graceful degradation, managed lifecycle, process isolation, spec-driven generation — and
 seeing them named is the clearest way to see what the architecture is still missing.
 
-It begins with a single survey chapter and will grow: each lesson deserves its own treatment, and
-those will be added here over time.
+It begins with a survey chapter and grows one lesson at a time: each deserves its own treatment, and
+those are added here as they are written.
 
-- [Lessons from outside FRC](01-lessons-from-outside.md) — the outside-in view, and what it sets up.
+1. [Lessons from outside FRC](01-lessons-from-outside.md) — the outside-in view, and what it sets up.
+2. [Spec-in, code-out — generators against the seam](02-code-generators.md) — RobotBuilder, Tuner X,
+   YAGSL, and the LLM generators scored against the IO seam, and the one rule: generate the constants,
+   own the architecture.

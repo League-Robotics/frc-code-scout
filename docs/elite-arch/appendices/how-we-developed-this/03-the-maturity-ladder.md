@@ -21,7 +21,9 @@ team that doesn't review code and you get cargo-cult ceremony. So every phase be
 Two rules govern the whole arc. First: **you rewrite in the offseason, never during build season.**
 Each architectural leap is a radical change; the only safe time is May–December, practicing on last
 year's game where you already know what "working" looks like. A team that tries to learn the IO layer
-in February loses the regional. Second: **sequence by pain, not by prestige.** Each rung must be
+in February loses the regional. You can watch this rule play out in one team's four-year git log in
+[the Patribots, four years](../../scoring/35-the-patribots-four-years.md), whose
+elite-track rebuild landed in an offseason, not a build season. Second: **sequence by pain, not by prestige.** Each rung must be
 motivated by a problem the team has actually hit. Adopt a pattern early because elite teams have it
 and you drown in boilerplate you have no use for.
 

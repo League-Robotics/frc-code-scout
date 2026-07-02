@@ -416,7 +416,7 @@ A swerve drive *is* a `Twist`-in / `Odometry`-out component with four `JointStat
 which is exactly `ros2_control`'s diff/swerve controller shape. The L1 seam is the FRC analogue of
 `ros2_control`'s hardware-interface; naming the contract this way (and reusing the motor spec's
 `Command`/`MotorState` PODs) is what makes the bridge a translation table rather than a rewrite. See
-[`../corpus-analysis/06-lessons-from-broader-robotics.md`](../corpus-analysis/06-lessons-from-broader-robotics.md) §0.
+[`../corpus-analysis/06-lessons-from-broader-robotics.md`](../archived/corpus-analysis/06-lessons-from-broader-robotics.md) §0.
 
 ---
 
@@ -512,12 +512,12 @@ All claims below are source-verified (official docs, GitHub source read raw, or 
   spec that L1 composes (drive motor + steer motor are two instances of it).
 - [`../corpus-analysis/07-code-generators.md`](../corpus-analysis/07-code-generators.md) — the generator
   landscape; this spec is the concrete form of its "generate the constants, own the architecture" thesis.
-- [`../corpus-analysis/03-io-layer-strategy-pattern.md`](../corpus-analysis/03-io-layer-strategy-pattern.md) — why the L1 seam is ports-and-adapters.
+- [`../corpus-analysis/03-io-layer-strategy-pattern.md`](../archived/corpus-analysis/03-io-layer-strategy-pattern.md) — why the L1 seam is ports-and-adapters.
 - [`../build-spec/subsystems/06-swerve-drivetrain.md`](../build-spec/subsystems/06-swerve-drivetrain.md) — the
   build-out: the `ModuleIO`+`GyroIO` quartet a team actually writes.
 - [`../alternatives/02-physical-plant-simulation.md`](../alternatives/02-physical-plant-simulation.md) — the
   L1 `…IOSim` / maple-sim fidelity dial.
-- [`../corpus-analysis/06-lessons-from-broader-robotics.md`](../corpus-analysis/06-lessons-from-broader-robotics.md) — the
+- [`../corpus-analysis/06-lessons-from-broader-robotics.md`](../archived/corpus-analysis/06-lessons-from-broader-robotics.md) — the
   `ros2_control` hardware-interface analogy behind §8.
 
 ## Open questions for a deeper build-out

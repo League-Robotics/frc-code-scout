@@ -1,3 +1,5 @@
+> **Archived — absorbed into the elite-arch wiki.** This research is now told in Part I and in Appendix A (`docs/elite-arch/appendices/how-we-developed-this/`). Retained here for historical reference and the full team-by-team detail.
+
 Inside Competition Robot Code: FRC
 
 **Inside Competition Robot Code: FRC**

@@ -40,11 +40,14 @@ STANDALONE = {
 
 # Explicit ordering for the build-spec direct files (not numbered in filenames).
 BUILDSPEC_ORDER = {
-    "elite-architecture.md": 1, "code-review-principles.md": 2, "logging.md": 3,
-    "testing.md": 4, "simulation.md": 5, "other-topics.md": 6,
+    "elite-architecture.md": 1, "logging.md": 3,
+    "testing.md": 4, "simulation.md": 5,
 }
 
 SKIP = {"INDEX.md"}  # the repo index; the site home (docs/index.md) replaces it
+
+# knowledge/archived/ holds research fully absorbed into the elite-arch wiki; its files carry no
+# known section, so section_of() returns None and they are intentionally not emitted into the book.
 
 
 def h1_title(text: str) -> str:

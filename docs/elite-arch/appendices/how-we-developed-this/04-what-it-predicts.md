@@ -5,7 +5,8 @@ weight: 4
 A rubric is only worth trusting if its scores mean something. So the scores were tested: 24 San Diego
 teams scored on the eight dimensions, each paired with season-matched Statbotics EPA (a normalized
 strength rating built from match results), and the two correlated. The answer is honest rather than
-triumphant.
+triumphant. The full per-team scoresheet and the raw correlation tables are
+[the San Diego scoresheet](../../scoring/34-the-san-diego-scoresheet.md).
 
 ## The headline: moderate, not decisive
 
@@ -71,7 +72,9 @@ elite-track scores happened **in the 2024 offseason, not in any build season.** 
 robot ran on simple logging with no IO layer; the IO-layer/AdvantageKit rebuild landed in
 July–August. That is [the "rewrite in the offseason" rule](03-the-maturity-ladder.md) showing up in a
 real team's git log. The persistent gap across all four years, verified against every branch: not one
-unit test has ever been written — which became the team's single highest-leverage next step.
+unit test has ever been written — which became the team's single highest-leverage next step. The full
+four-season deep dive, with the year-by-year scoresheet and the commit evidence, is
+[the Patribots, four years](../../scoring/35-the-patribots-four-years.md).
 
 The honest conclusion: the architecture is worth building because it makes a program *faster and more
 durable*, and it modestly tracks results — but it is not a substitute for a good robot. The next

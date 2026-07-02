@@ -12,10 +12,11 @@ reference that opens the hood on each major piece. Part III presents the **Leagu
 own evolved proposal, the same ideas pushed to a single unifying abstraction and made
 language-portable.
 
-> **Status: planning outline.** This page is the annotated table of contents — the hierarchy, a
-> description of each chapter, and the source documents in `knowledge/` (and `docs/review/`) each
-> chapter is written from. This wiki is **self-contained and supersedes** the generated `docs/book`;
-> chapters absorb the cited source material rather than linking out to it.
+> **This page is the annotated table of contents** — the hierarchy, a description of each chapter, and
+> the source documents in `knowledge/` (and `docs/review/`) each chapter is written from. This wiki is
+> **self-contained and supersedes** the generated `docs/book`; chapters absorb the cited source material
+> rather than linking out to it. The full source-to-chapter map is
+> [Appendix C — the crosswalk](appendices/source-crosswalk.md).
 
 ---
 
@@ -124,6 +125,14 @@ differently."
 *Sources: `alternatives/README.md`, `alternatives/01-capability-typed-devices.md`,
 `alternatives/02-physical-plant-simulation.md`, `alternatives/03-state-graph-coordination.md`,
 `alternatives/04-behavior-trees.md`.*
+
+### 9. Other advanced topics
+Additive techniques that specialize a seam rather than replace it — the category next to the
+alternatives: state-space/LQR, the swerve setpoint generator, high-frequency threaded odometry,
+self-check diagnostics, replay-as-regression-test, neural game-piece detection, reactive autonomy, and
+QuestNav. Each attaches at an existing seam, keeps its vendor dependency below the IO line, and can be
+added or removed without disturbing the rest of the robot.
+*Source: `build-spec/other-topics.md`.*
 
 ---
 
@@ -304,6 +313,29 @@ What must close before `scaffold-robot`/`add-subsystem` emit to this contract by
 
 ---
 
+# Part IV — Scoring Elite Code *(the measurement instrument, and the evidence it works)*
+
+*How to score a codebase — yours or anyone's — and trust the number. The rubric, its calibration
+against real competition results, and one team's four-year climb.*
+
+### 33. The rubric in full
+The eight-dimension instrument, every 0–4 anchor and the grep/AST cheat-sheet, scored directly — plus
+the corpus prevalence and cross-validated evidence for *what predicts results and why you must read the
+code.* *Source: `rubric/rubric.md`.*
+
+### 34. The San Diego scoresheet
+The rubric run on 24 active San Diego teams against season-matched Statbotics EPA: does better code
+track winning? Yes — moderately (ρ ≈ 0.55) and unevenly, and the outliers carry the lesson. The full
+per-team D1–D8 scoresheet and the per-dimension correlation table. *Sources:
+`survey/sd-frc-final-report.md` (+ `*.csv`, inventories).*
+
+### 35. The Patribots, four years
+One team (4738) scored season by season with full commit history — a monotonic climb 5.0 → 20.0 — the
+rubric in motion, and the two rules it proves: *rewrite in the offseason*, and *great code can still
+carry a four-year zero.* *Source: `examples/patribots-four-year-scoring.md`.*
+
+---
+
 # Appendices
 
 - **Appendix A — How We Develop This.** The method behind Part I, as a five-chapter narrative: how the
@@ -312,21 +344,14 @@ What must close before `scaffold-robot`/`add-subsystem` emit to this contract by
   results, and the foundation-first build order. *Sources: `examples/methodology.md`, `rubric/rubric.md`,
   `corpus-analysis/04-novice-to-elite-progression.md`, `survey/sd-frc-final-report.md`,
   `build-spec/elite-architecture.md`.*
-- **Appendix B — The rubric in full.** The complete D1–D8 anchors and grep cheat-sheet, for scoring.
-  *Source: `rubric/rubric.md`.*
-- **Appendix C — The San Diego scoresheet.** Full per-team D1–D8 vectors, EPA, and the per-dimension
-  correlation table. *Sources: `survey/sd-frc-final-report.md`, `survey/*.csv`,
-  `survey/sd-frc-inventory.md`, `survey/sd-ftc-inventory.md`.*
-- **Appendix D — Worked example: the Patribots, four years.** A full single-team, multi-season
-  analysis to imitate. *Sources: `examples/patribots-four-year-scoring.md` (+ `.pdf`).*
-- **Appendix E — Glossary and naming decisions.** Block, seam, IO line, `u`/`x`, estimate vs status,
+- **Appendix B — Glossary and naming decisions.** Block, seam, IO line, `u`/`x`, estimate vs status,
   and why `Block` over `Component`/`Node`/`Unit`/`Module`. *Sources:
   `specs/portable-component-model.md` (§12), `corpus-analysis/03-io-layer-strategy-pattern.md`.*
-- **Appendix F — Other advanced topics.** Additive techniques that aren't architectural alternatives:
-  state-space/LQR, swerve setpoint generator, threaded odometry, self-check, replay-as-test, QuestNav.
-  *Source: `build-spec/other-topics.md`.*
-- **Appendix G — Source-document crosswalk.** A table mapping every `knowledge/` file to the
+- **Appendix C — Source-document crosswalk.** A table mapping every `knowledge/` file to the
   chapter(s) that absorb it, so nothing in the corpus is orphaned by the rewrite.
+- **Appendix D — Reviewing for the seams.** The architecture-first code-review checklist: the five seam
+  invariants a review protects, S0–S3 severity, principles P1–P10, the deterministic review pass, and
+  the auto-fail anti-patterns. *Source: `build-spec/code-review-principles.md`.*
 
 ---
 
@@ -335,13 +360,17 @@ What must close before `scaffold-robot`/`add-subsystem` emit to this contract by
 *Stepping outside FRC to name what the Elite Architecture is still missing. A single survey chapter
 today; each lesson will grow its own treatment over time.*
 
-### Lessons from outside FRC
+### 1. Lessons from outside FRC
 The outside-in view: what ROS / Nav2 / MoveIt / autonomous-driving treat as table stakes that FRC
-skips — graceful degradation, lifecycle, process discipline — and the spec-in/code-out generators
-(RobotBuilder, Tuner X, YAGSL, LLMs) scored against the IO seam (all optimize time-to-drive, not
-swappability). Sets up Part III by naming what the Elite Architecture is still missing.
-*Sources: `corpus-analysis/06-lessons-from-broader-robotics.md`,
-`corpus-analysis/07-code-generators.md`.*
+skips — graceful degradation, lifecycle, process discipline. Sets up Part III by naming what the Elite
+Architecture is still missing.
+*Sources: `corpus-analysis/06-lessons-from-broader-robotics.md`.*
+
+### 2. Spec-in, code-out — generators against the seam
+The spec-in/code-out generators (RobotBuilder, Tuner X, YAGSL, LLMs) scored against the IO seam — all
+optimize time-to-drive, not swappability — and the reconciling rule: generate the constants, own the
+architecture.
+*Sources: `corpus-analysis/07-code-generators.md`.*
 
 ---
 

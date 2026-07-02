@@ -1,42 +1,40 @@
-> **Tool-facing spec** — read directly by the scoring skills, `agent_score.py`, and `build_site.py`; kept here as the source of truth. The human-facing narrative is the Scoring Elite Code section (the rubric in full) and Appendix A ch. 2 under `docs/elite-arch/`.
+---
+title: 33. The rubric in full
+weight: 33
+---
 
-# FRC Code Sophistication Rubric
 
-*For scoring the San Diego FRC team repositories in `sd-frc-code/`. Derived from the 37-team corpus analysis (consolidated survey, IO-layer deep dive, progression plan). Eight dimensions, each scored 0–4 against anchored, observable indicators.*
+**This is the complete, authoritative rubric — eight dimensions, each scored 0–4 against anchored, observable indicators, with half-steps allowed.** The companion chapter [how to read the rubric](../appendices/how-we-developed-this/02-the-rubric.md) explains why it is shaped this way and how to use it; this page carries every anchor, every caution, and the grep/AST cheat-sheet in full, so it can be scored from directly.
 
 ---
 
 ## Why dimensions, not a single ladder score
 
-The progression plan describes a ladder (Phases 1–5), and the ladder is right about *sequence within a dimension* — nobody gets to unit tests without an IO layer, because the IO layer is what makes subsystems testable. But real teams adopt unevenly *across* dimensions: a team can have a clean IO layer and zero tests, or AdvantageKit logging bolted onto spaghetti coordination, or Choreo trajectories driven by dead-reckoned odometry. A single ladder score hides exactly the gaps that matter for outreach ("you've built the IO layer — tests are one step away and you're not taking it").
+The [maturity ladder](../appendices/how-we-developed-this/03-the-maturity-ladder.md) is right about *sequence within a dimension* — nobody reaches unit tests without an IO layer, because the IO layer is what makes subsystems testable. But real teams adopt unevenly *across* dimensions: a team can have a clean IO layer and zero tests, or AdvantageKit logging bolted onto spaghetti coordination, or Choreo trajectories driven by dead-reckoned odometry. A single ladder score hides exactly the gaps that matter most — "you've built the IO layer, tests are one step away, and you're not taking it."
 
-So: score each dimension independently, report the vector, and read the *shape* of the profile, not the sum.
-
-**One revision to the ladder this implies:** the progression plan's Phase 2 bundles "IO layer + simulation + lightweight logging" as one leap, and Phase 3 bundles "FSM + tests + replay." In the wild these decompose — that bundling is the right *teaching* order but the wrong *measurement* instrument. The rubric splits them.
+So: score each dimension independently, report the vector, and read the *shape* of the profile, not the sum. One revision to the ladder this implies — the teaching order bundles "IO layer + simulation + lightweight logging" as one leap and "FSM + tests + replay" as another; in the wild these decompose. That bundling is the right *teaching* order but the wrong *measurement* instrument, so the rubric splits them.
 
 ---
 
 ## Scoring rules
 
-- **Unit:** each team's most recent real competition-season repo (2025 or 2026; not templates, training repos, or off-season toys). Note the repo name and season on the scoresheet.
-- **Adjacent repos count for one dimension only:** separate team-library repos (e.g., `SuperCORE`, `WarlordsLib`, `3128-common`, `NOMADBase`) and training repos count toward **D8 (Sustainability)** but not toward the code dimensions, which are scored from the season repo alone.
-- **Score what's used, not what's present.** A vendordep JSON for Choreo with no `.traj` files and no Choreo imports is not Choreo adoption. An empty `src/test` folder is not testing. Confirm every indicator by opening at least one file.
-- **Half-steps are allowed** (e.g., 2.5) when a team is clearly between anchors. Don't agonize.
-- **Known blind spot:** repos are shallow clones with `.git` stripped, so commit history, PRs, and contributor counts are unobservable. D8 is scored from artifacts only and should be treated as a floor, not a ceiling.
-- **Language note:** anchors are written in Java/WPILib terms. Kotlin (6695) and Python/RobotPy teams hit the same anchors with different syntax — MagicBot's framework FSM counts at D2 level 2, its component injection counts at D1 level 2.
+- **Unit** — each team's most recent real competition-season repo (2025 or 2026; not templates, training repos, or off-season toys). Record the repo name and season on the scoresheet.
+- **Adjacent repos count for one dimension only** — separate team-library repos (`SuperCORE`, `WarlordsLib`, `3128-common`, `NOMADBase`) and training repos count toward **D8 (Sustainability)** but not toward the code dimensions, which are scored from the season repo alone.
+- **Score what's used, not what's present.** A Choreo vendordep JSON with no `.traj` files and no Choreo imports is not Choreo adoption. An empty `src/test` folder is not testing. Confirm every indicator by opening at least one file — see [Part I ch. 3 — the IO seam](../part-1/03-the-io-seam.md) for why the seam is the load-bearing structure to confirm.
+- **Half-steps are allowed** (e.g., 2.5) when a team sits clearly between anchors. Don't agonize.
+- **Known blind spot** — repos are shallow clones with `.git` stripped, so commit history, PRs, and contributor counts are unobservable. D8 is scored from artifacts only and should be treated as a floor, not a ceiling.
+- **Language note** — anchors are written in Java/WPILib terms. Kotlin (6695) and Python/RobotPy teams hit the same anchors with different syntax: MagicBot's framework FSM counts at D2 level 2, its component injection counts at D1 level 2.
 
 ---
 
 ## Corpus prevalence (measured)
 
-*From the tree-sitter → DuckDB index of 55 season repos (`data/code-index.duckdb`).
-Use these to calibrate: a marker present in 3 teams is a ceiling signal; one present
-in 45 is table stakes. Confirm by reading regardless.*
+From the tree-sitter → DuckDB index of 55 season repos. Use these to calibrate: a marker present in 3 teams is a ceiling signal; one present in 45 is table stakes. Confirm by reading regardless.
 
 | Marker | Teams (of 55) | Calibration note |
 |---|---|---|
 | `commands/` dir · `Constants` · `subsystems/` dir | 54 · 54 · 53 | universal — no signal |
-| `addVisionMeasurement` call | 50 | vision/pose-est is assumed (D7≥2 is the floor, not the ceiling) |
+| `addVisionMeasurement` call | 50 | vision/pose-est is assumed (D7 ≥ 2 is the floor, not the ceiling) |
 | PhotonVision import | 42 | |
 | `*PoseEstimator` · `*RobotState` class | 36 · 26 | pose-est ≫ centralized world-model (D7 L2 vs L4 split is real) |
 | `util/` dir · `lib/` dir | 36 · 26 | lib/robot split (D8) in ~half |
@@ -48,36 +46,21 @@ in 45 is table stakes. Confirm by reading regardless.*
 | generic `*StateMachine` | 12 | second coordination marker |
 | `*IOReal` | **5** | ⚠ rare — do **not** grep for this to find an IO layer |
 | `jgrapht` · `RobotManager` · `WantedState` enum · `*IONull` · replay IO variant · BehaviorTree | 3 · 2 · 2 · ~1 · 1 · 1 | true ceiling markers; a hit is a strong D2/D5 signal |
-| vendor type (`com.ctre`/`com.revrobotics`) imported *above* the IO line | 22 of 24 IO teams | clean vendor confinement is aspirational, not the norm — but **judge it by reading, not by filename**: some teams confine vendor types in wrapper classes *not* named `*IO` (e.g. 4738's `Kraken.java`/`SafeSpark.java`), which a `*IO`-name heuristic wrongly flags as a leak |
+| vendor type (`com.ctre`/`com.revrobotics`) imported *above* the IO line | 22 of 24 IO teams | clean vendor confinement is aspirational, not the norm — **judge it by reading, not by filename**: some teams confine vendor types in wrapper classes *not* named `*IO` (e.g. 4738's `Kraken.java`/`SafeSpark.java`), which a `*IO`-name heuristic wrongly flags as a leak |
 
-Most-common subsystems (by `subsystems/<dir>`): **vision · intake · drive · shooter ·
-climber · elevator**, then arm · LEDs · indexer · turret. (Manipulator is rare; subsystem
-names are game-dependent — score the IO/coordination *structure*, not the mechanism roster.)
+Most-common subsystems (by `subsystems/<dir>`): **vision · intake · drive · shooter · climber · elevator**, then arm · LEDs · indexer · turret. Manipulator is rare; subsystem names are game-dependent — score the IO/coordination *structure*, not the mechanism roster.
 
 ---
 
 ## What predicts competition results — and why you must read the code
 
-*Measured 2026 against Statbotics EPA, leave-one-**team**-out cross-validated over 232 team-years /
-55 teams, cluster-bootstrap CIs. Full study: `notebooks/epa-prediction.ipynb`.*
+Measured 2026 against Statbotics EPA, leave-one-**team**-out cross-validated over 232 team-years / 55 teams, cluster-bootstrap CIs. Three results should shape how you use this rubric:
 
-Three results that should shape how you use this rubric:
+1. **Confirming use, not presence, roughly doubles the rubric's predictive validity.** On the same 55 teams, the **agent-confirmed** D1–D8 (a model that opened the files) predicts EPA at Spearman **ρ ≈ 0.53**; the **mechanical candidate** pass (grep/SQL hits, scored as presence) reaches only **ρ ≈ 0.29**. The paired difference is significant (95% CI `[0.04, 0.44]`). This is the empirical case for the golden rule — the cheap pass is a lead sheet, not a score.
 
-1. **Confirming use, not presence, roughly doubles the rubric's predictive validity.** On the same 55
-   teams, the **agent-confirmed** D1–D8 (a model that opened the files) predicts EPA at Spearman
-   **ρ ≈ 0.53**; the **mechanical candidate** pass (grep/SQL hits, scored as presence) reaches only
-   **ρ ≈ 0.29**. The paired difference is significant (95% CI `[0.04, 0.44]`). *This is the empirical
-   case for the golden rule.* The cheap pass is a lead sheet, not a score.
+2. **Most of what predicts EPA from "code" is just size and program age — not engineering quality.** A model of ~50 raw code features hits ρ ≈ 0.58, but **codebase size + program maturity alone scores ≈ 0.60**, while the *sophistication* features (the rubric's structural patterns, size removed) score ≈ 0.38, and a within-team (fixed-effects) view collapses to ≈ 0.05. Bigger, older, better-resourced programs have both more code and better results. Do not read a high raw correlation as "good code wins" — and do not reward sheer volume.
 
-2. **Most of what predicts EPA from "code" is just size and program age — not engineering quality.**
-   A model of ~50 raw code features hits ρ ≈ 0.58, but **codebase size + program maturity alone scores
-   ≈ 0.60** while the *sophistication* features (the rubric's structural patterns, size removed) score
-   ≈ 0.38, and a within-team (fixed-effects) view collapses to ≈ 0.05. Bigger, older, better-resourced
-   programs have both more code and better results. Do not read a high raw correlation as "good code
-   wins" — and do not reward sheer volume.
-
-3. **The mechanical pass is trustworthy on some dimensions and not others.** Agreement (quadratic-κ)
-   between the mechanical candidate and the agent-confirmed level:
+3. **The mechanical pass is trustworthy on some dimensions and not others.** Agreement (quadratic-κ) between the mechanical candidate and the agent-confirmed level:
 
    | Dimension | κ (mechanical vs confirmed) | Trust the grep? |
    |---|---|---|
@@ -88,15 +71,13 @@ Three results that should shape how you use this rubric:
    | **D6 Auto/Path · D7 Vision** | **0.60** | **no — confirm by reading** (files present ≠ trajectories driven / vision fused) |
    | **D8 Sustainability** | **0.57** | **no — read the README/CI/library; history is shallow** |
 
-   Spend your reading budget where κ is low: **D6, D7, D8** are where "present" most diverges from
-   "used." (Equal-weighting the eight dimensions is fine — an EPA-optimal re-weighting was *not*
-   distinguishable from equal weight on this sample, so don't over-engineer the sum.)
+   Spend your reading budget where κ is low: **D6, D7, D8** are where "present" most diverges from "used." Equal-weighting the eight dimensions is fine — an EPA-optimal re-weighting was not distinguishable from equal weight on this sample, so don't over-engineer the sum.
 
 ---
 
 ## D1 — Hardware decoupling (architecture)
 
-*The ladder's spine: how far has the team pushed the boundary between subsystem logic and physical devices?*
+*The ladder's spine — how far has the team pushed the boundary between subsystem logic and physical devices?*
 
 | Level | Anchor | Observable indicators |
 |---|---|---|
@@ -106,14 +87,7 @@ Three results that should shape how you use this rubric:
 | 3 | IO layer as the default | Per-subsystem `*IO` interfaces with at least Real + Sim implementations across most mechanisms; selection in one place (switch/factory) |
 | 4 | Generalized / library-grade | Generic parameterized bases (254-style `ServoMotorSubsystem`), null-object IO variants, or replay IO variants; the abstraction is reused, not repeated |
 
-**Grep:** `interface .*IO` (the spine), plus its implementations — `*IOSim*` (the sim impl,
-19 teams) and a **hardware impl named by device**: `*IOTalonFX*` / `*IOKraken*` / `*IOSparkMax*`
-/ `*IOSpark*` / `*IOPigeon2*` / `*IONavX*` / `*IOLimelight*` / `*IOPhoton*`. **Do not rely on
-`*IOReal*`** — only ~5 teams use that name; the robust signal is *an `interface *IO` with ≥2
-implementations, one of them `*IOSim`*. Also `@AutoLog`, YAGSL config dirs
-(`src/main/deploy/swerve`), `TunerConstants` (CTRE generator). At L4: a generic base
-(`MotorIO`/`ServoMotorSubsystem`) reused across mechanisms — the `*IONull*` null-object variant
-is real but near-absent in the corpus (~1 team), so don't require it.
+**Grep:** `interface .*IO` (the spine), plus its implementations — `*IOSim*` (the sim impl, 19 teams) and a **hardware impl named by device**: `*IOTalonFX*` / `*IOKraken*` / `*IOSparkMax*` / `*IOSpark*` / `*IOPigeon2*` / `*IONavX*` / `*IOLimelight*` / `*IOPhoton*`. **Do not rely on `*IOReal*`** — only ~5 teams use that name; the robust signal is *an `interface *IO` with ≥2 implementations, one of them `*IOSim`*. Also `@AutoLog`, YAGSL config dirs (`src/main/deploy/swerve`), `TunerConstants` (CTRE generator). At L4: a generic base (`MotorIO`/`ServoMotorSubsystem`) reused across mechanisms — the `*IONull*` null-object variant is real but near-absent in the corpus (~1 team), so don't require it.
 
 **Distinguish at level 3:** an IO *directory* of concrete hardware wrappers (the 2056 case) is not an IO *layer* — there must be an interface with swappable implementations. Check for an actual `interface` and at least two implementations.
 
@@ -131,15 +105,7 @@ is real but near-absent in the corpus (~1 team), so don't require it.
 | 3 | Superstructure coordination | A coordinator object fans robot-wide goals out to subsystems; intent (requested state) is separated from execution; kinematic safety handled deliberately (motion planner or guarded transitions) |
 | 4 | Search/graph-based or beyond | State graph with pathfinding (JGraphT / A* over states), behavior tree runtime, or equivalent — transition logic as data, not code |
 
-**Grep:** `Superstructure` (the dominant coordinator — 22 teams; check it's a real goal-fanout,
-not a holder), generic `*StateMachine` (12 teams). Rarer variants, each a strong signal when
-present but few teams: `enum WantedState`/`SystemState` (2910 style — 2 teams), `RobotManager`
-(581/3128 centralized FSM — 2 teams), `handleStateTransitions`, `jgrapht` (3), `AStarSolver`,
-`BehaviorTree` (1). Don't weight `WantedState`/`RobotManager` as the default — they're niche;
-the common path is a `Superstructure` (level 3) optionally backed by a `*StateMachine`. A newer L3
-marker worth recognizing: a **request-based API** — a `Goal`/`SuperstructureRequest` enum or sealed
-type plus a `requestGoal(...)`/`request(...)` method (often returning a `Command`) and a
-`handleStateTransitions`-style guard — which makes intent-vs-execution explicit.
+**Grep:** `Superstructure` (the dominant coordinator — 22 teams; check it's a real goal-fanout, not a holder), generic `*StateMachine` (12 teams). Rarer variants, each a strong signal when present but few teams: `enum WantedState`/`SystemState` (2910 style — 2 teams), `RobotManager` (581/3128 centralized FSM — 2 teams), `handleStateTransitions`, `jgrapht` (3), `AStarSolver`, `BehaviorTree` (1). Don't weight `WantedState`/`RobotManager` as the default — they're niche; the common path is a `Superstructure` (level 3) optionally backed by a `*StateMachine`. A newer L3 marker worth recognizing: a **request-based API** — a `Goal`/`SuperstructureRequest` enum or sealed type plus a `requestGoal(...)`/`request(...)` method (often returning a `Command`) and a `handleStateTransitions`-style guard — which makes intent-vs-execution explicit.
 
 **Caution:** a class *named* Superstructure that just holds references is level 1 wearing a level 3 name. Look for an actual goal-request API and transition logic.
 
@@ -211,12 +177,7 @@ type plus a `requestGoal(...)`/`request(...)` method (often returning a `Command
 
 **Grep:** `pathplanner` dir under `src/main/deploy`, `PathPlannerLib.json`, `choreo` / `.traj` / `.chor`, `Repulsor`, `RepulsorField`, `AutoBuilder`, `AutoBuilder.pathfind*` (on-the-fly, L3).
 
-**Confirm use — this is the lowest-trust dimension (κ 0.60).** Choreo `.traj`/`.chor` *files* count
-for nothing on their own: in the corpus, 15 of the teams with Choreo files **never reference them in
-code**, and PathPlanner `.auto` files frequently carry `choreoAuto:false`. Require an actual code
-reference — `fromChoreoTrajectory(...)`, `Choreo.loadTrajectory(...)`, a `choreo.auto.AutoFactory` —
-before crediting Choreo at L3. Likewise confirm `AutoBuilder.configure(...)` is wired with real
-constraints, not just imported.
+**Confirm use — this is the lowest-trust dimension (κ 0.60).** Choreo `.traj`/`.chor` *files* count for nothing on their own: in the corpus, 15 of the teams with Choreo files **never reference them in code**, and PathPlanner `.auto` files frequently carry `choreoAuto:false`. Require an actual code reference — `fromChoreoTrajectory(...)`, `Choreo.loadTrajectory(...)`, a `choreo.auto.AutoFactory` — before crediting Choreo at L3. Likewise confirm `AutoBuilder.configure(...)` is wired with real constraints, not just imported.
 
 ---
 
@@ -256,25 +217,30 @@ constraints, not just imported.
 
 ## Scoresheet template
 
-One row per team. Sum is reported but the profile is the finding.
+One row per team. The sum is reported, but the profile is the finding.
 
 | Team | Repo scored | D1 Arch | D2 Coord | D3 Sim | D4 Test | D5 Log | D6 Auto | D7 Vision | D8 Sustain | Σ /32 | Profile notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | | | | | | | | | | | | |
 
+---
+
 ## Reading the profile: common shapes
 
 - **Balanced climber** — all dimensions within ±1 of each other. The ladder is working; next step is whatever's lowest.
 - **Architecture without verification** (D1 ≥ 3, D3/D4 ≤ 1) — adopted the IO layer's *form* without its *payoff*. Likely copied a template (check against 5712-style AdvantageKit templates). Highest-leverage intervention: one unit test.
-- **Tooling adopter** (D5/D6 high, D1/D2 low) — uses AdvantageScope/PathPlanner/Choreo but the code underneath is baseline command-based. Tools were installable; architecture wasn't. Intervention: IO layer on one subsystem.
+- **Tooling adopter** (D5/D6 high, D1/D2 low) — uses AdvantageScope/PathPlanner/Choreo but the code underneath is baseline command-based. Tools were installable; architecture wasn't. Intervention: an IO layer on one subsystem.
 - **Template inheritor** — D1 = 3 exactly matching a known public template, everything else low. Distinguish from organic adoption by checking whether IO interfaces exist for *their* mechanisms or only the swerve they forked.
 - **Legacy program** — competent older patterns (solid command-based, good autos) with no post-2022 tooling. Different conversation: modernization, not fundamentals.
 - **Verification ceiling** (everything ≥ 3 except D4) — the regional-elite profile; even strong teams rarely test. D4 ≥ 2 is the rarest marker in the national corpus and the clearest signal of real software-engineering culture.
+
+---
 
 ## Suggested scoring procedure
 
 1. Identify the latest real season repo; record season and language.
 2. Run the grep cheat-sheet (one pass per dimension) to generate candidate levels.
-3. Open the files behind every positive hit — confirm use, not presence. Adjust level.
+3. Open the files behind every positive hit — confirm use, not presence. Adjust the level.
 4. Check the team's other repos *only* for D8 (libraries, templates, training).
 5. Write 2–3 sentences of profile notes: the shape, the likely explanation, the one highest-leverage next step for the team.
+

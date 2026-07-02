@@ -278,9 +278,9 @@ general policy and the worked design now live in §5.1 of the spec.
   state struct all cite the numbers here).
 - [`07-code-generators.md`](07-code-generators.md) — why ≈63% of drivetrains are CTRE-generated; the
   "generate the constants, own the architecture" rule the 254/2910 layout embodies.
-- [`02-frc-37-team-survey.md`](02-frc-37-team-survey.md) — the modularity ladder the architecture
+- [`02-frc-37-team-survey.md`](../archived/corpus-analysis/02-frc-37-team-survey.md) — the modularity ladder the architecture
   spectrum (§4) is a per-subsystem slice of.
-- [`03-io-layer-strategy-pattern.md`](03-io-layer-strategy-pattern.md) — why the seam in §5–6 is
+- [`03-io-layer-strategy-pattern.md`](../archived/corpus-analysis/03-io-layer-strategy-pattern.md) — why the seam in §5–6 is
   ports-and-adapters.
 - [`../specs/portable-motor-interface.md`](../specs/portable-motor-interface.md) — the `MotorIO` the
   per-module seam composes; the naming philosophy §9 applies.

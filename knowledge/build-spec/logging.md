@@ -1,3 +1,5 @@
+> **Tool-facing spec** — bundled source for the `setup-logging` skill; kept here as the source of truth. The human-facing narrative is elite-arch Part I ch. 7 + Part III ch. 29 under `docs/elite-arch/`.
+
 # Logging & Telemetry in FRC Robot Code
 
 > A companion to [`elite-architecture.md`](elite-architecture.md) §4 and the

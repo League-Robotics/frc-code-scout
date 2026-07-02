@@ -1,3 +1,5 @@
+> **Tool-facing spec** — read directly by `scaffold-robot`, `analyze-team`, and the `team-analyst` agent; kept here as the source of truth. The human-facing narrative is elite-arch Parts I–II under `docs/elite-arch/`.
+
 # An Elite-Track FRC Software Architecture (Java + WPILib)
 
 **A build spec for a competitive team.** This document defines a robot-code architecture you can build *foundation-first* and grow into a top-tier program without rewrites. The organizing principle: **build the seams, defer the payoffs.** Every advanced capability that distinguishes elite codebases — log replay, simulation, unit tests, vision fusion, time-optimal trajectories, on-the-fly pathfinding, kinematic interlocks — attaches to a small number of structural seams. If you build those seams correctly in week one, each advanced feature later becomes an *addition* at a known attachment point rather than a *refactor*.

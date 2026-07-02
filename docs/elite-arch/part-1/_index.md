@@ -46,3 +46,6 @@ the architecture itself.
 **The frontier**
 
 8. [Alternatives](08-alternatives.md) — legitimate deviations, and the bridge to Part III.
+9. [Other advanced topics](09-other-advanced-topics.md) — additive techniques that specialize a seam
+   rather than replace it: state-space/LQR, swerve setpoint generator, threaded odometry, self-check,
+   replay-as-test, neural detection, reactive autonomy, QuestNav.
