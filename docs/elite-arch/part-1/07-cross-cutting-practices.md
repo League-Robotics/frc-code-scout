@@ -21,7 +21,7 @@ at the one run-mode branch. The value scales with fidelity, and that scale is th
 | 4 | deterministic replay of a real match | re-run the actual robot on actual data |
 
 The threshold that matters is level 2: a sim that echoes setpoints only proves the code doesn't crash;
-a sim with real physics constants (measured mass, MOI, gearing) makes the controller earn its
+a sim with real physics constants (measured mass, MOI — moment of inertia — and gearing) makes the controller earn its
 convergence and can reveal an overshoot or an unstable loop before the robot exists. The corpus
 mindset is to treat sim as a *separate robot with its own tuning* — same code path, different
 constants — which is exactly what makes it trustworthy.
@@ -56,7 +56,7 @@ which is why the seam captures every hardware reading in one place.
 | 4 | replay + diagnostics | log replay exercised; self-check fault reporting |
 
 Logging is the one advanced practice that has gone near-universal among serious teams — AdvantageKit
-appears in 26 corpus teams, with Epilogue, DogLog, and URCL trailing. The jump that matters is level
+appears in 26 of the 55 season repos, with Epilogue, DogLog, and URCL trailing. The jump that matters is level
 1 → 2: from live-only dashboard values to a *recorded* log you can open after the match. And the
 decision between stacks is real, not a default — AdvantageKit buys deterministic replay at the cost of
 run-mode plumbing and strict IO discipline; DogLog buys telemetry now and skips replay. Because both
@@ -65,9 +65,12 @@ the subsystems.
 
 ## The dividend almost no one collects
 
-The three practices chain: filling `IOSim` (an afternoon) unlocks both unit tests and — once a
-`REPLAY` run mode is wired — deterministic replay of a real match through unchanged code. The corpus
-finding is blunt: the IO seam exists in 24 teams, every one of them has the inputs struct replay
-consumes, and about **one** team actually ships a replay variant. The foundation already paid for the
-dividend; collecting it is the clearest marker of real software culture, and the subject of
-[Foundation-first](../appendices/how-we-developed-this/05-foundation-first.md).
+The three practices chain: filling `IOSim` (an afternoon) unlocks both unit tests and — once the
+`REPLAY` run mode from [ch. 3](03-the-io-seam.md) is wired — deterministic replay of a real match
+through unchanged code. Read the ch. 3 numbers as a dividend ledger: 24 teams built the seam, all 24
+hold the inputs struct replay consumes, and about **one** actually ships a replay variant. This is
+ch. 1's "build the seams, defer the payoffs" seen from the collection side — the foundation already
+paid for the dividend, and collecting it is the clearest marker of real software culture, the subject
+of [Foundation-first](../appendices/how-we-developed-this/05-foundation-first.md). With the seams and
+their practices in hand, the last two chapters look outward, starting with the legitimate deviations:
+[alternatives](08-alternatives.md).

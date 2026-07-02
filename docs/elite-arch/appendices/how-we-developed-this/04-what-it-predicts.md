@@ -12,43 +12,25 @@ triumphant. The full per-team scoresheet and the raw correlation tables are
 
 Code sophistication correlates **moderately** with competition results — rubric total versus
 normalized EPA is Spearman ρ ≈ 0.55. Better software is associated with better results, but it
-explains only about a third of the variance. The per-dimension breakdown is the useful part:
+explains only about a third of the variance. The full per-team scoresheet and the per-dimension
+correlation table live in [the San Diego scoresheet](../../scoring/34-the-san-diego-scoresheet.md);
+what matters here is the shape of the result, not the rows.
 
-| Dimension | vs normEPA | vs state %ile |
-|---|---|---|
-| D8 Sustainability | 0.60 | 0.62 |
-| D6 Autonomous/Path | 0.59 | 0.60 |
-| D7 Vision/Localization | 0.51 | 0.52 |
-| D2 Coordination | 0.41 | 0.41 |
-| D1 Architecture | 0.39 | 0.41 |
-| D5 Logging | 0.35 | 0.36 |
-| D4 Testing | 0.26 | 0.26 |
-| D3 Simulation | 0.17 | 0.20 |
-
-The split has a clean reading. D6 and D7 put points directly on the board — a team that runs real
-autos and aligns to targets with vision scores more, immediately. D8 (CI, a carried library, docs, a
+The per-dimension split has a clean reading. The signal concentrates in D8, D6, and D7, and nearly
+vanishes in D3 and D4. D6 and D7 put points directly on the board — a team that runs real autos and
+aligns to targets with vision scores more, immediately. D8 (CI, a carried library, docs, a
 formatter) proxies overall program maturity, which sustains competitiveness across a season. D3 and
 D4 — simulation and testing — are internal engineering investments whose payoff is robustness and
 developer velocity, not raw match points; teams adopt them for reasons mostly orthogonal to a given
 season's standings. (D4 is also near-constant — almost every team scores 0 — so its low correlation is
 partly a low-variance artifact, not evidence that testing hurts.)
 
-## The outliers carry the signal
-
-Because the link is loose, the mismatches are where the lesson lives:
-
-- **Sophisticated code, weak results — 3647 Millennium Falcons.** The most feature-complete codebase
-  in San Diego (Σ = 20: maple-sim whole-robot simulation, AdvantageKit, 254-style architecture,
-  multi-camera vision, Choreo, CI) finished in the bottom third of California in 2025. Their software
-  is a model; that season's result was not.
-- **Modest code, strong results — 4419 and 3749.** A minimal 14-file C++ repo (Σ = 5) paired with a
-  top-quartile EPA. Whatever drove the result, it wasn't the software the rubric can see.
-- **The aligned top — 4738 Patribots and 3128.** Patribots is the cleanest case of code and results
-  agreeing: Σ = 19.5, a real AdvantageKit IO layer across every mechanism, and the best competition
-  record in the set.
-
-Code sophistication and competition performance are different axes. The rubric measures the first; it
-does not pretend to measure the second.
+Because the link is loose, the mismatches carry most of the lesson — the sophisticated codebase that
+finished in the bottom third of the state, and the minimal repo that posted a 72nd-percentile EPA.
+Those outlier profiles are worked through in
+[the scoresheet chapter](../../scoring/34-the-san-diego-scoresheet.md#the-outliers-are-the-interesting-part);
+the conclusion they force is that code sophistication and competition performance are different
+axes. The rubric measures the first; it does not pretend to measure the second.
 
 ## The confound, stated plainly
 
@@ -67,8 +49,9 @@ compensate for a slow intake or a no-show partner.
 
 The validation across teams is a snapshot; the four-year deep dive on the Patribots is the
 time-series. Re-cloned with full commit history and scored season by season, they show a clean
-monotonic climb — Σ ≈ 5 → 10 → 17.5 → 20. The finding only the history could reveal: the leap to
-elite-track scores happened **in the 2024 offseason, not in any build season.** The 2024 competition
+monotonic climb — Σ ≈ 5 → 10 → 17.5 → 20 (2024's 17.5 is the repo's final, post-rebuild state; the
+robot that actually competed that season scored closer to ~12). The finding only the history could
+reveal: the leap to elite-track scores happened **in the 2024 offseason, not in any build season.** The 2024 competition
 robot ran on simple logging with no IO layer; the IO-layer/AdvantageKit rebuild landed in
 July–August. That is [the "rewrite in the offseason" rule](03-the-maturity-ladder.md) showing up in a
 real team's git log. The persistent gap across all four years, verified against every branch: not one

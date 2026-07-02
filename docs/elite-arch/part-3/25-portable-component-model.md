@@ -17,11 +17,16 @@ state() -> State                                           // read the exposed s
 
 - **`Config`** — what you parameterize it with: CAN IDs, gear ratios, gains, interlock tables. Mostly
   set once, with a defined runtime door for the parts that retune live ([§Config](#config-is-parameters)).
-- **`Command_in` (u)** — the intent you send it this tick: a setpoint, a goal, a mode request.
-- **`State` (x)** — what it exposes: its estimate (the measured/fused quantity) **and** its status
+- **`Command_in`** — the intent you send it this tick: a setpoint, a goal, a mode request.
+- **`State`** — what it exposes: its estimate (the measured/fused quantity) **and** its status
   (mode, `atGoal`, health).
-- **`Command_out` (u′)** — the intents it emits for the blocks below it. *A block's `Command_out` is
+- **`Command_out`** — the intents it emits for the blocks below it. *A block's `Command_out` is
   literally its children's `Command_in`.* Commands are the edges between blocks.
+
+`Observations` is deliberately not a fifth channel the block owns. It is **the `State` of the block's
+children (and of designated peers such as `RobotState`)**, collected by the outer wiring layer and
+handed to `update` as its second argument. The tick's timestamp rides in `Observations` too — it is a
+fact about the world, delivered like any other.
 
 ```d2
 direction: down
@@ -32,15 +37,15 @@ configure(Config) once
 (State′, Command_out[]) = update(Command_in, Observations)"
 BELOW: children
 CFG -> BLK: configure (once)
-ABOVE -> BLK: "Command_in (u) — intent from above"
-BLK -> ABOVE: "State (x) — estimate + status" { style.stroke-dash: 4 }
-BLK -> BELOW: "Command_out (u′) — intent to below"
-BELOW -> BLK: "Observations — children's State" { style.stroke-dash: 4 }
+ABOVE -> BLK: "Command_in — intent from above"
+BLK -> ABOVE: "State — estimate + status" { style.stroke-dash: 4 }
+BLK -> BELOW: "Command_out — intent to below"
+BELOW -> BLK: "Observations — children's State (+ timestamp)" { style.stroke-dash: 4 }
 ```
 
-Naming follows the [motor spec's](26-portable-motor-interface.md) rule — a name must survive a change
-of reader. `Command` = u and `State` = x are the state-space control pair, frame-invariant from any
-viewpoint, where `Inputs`/`Outputs` silently pick a reference frame and invert under the other one.
+Naming follows the [motor spec's](26-portable-motor-interface.md) rule — a name must survive its
+reader — which is where `Command`/`State` are defended in full against AdvantageKit's
+`Inputs`/`Outputs`.
 
 ## The fill-pattern *is* the taxonomy
 
@@ -48,18 +53,20 @@ The non-obvious result — the thing that makes this more than restating the act
 **which channels a block populates classifies what kind of component it is.** There is no separate
 type hierarchy for sensors versus actuators versus controllers; the channel fill-pattern is the type:
 
-| Component kind | Config | Cmd in (u) | State (x) | Cmd out (u′) | one line |
+| Component kind | Config | Cmd in | State | Cmd out | one line |
 |---|:--:|:--:|:--:|:--:|---|
 | **Sensor** (color, light) | ✓ | – | ✓ | – | a pure source of observations |
 | **Actuator / leaf** (motor) | ✓ | ✓ | ✓ | – | command in, state out, no children |
-| **Estimator** (`RobotState`) | ✓ | observations | ✓ | – | a sensor that *fuses* |
+| **Estimator** (`RobotState`) | ✓ | – | ✓ | – | a sensor that *fuses* |
 | **Subsystem** (elevator, drive) | ✓ | ✓ setpoint | ✓ | ✓ motor cmds | a controller over leaves |
 | **Executive** (superstructure) | ✓ | ✓ goal | ✓ | ✓ subsystem goals | a controller over subsystems |
 
 Three things fall out of the table. **A subsystem and a superstructure are the same kind** — both fill
 all four channels, differing only in whether their children are motors or subsystems; this is why
-"even the executive fits." **A sensor and an estimator differ by one channel** — the estimator takes
-observations in and fuses, the sensor only emits. And **the robot is a tree of blocks**: commands flow
+"even the executive fits." **A sensor and an estimator share a fill-pattern and differ in what they
+observe** — both command channels empty, state out; the sensor's `Observations` come from hardware,
+while the estimator's are the `State` of designated peers (drive odometry, vision poses), which it
+fuses. Its `Command_in` is genuinely empty — nobody commands an estimate. And **the robot is a tree of blocks**: commands flow
 *down* (driver → executive → subsystem → motor → hardware) and state flows *up*.
 
 ```d2
@@ -97,6 +104,15 @@ layer** (the periodic loop, `RobotContainer`) routes each block's `Command_out` 
 doesn't know what's wired to its output port. This is the IO-seam principle ([ch. 3](../part-1/03-the-io-seam.md))
 applied recursively, up the whole tree.
 
+## No wall-clock reads inside `update`
+
+The companion rule, with the same weight. `update` never calls `Timer.getFPGATimestamp()` — or any
+clock: the tick's timestamp arrives inside `Observations`, like every other fact about the world. A
+block that reads the clock has smuggled in a hidden input — replay would feed it the recorded commands
+and observations while it silently reads *now*, and the same log would produce different outputs on
+different days. Deltas, timeouts, debounces, and profile clocks are all computed from the observed
+timestamp. Time is data; treat it like the rest.
+
 ## `State` is estimate **and** status
 
 For a motor, state is just the physical measurement — its measured position *is* its state variable.
@@ -104,8 +120,18 @@ Above the leaf, state splits in two: the **estimate** (the measured or fused qua
 **status** (what the block is doing — its mode, `atSetpoint`, fault flags). For a subsystem you need
 `atGoal`; for an executive the status (which mode, is it interlocked, is it ready) is the *primary*
 output and the estimate is secondary. So `State` carries `{ estimate, status }`. This is also why
-every level is named `…State` (`MotorState`, `RobotState`): state flows up, device → subsystem →
-world, and naming every level the same reveals they are the same kind of thing at different scales.
+every level is named `…State` (`MotorState`, `RobotState`): naming device, subsystem, and world state
+the same reveals they are the same kind of thing at different scales.
+
+## `State` versus internal memory
+
+`State` is what a block *exposes*, not everything it remembers. A block may keep internal memory — a
+PID integrator, motion-profile progress, a debounce timer — that never appears in its `State`,
+provided `update` stays deterministic: the same `Command_in`, `Observations`, and internal history
+must always produce the same outputs. The consequence, stated honestly: replay is guaranteed
+bit-identical only when re-run **from tick 0 of a complete log with deterministic code** — which is
+exactly AdvantageKit's actual model. Re-entering a log mid-stream would require snapshotting every
+block's internal memory each tick, and we deliberately do not require that.
 
 ## Config is parameters {#config-is-parameters}
 
@@ -135,8 +161,75 @@ with swerve modules. The leaf hardware adapters keep their established `…IO` s
 downward edge of a leaf block, not a competing concept.
 
 Why trust this shape? Because it is simultaneously a **ROS 2 lifecycle node** (parameters +
-subscriptions + publications + managed states), a **Hewitt actor** (private state, receive/send), and
-a **Simulink block** (parameters + ports + internal state, composed by wiring ports). When one
-structure is independently arrived at by three battle-tested communities, it is load-bearing — and we
-get to steal their refinements rather than rediscover them. The next chapters do exactly that, starting
-with the leaf: [the portable motor interface](26-portable-motor-interface.md).
+subscriptions + publications + managed states) and a **Simulink block** (parameters + ports + internal
+state, composed by wiring ports) — the Hewitt actor is at best a distant cousin, since actors are
+asynchronous and never synchronously return their outputs. When one structure is independently arrived
+at by battle-tested communities, it is load-bearing — and we get to steal their refinements rather
+than rediscover them. The next chapters do exactly that.
+
+## The contract, worked once: an elevator
+
+Before the instances, here is the whole contract in one place — a single elevator block, small enough
+to read in a minute. This is *illustrative of the contract, not a finished library*: real code would
+carry more fields, more status, and the lifecycle. First the three PODs:
+
+```java
+record ElevatorConfig(double gearRatio, double drumRadiusM,
+                      double maxVelMps, double maxAccelMps2,
+                      double kP, double kG) {}
+
+record ElevatorCommand(double heightM) {}                  // Command_in: one goal
+
+record ElevatorState(double heightM, double velMps,        // estimate
+                     boolean atGoal, boolean connected) {} // status
+
+record ElevatorObs(double timestampS, MotorState motor) {} // children's State + the tick's time
+
+record ElevatorTick(ElevatorState state,                   // what update returns
+                    List<MotorCommand> commandsOut) {}
+```
+
+Then the pure step — a profiled setpoint, no clock, no hardware, emission as the return value:
+
+```java
+ElevatorTick update(ElevatorCommand cmd, ElevatorObs obs) {
+    double dt = obs.timestampS() - lastTs;                   // time is an observation
+    lastTs = obs.timestampS();                               // internal memory, not State
+    setpoint = profile.calculate(dt, setpoint,               // TrapezoidProfile — pure math
+        new TrapezoidProfile.State(cmd.heightM(), 0.0));
+    double height = obs.motor().positionRad() * cfg.drumRadiusM() / cfg.gearRatio();
+    double velMps = obs.motor().velocityRadS() * cfg.drumRadiusM() / cfg.gearRatio();
+    double volts  = cfg.kP() * (setpoint.position - height) + cfg.kG();
+    var state = new ElevatorState(height, velMps,
+        Math.abs(cmd.heightM() - height) < 0.02,             // atGoal
+        obs.motor().connected());
+    return new ElevatorTick(state,
+        List.of(MotorCommand.voltage(volts)));               // emission is the return value
+}
+```
+
+And the thin impure shell — a WPILib `Subsystem` whose `periodic()` is the wiring layer:
+
+```java
+public class Elevator extends SubsystemBase {
+    private final ElevatorBlock block = new ElevatorBlock(CONFIG);
+    private final MotorIO io;                                // vendor types live below this line
+    private ElevatorCommand cmd = new ElevatorCommand(0.0);
+
+    public void setGoal(double heightM) { cmd = new ElevatorCommand(heightM); }
+
+    @Override public void periodic() {
+        var obs  = new ElevatorObs(Timer.getFPGATimestamp(), io.read());  // 1. read
+        var tick = block.update(cmd, obs);                                // 2. pure step
+        io.apply(tick.commandsOut().get(0));                              // 3. actuate
+        // 4. log cmd, obs, tick.state(), tick.commandsOut() — all PODs
+    }
+}
+```
+
+Everything the chapter argued is visible in these forty lines: the timestamp arrives inside
+`ElevatorObs` rather than from a clock; `update` touches no hardware and returns its command instead
+of pushing it; and the only impure code is the shell that reads, steps, and applies. A test constructs
+an `ElevatorObs` by hand and asserts on the returned tick — no scheduler, no HAL. Chapters 26–28 work
+this same contract at the leaf, the drivetrain, and the executive, starting with
+[the portable motor interface](26-portable-motor-interface.md).

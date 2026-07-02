@@ -2,9 +2,10 @@
 title: 3. The IO seam — the spine
 weight: 3
 ---
-The IO seam is the single most widely shared idea in serious FRC code — present in roughly two-thirds
-of the strong Java and Kotlin codebases, and the default rather than the exception among them. It is
-the spine the rest of the architecture hangs from, so it gets named first.
+The IO seam is the single most widely shared idea in serious FRC code. It appears in 24 of the 55
+season repos in the corpus index (44%) and is the default rather than the exception among the strong
+ones; the earlier 37-team hand survey found it in roughly two-thirds of the strong Java and Kotlin
+codebases. It is the spine the rest of the architecture hangs from, so it gets named first.
 
 ## The problem it solves
 
@@ -47,8 +48,10 @@ IO -> REPLAY
 The value is the independence: a team writes the subsystem's logic *once* against the interface, then
 swaps the strategy underneath — real hardware during a match, a physics model on a laptop, a
 log-replay stub afterward, a different motor vendor next season — and none of those swaps touches the
-interface or the subsystem. Selection happens in exactly one place, keyed off the robot's run mode, so
-"run on the real robot" versus "run on a laptop" turns on a single line.
+interface or the subsystem. Selection happens in exactly one place, keyed off the robot's run mode —
+the three run modes, **REAL**, **SIM**, and **REPLAY**, are chosen at that single point, with the
+mechanics in [Part II ch. 15](../part-2/15-control-path.md) — so "run on the real robot" versus "run
+on a laptop" turns on a single line.
 
 Two neighbors are worth naming so they don't get confused with it. A **factory method**
 (`Elevator.create()`) is the *selection* step that picks the strategy. A **null object** (a
@@ -57,22 +60,23 @@ empty, so a subsystem with disconnected hardware runs as a safe no-op instead of
 
 ## Why the pattern won
 
-Three payoffs fall out of that one interface, and they explain why a powerhouse signature became a
-regional default:
+Three payoffs fall out of that one interface, and they explain why a pattern once seen only in
+powerhouse code is now common at regionals:
 
 - **Simulation is free.** Swap the real implementation for the sim one — one line at construction —
   and the entire subsystem runs on a laptop with no robot. For a team with ten programmers and one
   robot on the cart, this is the whole game.
 - **Unit testing becomes possible** — the seam's deferred dividend. Because a subsystem can be built
-  with a sim implementation, you can drive it to completion on CI and assert on the result. Almost no
-  other FRC teams test robot code at all, and the IO seam is what makes it mechanically possible.
+  with a sim implementation, you can drive it to completion on CI (continuous integration) and assert
+  on the result. Almost no FRC teams test robot code at all, and the IO seam is what makes it
+  mechanically possible.
 - **Hardware swaps and replay stay local.** Changing a motor controller, supporting a practice robot,
   or replaying a recorded match touches one IO file — or, with AdvantageKit, none, because the log
   feeds the existing code.
 
 ## Reading it in the corpus
 
-The seam appears in 24 of 55 teams, and a confirmation worth trusting: *every* team that builds an IO
+Those 24 corpus teams come with a confirmation worth trusting: *every* team that builds an IO
 interface also has the logged `Inputs` struct (zero exceptions). But naming misleads — the hardware
 implementation is named *by device* (`ElevatorIOTalonFX`, `GyroIOPigeon2`), not "Real." Literal
 `*IOReal` appears in only about 5 teams, so the robust signal is **an `interface *IO` with two or more

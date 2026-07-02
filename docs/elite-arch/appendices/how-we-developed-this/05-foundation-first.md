@@ -73,6 +73,6 @@ of everything above it is the unglamorous 20% almost no one finishes — which i
 a lint rule rather than good intentions, and why clean vendor confinement is a distinguishing top-tier
 marker rather than a given.
 
-That confinement rule, generalized, is also where Part III begins. But first, [the next
-chapter](../lessons-from-outside/01-lessons-from-outside.md) looks at what the broader robotics field treats as table stakes
-that this architecture still skips.
+That confinement rule, generalized, is also where Part III begins. For what the broader robotics
+field treats as table stakes that this architecture still skips, see
+[Lessons from Outside](../lessons-from-outside/01-lessons-from-outside.md).

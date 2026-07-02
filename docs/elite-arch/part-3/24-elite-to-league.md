@@ -8,6 +8,12 @@ that naming the uniformity buys things the Elite Architecture leaves on the tabl
 prescriptive part of the book. Everything before it described what teams do; from here on we propose
 what we'd do, and why.
 
+A note on prerequisites: Part III assumes comfort with Parts I and II — the seams, the corpus
+evidence, and the vocabulary they built. It also leans on two outside idioms it does not assume you
+know: proto-style schemas ([ch. 26](26-portable-motor-interface.md)) and ROS 2 concepts
+([ch. 31](31-ros-bridge-portability.md)). Both are introduced as they are used; passing familiarity
+is enough.
+
 ## What we keep
 
 The League Architecture is not a replacement. It keeps every commitment Part I earned:
@@ -47,13 +53,15 @@ ELITE: "Elite — four shapes" {
   SUBS: subsystems
 }
 LEAGUE: "League — one shape, repeated" {
-  B1: Block
-  B2: Block
-  B3: Block
-  B4: Block
-  B1 -> B2
-  B2 -> B3
-  B3 -> B4
+  EXEC: "Block (executive)"
+  S1: "Block (subsystem)"
+  S2: "Block (subsystem)"
+  M1: "Block (motor)"
+  M2: "Block (motor)"
+  EXEC -> S1
+  EXEC -> S2
+  S1 -> M1
+  S1 -> M2
 }
 ELITE -> LEAGUE: "name the common shape"
 ```
@@ -61,7 +69,7 @@ ELITE -> LEAGUE: "name the common shape"
 The recursion is the whole idea: a subsystem is a `Block` whose children are motors; a superstructure
 is a `Block` whose children are subsystems. The same contract describes a leaf actuator and the
 robot-wide executive, and the difference between them is not a different base class — it is *which of
-the same four channels they use* ([ch. 25 §taxonomy](25-portable-component-model.md)).
+the same four channels they use* ([ch. 25](25-portable-component-model.md)).
 
 ## What "portable" buys
 
@@ -73,8 +81,8 @@ scale**, not just at the motor:
   have AdvantageKit-grade logging from leaf to executive ([ch. 29](29-telemetry-replay-tests.md)).
 - **Unit tests** for the entire robot — a pure `update` is testable by replaying recorded inputs, with
   no hardware and no scheduler ([ch. 29](29-telemetry-replay-tests.md)).
-- **Language and framework portability** — the block maps onto a ROS 2 node with no impedance
-  mismatch, which is also the proof the factoring is right ([ch. 31](31-ros-bridge-portability.md)).
+- **Language and framework portability** — the block maps cleanly onto a ROS 2 node, which is strong
+  evidence the factoring is conventional rather than idiosyncratic ([ch. 31](31-ros-bridge-portability.md)).
 
 And it gives the architecture a place to fix the disciplines FRC most conspicuously skips — graceful
 degradation and managed lifecycle ([ch. 30](30-lifecycle-degradation.md)) — once, in the shared shape,
@@ -85,8 +93,8 @@ instead of bolting them onto each subsystem.
 This is a proposal, not finished doctrine. The motor and swerve interfaces ([ch. 26](26-portable-motor-interface.md),
 [ch. 27](27-portable-swerve-interface.md)) are worked all the way down to a proto3 schema; the higher
 blocks ([ch. 28](28-robotstate-superstructure-blocks.md)) are sketched but not yet shipped; and the
-model has load-bearing open questions about execution order, the feedback channel, and how it sits on
-WPILib's scheduler ([ch. 32](32-open-questions.md)). Part III states the shape, shows the instances,
+model has load-bearing open questions about threading, how driver bindings become commands, and how it
+sits on WPILib's scheduler ([ch. 32](32-open-questions.md)). Part III states the shape, shows the instances,
 and is candid about what must close before a team can wire it up and run it.
 
 The thesis in one line: **a robot is a tree of identically shaped blocks, and the kind of block is

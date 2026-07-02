@@ -11,8 +11,8 @@ onto each subsystem.
 
 ## A real component has a lifecycle
 
-A block is not just "construct it and call `update` forever." Straight from ROS 2 managed nodes, it
-moves through defined states:
+A block is not just "construct it and call `update` forever." Modeled on ROS 2 managed nodes — with
+two deliberate deviations, named below — it moves through defined states:
 
 ```d2
 direction: right
@@ -30,6 +30,15 @@ D -> E: re-enable
 R -> F: device lost
 F -> R: recovered
 ```
+
+The deviations are improvements for FRC, not inheritance. ROS 2's primary states are Unconfigured /
+Inactive / Active / Finalized, and errors route through a *transitional* `ErrorProcessing` state —
+there is no persistent fault or degraded primary state. We add one, because an FRC mechanism can lose
+a device mid-match and must keep ticking in that condition for minutes, not merely transition through
+it. And we split ROS 2's single Active into `enabled` / `running`, matching the field-management
+reality that a robot is powered and configured well before it is allowed to move. Within the fault
+box, `fault` means total loss — the device is gone, emit safe zeros — while `degraded` means impaired
+but still acting: one motor of a pair lost, a reduced current budget, still pursuing its command.
 
 The transitions are the same for every block, so the discipline is written once and inherited by motor,
 subsystem, estimator, and executive alike. A block that is `configured` but not `enabled` holds its
@@ -50,7 +59,7 @@ through one path — not as an exception that some layer must remember to catch.
 ## The null block *is* the fault state
 
 The second requirement makes degradation structural rather than ad-hoc. The Elite Architecture already
-has the right object: the `*IONull` null-object ([ch. 3](../part-1/03-the-io-seam.md)), a do-nothing
+has the right object: the `*IONull` null-object ([ch. 16](../part-2/16-hardware-abstraction.md)), a do-nothing
 implementation whose methods are deliberately empty so a subsystem with disconnected hardware runs as a
 safe no-op instead of crashing. In the block model, **the null implementation is the block in its
 `fault` lifecycle state**: it accepts commands, emits safe/zero outgoing commands, and reports

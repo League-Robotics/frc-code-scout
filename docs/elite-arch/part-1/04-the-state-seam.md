@@ -51,6 +51,9 @@ class. That is the difference the rubric marks between D7 level 2 (a pose estima
 | L3 | + std-dev / ambiguity **rejection** before fusing | 3061, 254 |
 | L4 | a dedicated `RobotState` owning the estimator + time buffer, decoupled from Drive; a world model of pose + game-piece + mechanism state | 6328, 254 |
 
+The levels are cumulative, not a partition — a team at L4 also does the L3 rejection, which is why
+254 appears in both rows.
+
 At L4 the object stops being "pose" and becomes the robot's belief about everything — 6328's
 `RobotState` also carries game-piece observations, robot velocity, and even mechanism extension, so
 "where am I and what's the situation" lives in one inspectable, logged place.

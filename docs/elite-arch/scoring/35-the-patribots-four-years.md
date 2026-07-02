@@ -4,7 +4,7 @@ weight: 35
 ---
 
 
-**One team, four seasons, a clean monotonic climb — 5.0 → 10.0 → 17.5 → 20.0 — and one number that never moved.** This is the worked longitudinal case study: FRC 4738, the Patribots, scored against the full [D1–D8 rubric](34-the-san-diego-scoresheet.md) across RapidReact 2022, ChargedUp 2023, Crescendo 2024, and Reefscape 2025. Unlike the corpus survey — shallow clones with `.git` stripped — these are full clones with complete commit history, which is what lets us say not just *what* the code became but *when* it became it. Every level below was confirmed by opening the files behind the grep hits; presence alone was never enough. Read down a column and you see a team improving. Read across the years and you see two rules proven on the same repo: **rewrite in the offseason**, and **great code can still have a glaring gap.**
+**One team, four seasons, a clean monotonic climb — 5.0 → 10.0 → 17.5 → 20.0 — and one number that never moved.** (One asterisk on the series up front: 2024's 17.5 is the repo's *final* state, reflecting an offseason rebuild — the robot that actually competed that season scored closer to ~12; the 2024 section below has the commit evidence.) This is the worked longitudinal case study: FRC 4738, the Patribots, scored against the full [D1–D8 rubric](33-the-rubric.md) across RapidReact 2022, ChargedUp 2023, Crescendo 2024, and Reefscape 2025. Unlike the corpus survey — shallow clones with `.git` stripped — these are full clones with complete commit history, which is what lets us say not just *what* the code became but *when* it became it. Every level below was confirmed by opening the files behind the grep hits; presence alone was never enough. Read down a column and you see a team improving. Read across the years and you see two rules illustrated on the same repo: **rewrite in the offseason**, and **great code can still have a glaring gap.**
 
 ## The four-year scoresheet
 
@@ -14,6 +14,8 @@ weight: 35
 | **2023** ChargedUp | 1.5 | 1 | 0 | 0 | 1 | 2.5 | 2 | 2 | **10.0** |
 | **2024** Crescendo | 3 | 2 | 1.5 | 0 | 3 | 3 | 2.5 | 2.5 | **17.5** |
 | **2025** Reefscape | 3 | 3 | 2 | 0 | 3 | 3 | 3 | 3 | **20.0** |
+
+One row differs from [the San Diego scoresheet](34-the-san-diego-scoresheet.md), which lists 2025 at Σ = 19.5 with D2 = 2.5: this full-history read confirmed the Superstructure's guarded transitions (described under 2025 below) and raised D2 to 3, for Σ = 20.0.
 
 The score doubles, then nearly doubles again, then settles — a textbook trace up [the maturity ladder](../appendices/how-we-developed-this/03-the-maturity-ladder.md). Six of eight dimensions rise. One column — **D4, testing — reads 0 for all four years.** Hold onto that; it is the whole moral of the second half.
 
@@ -37,7 +39,7 @@ From 2022 to 2023 the Patribots improved *within* a custom, non-command-based fr
 
 Now the gap. Run `git log --all -S"@Test"` across every branch of every season repo and it returns nothing. Not one unit test has ever been written — the D4 = 0 column is not a snapshot, it is a four-year fact, and D4 is the single rarest marker in the entire San Diego corpus, the clearest signal of a real software-engineering culture.
 
-The cruelty of it is that Patribots own the *exact* infrastructure that makes testing cheap. The elite-track architecture frames advanced capability as dividends that attach to three seams — the **IO seam** (D1), the **coordination seam** (D2), and the **state seam** (D7/RobotState). They cut the IO seam in 2024 and the coordination seam in 2025. Their `@AutoLog` inputs structs and per-subsystem IO interfaces are precisely what makes unit testing "a deferred dividend you populate, not a refactor you rebuild." They built the plumbing and never opened the tap. The simulation story is the same gap wearing a different hat: D3 has never cleared ~2, stuck at a generic `DCMotorSim` buried in the motor wrappers, instead of mechanism physics in a proper `XxxIOSim`. These are not two problems. They are one — both attach to the IO seam that already exists.
+The cruelty of it is that Patribots own the *exact* infrastructure that makes testing cheap. The elite-track architecture frames advanced capability as dividends that attach to three seams — the **IO seam** (D1), the **coordination seam** (D2), and the **state seam** (D7/RobotState). They cut the IO seam in 2024 and the coordination seam in 2025. Their `@AutoLog` inputs structs and per-subsystem IO interfaces are precisely what makes unit testing "a deferred dividend you populate, not a refactor you rebuild." They built the plumbing and never opened the tap. The simulation story is the same gap in a second form: D3 has never cleared ~2, stuck at a generic `DCMotorSim` buried in the motor wrappers, instead of mechanism physics in a proper `XxxIOSim`. These are not two problems. They are one — both attach to the IO seam that already exists.
 
 ## Prioritized next steps
 

@@ -68,6 +68,6 @@ the line. This is the [foundation-first](../how-we-developed-this/05-foundation-
 themselves.
 
 These gaps — degradation, lifecycle, a versioned interface standard, one shape that spans devices and
-executives — are exactly what [Part III](../../part-3/) sets out to close. But the corpus also holds sound
-patterns that aren't the default and don't fit Part III's single model; [the next
-chapter](../../part-1/08-alternatives.md) catalogs them.
+executives — are exactly what [Part III](../../part-3/) sets out to close. The corpus also holds sound
+patterns that aren't the default and don't fit Part III's single model;
+[Part I ch. 8](../../part-1/08-alternatives.md) catalogs them.

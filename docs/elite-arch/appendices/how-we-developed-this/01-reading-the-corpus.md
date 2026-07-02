@@ -32,6 +32,24 @@ team.
 | 8. Build spec | Distilled a foundation-first architecture to grow into |
 | 9. Patribots deep dive | Re-cloned four seasons with full history; scored year by year |
 
+## The samples at a glance
+
+The study reads several different samples, and later chapters cite each by size — worth one table
+so the numbers never blur together:
+
+| Sample | What it is | Used for |
+|---|---|---|
+| **37 teams** | hand survey of national FRC repos | pattern extraction (stages 1–2) |
+| **63 teams / 684 repos** | the full bulk clone | the tree-sitter → DuckDB code index |
+| **55 repos** | season index — one repo per team, latest real season | prevalence counts; rubric scoring unit |
+| **232 team-years** | every available season repo per team, pooled across the 55 teams | the cross-validated EPA study |
+| **24 teams** | the scored San Diego set | the scoresheet + correlation study |
+| **1 team** | FRC 4738, four seasons, full history | the longitudinal case study |
+
+Note the distinction in the middle rows: rubric *scoring* uses each team's most recent season repo,
+while the EPA *cross-validation* pooled every available season repo per team — which is how 232
+team-years coexist with a 55-team, one-repo-per-team scoring unit.
+
 Stages 1–2 produced no scores — only a shared vocabulary of observable structures. Three teardowns
 established it: a broad baseline of 21 non-FRC repos (every program converges on the same three
 layers — device map, motion primitives, mission logic), a survey of 37 FRC teams across four
@@ -58,7 +76,8 @@ pass is a lead sheet, not a score.
 The grep matters less than people expect in another way too: agreement between the mechanical pass
 and the confirmed score is high for testing, architecture, and simulation (κ ≈ 0.8), but low for
 autonomous, vision, and sustainability (κ ≈ 0.6) — exactly the dimensions where "present" diverges
-most from "used." Spend the reading budget there.
+most from "used." Spend the reading budget there. (These are rounded; the canonical per-dimension κ
+table is in [the rubric in full](../../scoring/33-the-rubric.md).)
 
 ## What to carry forward
 

@@ -39,6 +39,11 @@ defining rule is vendor confinement (below). "IO seam" names the *boundary*; "IO
 boundary viewed as a wall you must not let vendor types cross. See
 [hardware abstraction and the IO line](../part-2/16-hardware-abstraction.md).
 
+**Fill-pattern taxonomy.** How blocks are classified: not by a type hierarchy but by *which channels
+they populate* — a sensor emits `State` but takes no `Command`, an actuator the reverse, an estimator
+turns `Observations` into an estimate, an executive's output is mostly status. See
+[the Portable Component Model](../part-3/25-portable-component-model.md).
+
 **RobotState.** The central world model — the single object every subsystem writes its measurements
 into and every consumer reads its estimates out of, so no one reads a raw sensor twice. In block
 terms it is an *estimator*: a block that takes observations in and emits a fused estimate, "a sensor
@@ -50,6 +55,11 @@ kind of block* as a subsystem; it differs only in that its `Command_out` feeds s
 motors. See [the coordination seam](../part-1/05-the-coordination-seam.md).
 
 ## The IO layer vocabulary
+
+**IO layer (location) vs hardware abstraction (property).** "IO layer" names a *location* — where the
+boundary sits, one interface per subsystem at the logic/device line. "Hardware abstraction" names a
+*property* — whether the control loop lives above or below that line. See
+[hardware abstraction and the IO line](../part-2/16-hardware-abstraction.md).
 
 **The IO quartet.** The four files that make up one subsystem's IO layer, generated together:
 
@@ -71,6 +81,10 @@ methods are deliberately empty, so a subsystem with unplugged hardware runs as a
 crashing, and REPLAY has something inert to hold the seam open. Written either as a named class
 (`ElevatorIONull`, `NoElevator`) or, where the interface's methods all default to empty, as an
 anonymous `new ElevatorIO() {}` that costs zero files.
+
+**Fault.** A detected abnormal condition — a disconnected device, a stale sensor — carried explicitly
+as part of a block's *status* (and, at the seam, as the inputs struct's `connected` flag), so
+degradation is a defined state rather than a crash.
 
 **Vendor confinement (the vendor-confinement rule).** The single non-negotiable of the IO layer: a
 vendor type — `com.ctre.*`, `com.revrobotics.*`, `org.photonvision.*` — may appear *only below the IO
@@ -95,6 +109,17 @@ below.
 - **`State`** (`x`) — the per-tick state out: estimate + status (below).
 - **`Command_out`** (`u′`) — the commands this block emits *downward* to its children, returned as a
   value, never pushed as a side-effect.
+
+**`Observations`.** The per-tick measurements a block receives from below — its children's `State`,
+or, at a leaf, raw sensor readings crossing the boundary upward. The second argument of the pure
+step, alongside `Command_in`.
+
+**Goal vs setpoint (and wanted vs current).** A **goal** is a robot-wide requested outcome ("score
+L4"); a **setpoint** is the numeric target one mechanism holds, derived from the goal by the
+superstructure. **Wanted/current** (2910's names; *target* and *goal* are synonyms for the first)
+is the two-enum pattern that keeps the requested state and the state actually in effect separate,
+with a transition function as the only writer of the second. See
+[coordination state machines](../part-2/22-coordination-state-machines.md).
 
 **Estimate vs status.** The two halves of `State`. The **estimate** is the measured or fused physical
 quantity — position, velocity, pose. The **status** is what the block is *doing* — its FSM node,

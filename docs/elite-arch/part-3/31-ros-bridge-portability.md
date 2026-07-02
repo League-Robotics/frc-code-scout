@@ -2,10 +2,10 @@
 title: 31. The ROS bridge and language portability
 weight: 31
 ---
-The last argument for the block model is also its proof of correctness. If the four-channel shape is
-the right factoring of a robot component, it should map onto the broader field's component model — the
-ROS 2 node — with no impedance mismatch. It does, exactly, and that is not a coincidence to admire but
-a capability to use.
+The last argument for the block model is external. If the four-channel shape is a sound factoring of
+a robot component, it should map cleanly onto the broader field's component model — the ROS 2 node. It
+largely does, and the mapping is strong evidence that the factoring is conventional rather than
+idiosyncratic — not a proof, but a capability to use.
 
 ## A block is a ROS 2 node
 
@@ -18,15 +18,27 @@ Each block channel has a ROS 2 counterpart, one-for-one:
 | `State` (estimate + status) | a published **topic** (estimate) + the action **feedback/result** (status) |
 | `Command_out` | topics **published** to downstream nodes |
 | lifecycle | a **managed (lifecycle) node**'s states |
-| `update` | the node's **spin** / `update()` callback |
+| `update` | a **timer callback** (or `ros2_control`'s `ControllerInterface::update`) — not `spin`, which is the executor loop |
 
 The executive-as-action-server falls right out: a goal arrives (`Command_in`), the feedback channel is
 "what it's doing" (`State.status`), and it commands subsystems (`Command_out`). Because the shape *is*
 a ROS node, the bridge is a translation table, not a rewrite — and because the motor and swerve PODs
 are kept structurally isomorphic to their ROS message targets ([ch. 26](26-portable-motor-interface.md),
 [ch. 27](27-portable-swerve-interface.md)), the table is mechanical: a swerve drive is a `Twist`-in /
-`Odometry`-out node with four `JointState` pairs underneath, which is precisely `ros2_control`'s
-swerve-controller shape.
+`Odometry`-out node with four `JointState` pairs underneath — the shape a `ros2_control` swerve
+controller takes (cf. `diff_drive_controller`; upstream ships no swerve controller, and the ones that
+exist are third-party packages).
+
+## What does not map
+
+The table is a correspondence, not an identity, and three mismatches keep it honest. ROS topics are
+asynchronous, many-to-many, and QoS-mediated — a publisher neither knows nor waits for its subscribers
+— while block wiring is synchronous 1:1 calls in a fixed order. A ROS action goal has an
+accept/reject/cancel handshake and runs for seconds, while `Command_in` is re-sent every 20 ms with no
+handshake at all — so the executive-as-action-server analogy holds for the data (goal / feedback /
+result), not the protocol. And executors, callback groups, and QoS profiles have no block analog,
+because the block model deliberately has no transport to configure. The mapping earns its keep at the
+one edge where a real message exists; it is not a claim that a robot of blocks *is* a ROS graph.
 
 ## Keep the semantics, drop the transport
 
@@ -69,11 +81,19 @@ the ROS bridge earns its keep: the coprocessor can be a ROS node publishing a po
 
 What makes the whole thing language-neutral rather than Java-bound is that the channels are defined
 once in **proto3**, not in a Java interface. From that single schema, `protoc` generates first-class
-message types for the robot (Java) and the tools (Python, Rust, C++, TypeScript), the thin port shim is
-generated for the long-tail targets, and the ROS bridge is generated from the two schemas by applying
+message types for the robot (Java) and the tools (Python, Rust, C++, TypeScript); the thin port shim —
+the `apply`/`read` interface of [ch. 26](26-portable-motor-interface.md) plus its POD structs, e.g. a
+generated C++ or Python struct-and-adapter pair for a coprocessor target — is generated for the
+long-tail targets; and the ROS bridge is generated from the two schemas by applying
 the two conventions the motor chapter fixed (`None` ↔ `NaN`, `oneof` ↔ mode-enum). Add a control mode
 and it is one `oneof` arm plus one enum constant, propagating to every binding, the capability set, and
 the ROS mapping at once.
+
+One boundary rule keeps the schema from becoming a 20 ms-loop garbage tax: the generated protobuf
+types appear **only at the log-and-wire boundary**. In-loop, the channels are plain mutable
+records/structs generated from the same schema — protobuf-java's immutable, builder-allocating
+messages would churn the roboRIO's two-core garbage collector every tick, which is why WPILib itself
+chose QuickBuffers over protobuf-java for its own serialization ([ch. 26](26-portable-motor-interface.md)).
 
 This is what "portable" in *the League Architecture* finally means. The Elite Architecture is portable
 across *seasons* — the seam survives a rewrite. The block model is portable across *languages and

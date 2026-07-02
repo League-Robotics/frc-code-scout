@@ -5,9 +5,7 @@ weight: 18
 
 *Part I motivated the IO quartet in the abstract; this chapter applies it per mechanism. Game mechanisms — elevator, arm, shooter, intake — collapse to a small set of control archetypes, and the archetype, not the game name, decides the IO contract, the WPILib sim model, and the test. This chapter walks the four actuating archetypes, each with its sim model, an abridged real example, the one control decision it forces, and the testability point it turns on.*
 
-Code is quoted to study the technique, not to copy.
-
-[Chapter 5](../part-1/03-the-io-seam.md) introduced the IO seam and the four-file quartet that hangs off it: an interface, a hardware implementation, a sim implementation, and the subsystem that holds one of them. That chapter argued the seam is worth its cost. It deferred the per-mechanism detail to here. This is that detail — the same seam drawn four times, once for each control type a robot actually builds.
+[Chapter 3](../part-1/03-the-io-seam.md) introduced the IO seam and the four-file quartet that hangs off it: an interface, a hardware implementation, a sim implementation, and the subsystem that holds one of them. That chapter argued the seam is worth its cost. It deferred the per-mechanism detail to here. This is that detail — the same seam drawn four times, once for each control type a robot actually builds.
 
 The companion chapters in this part fill in the surrounding machinery: the [control path](15-control-path.md) that runs above the seam, [hardware abstraction](16-hardware-abstraction.md) and [motor interfaces](17-motor-interfaces.md) that sit at and below it. The two seams that have no motors at all — the [world model](20-the-world-model.md) and the coordination layer ([state machines](22-coordination-state-machines.md), [graphs and trees](23-coordination-graphs-trees.md)) — are their own chapters. Vision, a sensor-only subsystem, is [chapter 21](21-vision-systems.md). The [drivetrain](19-the-drivetrain-subsystem.md), a special case with two interfaces and kinematics, comes next.
 
@@ -26,37 +24,13 @@ A subsystem is usually named after the game mechanism, but mechanisms collapse t
 
 If a mechanism is not listed by name, find its archetype. Anything that goes to a height is linear position; anything that goes to an angle is rotational position; anything that spins to a speed is velocity; anything that moves game pieces past a sensor is a roller.
 
-### The four files that are a subsystem
+### The quartet, per archetype
 
-Every subsystem in this chapter is the same four-part shape — the quartet:
+Every subsystem in this chapter is the same four-file quartet — contract, device-named hardware impl, sim impl, subsystem — whose canonical shape and naming conventions are [chapter 16's](16-hardware-abstraction.md#naming-the-implementations). Two recurring companions ride along: an **`XxxIOInputs` struct** carries the readings, often `@AutoLog`-annotated so AdvantageKit logs and replays them, and a **no-op / null** implementation (`NoXxx` / `XxxIONull`) lets the robot run with the mechanism disabled. What changes per archetype is only what crosses the line and which WPILib model backs the fake hardware.
 
-```
-xxx/
-  XxxIO.java            // the contract: what the subsystem needs from hardware (volts out, readings in)
-  XxxIO<device>.java    // the hardware impl — the ONLY file that imports a vendor SDK (TalonFX, SparkMax)
-  XxxIOSim.java         // the simulation impl — wraps a WPILib sim model; imports WPILib only
-  Xxx.java              // the subsystem — holds ONE XxxIO, owns the control logic, exposes Commands
-```
+### The ethic, applied
 
-Two recurring companions ride along. An **`XxxIOInputs` struct** carries the readings, often `@AutoLog`-annotated so AdvantageKit logs and replays them. A **no-op / null** implementation (`NoXxx` / `XxxIONull`) lets the robot run with the mechanism disabled.
-
-Naming, as the corpus actually does it:
-
-- The sim impl is reliably **`XxxIOSim`** (or `SimXxx`).
-- The hardware impl is named **by device** — `XxxIOTalonFX`, `XxxIOSparkMax`, `XxxIOKrakenX60`, `GyroIOPigeon2`, `VisionIOLimelight` — **not `XxxIOReal`** (only about 5 of 55 teams use `Real`). Naming the device documents the vendor at the seam.
-- The `XxxIOInputs` struct always co-exists with the interface; the null-object and replay variants are real but rare (about one team ships a replay impl).
-
-### The ethic, stated once
-
-A subsystem is built right when three things hold. Each is the same property seen from a different angle.
-
-1. **Mock below, test above.** Because the sim impl is just another `XxxIO`, you can construct the *real* subsystem against *fake* hardware and unit-test it with zero hardware and zero other subsystems — `new Elevator(new SimElevator())`, command a setpoint, step the sim, assert it arrived. This is the rarest, highest-value marker in the corpus.
-
-2. **Rip it out as a library.** The subsystem's package imports WPILib and its own contract, and **no sibling subsystem** — no `Drive` inside `Arm`, no `Superstructure` inside `Elevator`. The test: could `xxx/` be a Gradle module another robot depends on? A sibling import makes the answer no.
-
-3. **Never import a vendor type above the IO line.** A `TalonFX`, a `PhotonCamera`, a `SparkMax` appears **only** inside a `XxxIO<device>` or `XxxIOSim` file — never in the subsystem, a command, or the `Superstructure`. The moment `com.ctre` / `com.revrobotics` / `org.photonvision` appears above the line, a tool swap becomes a refactor. The corpus shows 22 of 24 IO-layer teams violate this; clean confinement is a distinguishing marker.
-
-You can test in isolation and lift out as a library *because* the vendor types and the siblings are kept out. The mock/library/vendor ethic recurs in every section below, applied to that archetype's specifics.
+[Chapter 16](16-hardware-abstraction.md#why-confinement-pays) states the ethic canonically: mock below and test above, keep the package liftable as a library, and never let a vendor type cross above the IO line — three views of the same property. The sections below do not restate it; they apply it to each archetype's specifics.
 
 One mechanism is the deliberate exception to the quartet: an **LED / status** subsystem has no sensor feedback and no control loop, only an output buffer the rest of the robot writes patterns to. Build it as a thin output sink wrapping an `AddressableLED`; do not force the quartet onto it.
 
@@ -64,7 +38,7 @@ One mechanism is the deliberate exception to the quartet: an **LED / status** su
 
 ## Linear position — the reference archetype
 
-A linear position mechanism moves a carriage to a commanded **height** along a rail and holds it against gravity. The robot has one if a thing goes up and down to setpoints: an **elevator** (the canonical case) or the extension stage of a **climber**. The job is "get to height *h* and stay there," so the subsystem reduces to a position controller plus a gravity feedforward. The corpus shows 17 teams with a clean `ElevatorIO` + `ElevatorIOSim` and 19 with a climber IO; an elevator doc and a climber doc would be about 85% the same.
+A linear position mechanism moves a carriage to a commanded **height** along a rail and holds it against gravity. The robot has one if a thing goes up and down to setpoints: an **elevator** (the canonical case) or the extension stage of a **climber**. The job is "get to height *h* and stay there," so the subsystem reduces to a position controller plus a gravity feedforward. The corpus shows 17 of the 55 season-index teams with a clean `ElevatorIO` + `ElevatorIOSim` and 19 with a climber IO; an elevator doc and a climber doc would be about 85% the same.
 
 This is the reference archetype — the other three are described as deltas against it.
 
@@ -219,7 +193,7 @@ public class ElevatorTest {
 }
 ```
 
-`new Elevator(new SimElevator())` is the entire trick: construct the real subsystem against fake hardware, command a height, step the sim, assert it arrived. `goToTest(height)` returns a `Test` that runs `goTo(height)` to completion and asserts `position ≈ height` — the same routine doubles as an on-robot system check.
+`new Elevator(new SimElevator())` is the entire trick: construct the real subsystem against fake hardware, command a height, step the sim, assert it arrived. `goToTest(height)` returns a `Test` that runs `goTo(height)` to completion and asserts `position ≈ height` — the same routine doubles as an on-robot system check. One note on the helpers: `setupTests()`, `runUnitTest()`, `fastForward()`, and `reset()` are not WPILib — they are SciBorgs' (1155) own `TestingUtil`, a thin sim-time-stepping and assertion wrapper you build once and reuse in every test in this chapter.
 
 One vendor-discipline caution this archetype illustrates: even SciBorgs leaks. Their `Elevator.java` carries `import com.ctre.phoenix6.SignalLogger;` to dump SysId state — a vendor type above the line in the subsystem itself. It is minor, but it is exactly the leak the corpus shows in 22 of 24 IO-layer teams. The fix is to route SysId state through a logging facade or confine `SignalLogger` to the real impl, and to enforce confinement with a checkstyle / spotless import rule rather than good intentions.
 
@@ -284,7 +258,7 @@ public class RealArm implements ArmIO {
 }
 ```
 
-The CANcoder is fused into the TalonFX as a `RemoteCANcoder` feedback source — all of it inside the real impl, so "we switched to a through-bore on a SparkMax" is one new file. (A stray, unused `import com.revrobotics.spark.SparkMax;` lingers in this file — harmless, but exactly what an unused-import lint rule catches.)
+The CANcoder is used as the TalonFX's remote feedback source (`RemoteCANcoder`; `FusedCANcoder` if fused with the rotor sensor) — all of it inside the real impl, so "we switched to a through-bore on a SparkMax" is one new file. (A stray, unused `import com.revrobotics.spark.SparkMax;` lingers in this file — harmless, but exactly what an unused-import lint rule catches.)
 
 ### The sim implementation
 
@@ -315,7 +289,7 @@ Swap `ElevatorSim` for `SingleJointedArmSim` and meters for radians; the rest of
 | Pivot (shoulder) | 1155 | identical to Arm; separate `PivotIO` / `RealPivot` / `SimPivot` / `NoPivot` package |
 | `@AutoLog` + loop-below | 5026, 2910 | `ArmIOInputs` struct, on-motor control, `setAngle` / `runSetpoint` contract |
 | Wrist (second joint) | 6328 | same archetype mounted on the arm; its zero is relative to the arm, so its feedforward needs the arm angle too |
-| **Turret** (continuous yaw) | 2706, 254 | no gravity term, but angle is **continuous** — use `MathUtil.angleModulus` or a continuous-input PID so it takes the short way around |
+| **Turret** (continuous yaw) | 2637, 254 | no gravity term, but angle is **continuous** — use `MathUtil.angleModulus` or a continuous-input PID so it takes the short way around |
 
 The big split inside this archetype is gravity vs. no gravity: arm, pivot, and wrist need `ArmFeedforward`; a turret on a horizontal axis needs none but must handle wrap-around.
 
@@ -396,14 +370,20 @@ The sim models spin-up by running the same velocity PID the real motor would, fr
 
 ```java
 public class FlywheelIOSim implements FlywheelIO {
-  private FlywheelSim sim = new FlywheelSim(DCMotor.getNEO(1), 1.5, 0.004); // gearing, MOI
+  private FlywheelSim sim =
+      new FlywheelSim(
+          LinearSystemId.createFlywheelSystem(DCMotor.getNEO(1), 0.004, 1.5), // MOI, gearing
+          DCMotor.getNEO(1));
   private PIDController pid = new PIDController(0.0, 0.0, 0.0);
   private boolean closedLoop = false;
   private double ffVolts = 0.0;
+  private double appliedVolts = 0.0;
 
   @Override public void updateInputs(FlywheelIOInputs inputs) {
-    if (closedLoop)
-      sim.setInputVoltage(MathUtil.clamp(pid.calculate(sim.getAngularVelocityRadPerSec()) + ffVolts, -12, 12));
+    if (closedLoop) {
+      appliedVolts = MathUtil.clamp(pid.calculate(sim.getAngularVelocityRadPerSec()) + ffVolts, -12, 12);
+      sim.setInputVoltage(appliedVolts);
+    }
     sim.update(0.02);                                   // advance the inertia one tick
     inputs.velocityRadPerSec = sim.getAngularVelocityRadPerSec();
     inputs.appliedVolts = appliedVolts;
@@ -415,7 +395,7 @@ public class FlywheelIOSim implements FlywheelIO {
 }
 ```
 
-The sim is fed the same `ffVolts` the subsystem computes, so a shooter that "gets to speed" in sim gets to speed on the robot.
+The sim is fed the same `ffVolts` the subsystem computes, so a shooter that "gets to speed" in sim gets to speed on the robot. (5712's 2024 source builds the sim with the pre-2025 `FlywheelSim(gearbox, gearing, MOI)` constructor, which WPILib 2025 removed; the `LinearSystemId.createFlywheelSystem` form above is the current equivalent.)
 
 ### The subsystem
 
@@ -432,6 +412,7 @@ public class Flywheel extends SubsystemBase {
     switch (Constants.currentMode) {           // ◀ different feedforward gains per mode
       case REAL, REPLAY -> { ffModel = new SimpleMotorFeedforward(0.1, 0.05); io.configurePID(1.0,0,0); }
       case SIM          -> { ffModel = new SimpleMotorFeedforward(0.0, 0.03); io.configurePID(0.5,0,0); }
+      default           -> ffModel = new SimpleMotorFeedforward(0.0, 0.0);   // the final field must be assigned on every path
     }
   }
   @Override public void periodic() { io.updateInputs(inputs); Logger.processInputs("Flywheel", inputs); }
@@ -450,7 +431,7 @@ The source comment puts it well: the physics simulator is treated as a separate 
 
 | Variation | Team | How it differs |
 |---|---|---|
-| Shooter = flywheel + hood/feeder | 2706 | `ShooterIO` for the wheels, a separate rotational `PivotIO` / hood, a `FeederIO` roller; a `Shooting` command coordinates them |
+| Shooter = flywheel + hood/feeder | 2637 | `ShooterIO` for the wheels, a separate rotational `PivotIO` / hood, a `FeederIO` roller; a `Shooting` command coordinates them |
 | Plain-getter velocity | 1155 | no inputs struct; `ShooterIO` exposes `setVoltage` + `velocity()`, subsystem runs the PID above the line |
 | Dual-wheel / spin | many | top and bottom (or left and right) wheels at different speeds for backspin — two `setVelocity` targets |
 
@@ -563,7 +544,7 @@ The nuance: this sim impl imports `com.ctre.phoenix6.sim`, and that is fine. Bot
 | Generic roller base | 6328 | one `GenericRollerSystemIO` shared by intake / feeder / indexer |
 | Roller + pivot + CANRange | 3476 | deploying intake; distance sensor `tripped` is the have-piece flag |
 | Stall-current detection | 3476, many | no beam-break — `checkRollerStalled()` infers a held piece from current |
-| Indexer / Feeder | 2706, 1155 | fixed roller + a beam-break; no pivot — the purest form of this archetype |
+| Indexer / Feeder | 2637, 1155 | fixed roller + a beam-break; no pivot — the purest form of this archetype |
 | Manipulator / Claw | 3636, 3061 | a roller or a servo-gripper that holds; "have piece" via a sensor or position |
 
 ### The testability point

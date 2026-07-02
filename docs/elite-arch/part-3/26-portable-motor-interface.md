@@ -14,14 +14,18 @@ once in proto3 and regenerable into any language — so the design choices show 
 A motor interface carries data in two directions, and each is a plain serializable object — not a bag
 of method calls — so both can be logged, diffed, replayed, and sent over a wire:
 
-- **`Command`** — what you're telling the motor to do. The intent.
+- **`Command`** — what you're telling the motor to do. The intent. (A leaf has no outgoing-command
+  channel, so the `_in` suffix is dropped: a motor's `Command_in` is just `Command`.)
 - **`MotorState`** — what the motor is currently doing. Its physical state.
 
-The dominant FRC convention (AdvantageKit) names these `Inputs` and `Outputs`. We reject that. Those
-names are *relational, not identity*: "input" only means something once you say "input to what," and
-they invert under viewpoint — from the code's chair a sensor reading is an input; from control
-theory's chair the *command* is the input (`u`) and the reading is the output. `Command` and
-`MotorState` are frame-invariant — a command is a command from any viewpoint — and they are exactly
+The dominant FRC convention (AdvantageKit) names the read struct `XxxIOInputs` — and has no symmetric
+`Outputs` POD at all: the write side is imperative setters, and output logging is ad-hoc
+`recordOutput(...)` calls. We reject the `Inputs` naming, and the critique carries either way. That
+name is *relational, not identity*: "input" only means something once you say "input to what," and it
+inverts under viewpoint — from the code's chair a sensor reading is an input; from control
+theory's chair the *command* is the input (`u`) and the reading is the output. The rule we adopt
+instead, used throughout Part III: **a name must survive a change of reader.** `Command` and
+`MotorState` do — a command is a command from any viewpoint — and they are exactly
 the state-space pair `u`/`x`. `MotorState` is honest for a motor specifically: a motor's measured
 position and velocity *are* its state variables, so "state" is accurate here in a way it is not for a
 whole robot, where hidden state must be *estimated* (which is what `RobotState`,
@@ -30,12 +34,13 @@ whole robot, where hidden state must be *estimated* (which is what `RobotState`,
 ## The schema: a `oneof` command, a flat state
 
 The data is the hard, consistency-critical part; proto3 is the source of truth. The command is a
-tagged union over control modes — `oneof` enforces "exactly one mode at a time" structurally, so you
-*cannot* set voltage and position together — plus optional modifiers:
+tagged union over control modes — `oneof` structurally enforces *at most* one mode at a time, so you
+*cannot* set voltage and position together; an unset `oneof` is still valid on the wire, so the
+boundary validates that `control` is set before any command is applied — plus optional modifiers:
 
 ```proto
 message Command {
-  oneof control {                       // the discriminant — always exactly one
+  oneof control {                       // the discriminant — at most one; boundary validates it's set
     double  duty_cycle        = 1;      // [-1, 1]
     double  voltage           = 2 [(unit) = "V"];
     double  torque_current    = 3 [(unit) = "A"];
@@ -57,7 +62,8 @@ message MotorState {
   optional double stator_current  = 8 [(unit) = "A"];
   optional double temperature     = 11 [(unit) = "degC"];
   optional bool   hardware_fault  = 15;
-  // … electrical, thermal, controller-introspection, and limit fields elided …
+  // … electrical, thermal, controller-introspection, and limit fields elided — as is the
+  // declaration of the (unit) FieldOptions extension the annotations above require …
 }
 ```
 
@@ -110,6 +116,13 @@ not an RPC service; `apply`/`read` are in-process calls, and ROS is reached by t
 making this a gRPC endpoint. This is the [capability-typed-devices pattern](../part-1/08-alternatives.md)
 — interfaces named by capability, not vendor — reconciled with a single message schema.
 
+Where the purity boundary sits deserves one explicit paragraph, because the block's `update` never
+touches this port. The `…IO` adapter — the object that owns the vendor handle — is the **impure
+shell**: its `read()` samples hardware into a `MotorState`, its `apply(Command)` pushes a command out
+to metal. The wiring layer calls `read() → update() → apply()` each tick, in that order, and
+everything between the two IO calls is pure ([ch. 25](25-portable-component-model.md)). The block
+computes; the shell touches the world.
+
 ## Units and nullability, settled by codegen
 
 Units follow ROS **REP-103**: everything SI by convention (m, rad, m/s, V, A, °C), bare `double`, with
@@ -120,6 +133,15 @@ wire form stays SI doubles, so translation to ROS is identity on the numbers. Nu
 idiom per language (`Optional<Double>` in Java, `None` in Python, `Option<f64>` in Rust); `NaN` is
 **not** an in-code value — it exists only as a wire encoding on the ROS side, converted once at the
 boundary, so no application code ever sees both.
+
+One allocation decision is settled here because it constrains every generated binding: **the in-loop
+channel types are plain mutable records/structs, and proto3 is the schema source of truth that appears
+only at the log-and-wire boundary.** Generated protobuf-java messages are immutable,
+builder-allocating objects — constructing them every 20 ms tick on a two-core roboRIO is a steady
+garbage-collection tax, which is why WPILib itself serializes with QuickBuffers rather than
+protobuf-java. So the hot loop passes reusable in-memory types generated *from* the schema, and the
+protobuf encoding is produced only when a tick is logged or crosses the wire
+([ch. 31](31-ros-bridge-portability.md)).
 
 ## Crossing to ROS, both directions
 

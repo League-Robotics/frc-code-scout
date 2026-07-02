@@ -8,7 +8,7 @@ weight: 5
 *Reference, method, and worked examples — the material that supports the narrative without
 interrupting it.*
 
-- **Appendix A** — [How We Developed This](how-we-developed-this/) — the method behind Part I: how the
+- **Appendix A** — [How We Developed This](how-we-developed-this/) — the method behind Parts I and IV: how the
   corpus was read, the eight-dimension rubric, the maturity ladder, what the architecture predicts, and
   the foundation-first build order.
 - **Appendix B** — [Glossary & naming decisions](glossary.md) — Block, seam, IO line, `u`/`x`, estimate

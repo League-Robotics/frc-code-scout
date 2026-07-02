@@ -40,7 +40,8 @@ subsystem. The whole build is, in effect, "give each of the three roles its own 
 Across 55 season repos, a drivetrain class appears in 52 (94%), lives in a `/subsystems/` directory in
 85%, and is modeled as a command-based subsystem in 81%. There is no competitive robot in the corpus
 whose drivetrain is *not* a subsystem — it is the load-bearing example of the command-based pattern.
-And it is overwhelmingly swerve: differential drive survives only in Ri3D and rookie code, with true
+And it is overwhelmingly swerve: differential drive survives almost exclusively in Ri3D (Robot in 3
+Days demo builds) and rookie code, with true
 swerve prevalence around 85–90% once you count the CTRE-generated robots a class-name grep misses. For
 a competitive team in this era, "drivetrain" means "swerve" by default.
 

@@ -25,7 +25,7 @@ DS: "Driver Station / auto selector
 CMD: "Command & binding layer
 (RobotContainer, triggers)"
 SUP: "Superstructure
-(planning — one goal to many setpoints)"
+(coordination — one goal to many setpoints)"
 SUBS: "Subsystems" {
   DRIVE: Drive
   ELEV: Elevator
@@ -50,10 +50,10 @@ RS -> SUP: pose · situation
 
 Read it top to bottom and the responsibilities separate cleanly. **Intent** arrives from the driver or
 an autonomous routine. The **command layer** turns a button or an auto step into a request. The
-**superstructure** is the planner: it takes one robot-wide goal and decides the legal setpoint each
+**superstructure** is the coordinator: it takes one robot-wide goal and decides the legal setpoint each
 subsystem should hold. The **subsystems** each close their own control loop. The **IO layer** is the
 only thing that touches devices. And off to the side, the **world model** (`RobotState`) is written by
-the sensing subsystems and read by the planner — the one place the robot's belief about the field
+the sensing subsystems and read by the coordinator — the one place the robot's belief about the field
 lives. Communication flows down as *commands* and up as *state*; no component reaches across a layer to
 poke another's hardware.
 
@@ -200,7 +200,10 @@ interchangeability of intent sources is the architecture working as designed.
 
 Five views, one architecture. They show you where everything *is*. The next chapters turn the picture
 inside out and look at the **seams** — the joints between these parts, where the architecture's real
-leverage lives. They are the elite target, not the median: measured across 55 season repos the IO seam
-appears in 24 teams, a `RobotState` world model in 26, and a real coordinator in 23 — but **all three
-together in only 10 teams (18%)**. The individual parts are common; assembling the full set of seams is
-what separates the top tier. We start with the spine: [the IO seam](03-the-io-seam.md).
+leverage lives.
+
+One number frames those chapters. The seams are the elite target, not the median: measured across the
+55-repo season index, the IO seam appears in 24 teams, a `RobotState` world model in 26, and a real
+coordinator in 23 — but **all three together in only 10 teams (18%)**. The individual parts are
+common; assembling the full set of seams is what separates the top tier. We start with the spine:
+[the IO seam](03-the-io-seam.md).

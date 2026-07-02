@@ -3,40 +3,106 @@ title: 9. Other advanced topics
 weight: 9
 ---
 
-**These are the additive techniques — the ones that specialize a seam rather than replace it.** The architectural *alternatives* — state-graph coordination, behavior trees, and the other ways to build the coordination layer itself — belong to [coordination with graphs and trees](../part-2/23-coordination-graphs-trees.md) in Part I. What follows is a different category: eight advanced techniques that top FRC teams layer *onto* the elite architecture without restructuring it. Each one bolts onto an existing seam — the control path, the drivetrain, the world model, the vision layer, the telemetry pipeline, or the lifecycle — and each earns its place only when the payoff is real. They range from near-standard on serious swerve to genuinely rare, so for each we give what it is, when it pays off, and exactly where it attaches.
+Where [chapter 8](08-alternatives.md) cataloged the *alternatives* — different ways to build a seam,
+with the graph and tree forms taken apart in
+[Part II ch. 23](../part-2/23-coordination-graphs-trees.md) — this chapter catalogs the *additions*:
+eight techniques that top teams layer onto the elite architecture without restructuring it. Each
+attaches at an existing seam, and each earns its place only when the payoff is real. They range from
+near-standard on serious swerve to genuinely rare. As in chapter 8, each entry gets what it is, when
+it pays off, and where it attaches; the mechanics live in Part II.
 
 ## State-space & LQR control
 
-**State-space control replaces a hand-tuned PID loop with an optimal controller derived from the mechanism's physics.** You model the mechanism as a linear system — the matrices `A`, `B`, `C`, `D` — then derive an optimal feedback gain with a **Linear-Quadratic Regulator (LQR)** and estimate the unmeasured part of the state with a **Kalman filter**; WPILib wires the regulator and observer together as a `LinearSystemLoop`. It pays off when you want principled gains computed from physical constants — mass, gearing, the motor's torque curve — instead of trial-and-error, and when you want an observer that rejects sensor noise rather than fighting it. It is the rarest technique in this chapter, and for good reason: most mechanisms get roughly 80% of the benefit from feedforward plus PID, which is why full LQR control stays niche. It attaches at the **control path** — it is a drop-in replacement for the closed-loop controller *inside* a subsystem, below the coordination layer and entirely above nothing vendor-specific, so it fits the archetype pattern of [subsystem archetypes](../part-2/18-subsystem-archetypes.md) and [the control path](../part-2/15-control-path.md) cleanly. Characterize the plant with SysId, then feed the identified system to the LQR; the mechanism's IO layer is unchanged.
+State-space control replaces a hand-tuned PID loop with an optimal controller derived from the
+mechanism's physics: model the mechanism as a linear system, compute the feedback gain with a
+**Linear-Quadratic Regulator (LQR)**, and estimate the unmeasured state with a Kalman filter. The
+draw is principled gains computed from physical constants instead of trial and error, plus an
+observer that rejects sensor noise rather than fighting it. It is the rarest technique in this
+chapter, because feedforward plus PID gets most mechanisms most of the benefit. It drops in as the
+closed-loop controller *inside* a subsystem — below the coordination layer, above the IO line, with
+the IO layer unchanged. Mechanics in [the control path](../part-2/15-control-path.md) and
+[subsystem archetypes](../part-2/18-subsystem-archetypes.md).
 
 ## Swerve setpoint generator
 
-**A swerve setpoint generator clamps each loop's module commands to what the modules can physically achieve, so the robot stops skidding and tipping.** A naive swerve drive commands module states the wheels cannot reach in a single 50 Hz tick — the result is wheel skid, degraded odometry, and tipping under aggressive acceleration. The setpoint generator takes the desired chassis speeds *and the current module states* and returns the closest feasible setpoint that respects each module's steer-slew and drive-accel limits, plus friction and available voltage. It pays off the moment a swerve robot is driven hard: cleaner acceleration, more accurate odometry because the wheels actually track the commanded states, and far less risk of tipping. It originated with 254 and is now packaged inside PathPlannerLib and Choreo, which is why it has spread widely and is trending toward standard. It attaches to the **drivetrain** — it sits between the chassis-speed request and the module IO calls inside the Drive subsystem, so it specializes [the drivetrain subsystem](../part-2/19-the-drivetrain-subsystem.md) without touching the ModuleIO seam beneath it.
+A naive swerve drive commands module states the wheels cannot physically reach within one 50 Hz
+tick; the result is skid, degraded odometry, and tipping under hard acceleration. A setpoint
+generator clamps each loop's command to the closest feasible one. Drive a swerve robot hard and it
+pays for itself immediately — cleaner acceleration, and odometry that stays honest because the wheels
+actually track their commands. Originated by 254 and now packaged inside PathPlannerLib (and
+spreading elsewhere), it is trending toward standard. It sits between the chassis-speed request and
+the module IO calls inside the Drive subsystem;
+[the drivetrain subsystem](../part-2/19-the-drivetrain-subsystem.md) carries the details.
 
 ## High-frequency threaded odometry
 
-**Threaded odometry samples the drive encoders and gyro at 200–250 Hz on a dedicated thread, feeding sharper, timestamped pose data into the estimator than the 50 Hz main loop can.** The main robot loop runs at 50 Hz, but a swerve pose estimate sharpens considerably when you sample the encoders and gyro several times faster on their own thread and feed every sample — each with its own timestamp — into the pose estimator. CTRE Phoenix 6 enables this with time-synchronized `BaseStatusSignal.waitForAll(...)` on a CANivore bus, and the pattern is baked into the AdvantageKit swerve template as a `PhoenixOdometryThread` or `SparkOdometryThread`. It pays off on any elite swerve robot that cares about pose accuracy during fast motion, which is nearly all of them — it is close to standard and could reasonably be folded into the drivetrain guide rather than treated as exotic. It attaches at the boundary between **the drivetrain and the world model**: the high-rate thread reads the module and gyro IO, and its timestamped samples are consumed by the pose estimator in the world model, so it specializes both [the drivetrain subsystem](../part-2/19-the-drivetrain-subsystem.md) and [the world model](../part-2/20-the-world-model.md). Crucially the sampling still happens *below* the IO line, so no vendor type leaks upward.
+The main loop runs at 50 Hz, but a swerve pose estimate sharpens considerably when a dedicated
+thread samples the drive encoders and gyro at 250 Hz (CANivore) / ~100 Hz (RIO CAN bus) and feeds
+every timestamped sample into the estimator. Nearly every elite swerve robot collects this benefit —
+the pattern is baked into the AdvantageKit swerve template. The thread lives at the boundary between
+the drivetrain and the world model, and the sampling stays *below* the IO line, so no vendor type
+leaks upward. See [the drivetrain subsystem](../part-2/19-the-drivetrain-subsystem.md) and
+[the world model](../part-2/20-the-world-model.md).
 
 ## Self-check & fault diagnostics
 
-**Self-check is an operational technique: a command that exercises every subsystem plus a reporter that surfaces device faults to the dashboard before a match.** This one is operational rather than algorithmic. A `systemCheck` command drives each subsystem through a scripted range of motion and asserts it responds, while a `FaultReporter` polls every device's fault flags — CAN timeout, over-temperature, low firmware — and surfaces them to the dashboard before the match starts. It pays off in the pit and on the field: it turns "the robot is acting weird" into a named, actionable fault a student can fix, and it is the marker the rubric uses for the top rung of its diagnostics dimension. It is rare, which is exactly why it differentiates. It attaches to the **lifecycle** — the self-check runs as a disabled-mode or pit routine and the fault reporter polls continuously through the robot's mode transitions — so it specializes [lifecycle and graceful degradation](../part-3/30-lifecycle-degradation.md), and it reads device faults through the same IO inputs the subsystems already expose.
+An operational technique rather than an algorithmic one: a `systemCheck` command drives each
+subsystem through a scripted range of motion in the pit, and a fault reporter polls every device's
+fault flags and surfaces them on the dashboard before the match. It turns "the robot is acting
+weird" into a named, actionable fault a student can fix — rare, which is exactly why it
+differentiates: [ch. 7](07-cross-cutting-practices.md) marks it as the top rung of the diagnostics
+ladder. It attaches to the lifecycle, running in disabled mode and reading device faults through the
+same IO inputs the subsystems already expose (see also
+[Part III ch. 30](../part-3/30-lifecycle-degradation.md)).
 
 ## Replay as a regression test
 
-**Replay-as-test re-runs a recorded real match deterministically through the current code and asserts the robot still behaves the same after a refactor.** AdvantageKit's deterministic log replay — feed a recorded match's inputs back through the same code and get bit-identical outputs — is usually framed as a debugging tool, but it doubles as a **regression-test fixture**. Check a logged match into the repo, and a CI test can re-run it and assert the robot still makes the same decisions after a refactor touched the coordination or control code. It pays off for any team that already logs with AdvantageKit but has no cheap way to prove a change was behavior-neutral; almost no team collects this dividend even though many have the logging infrastructure for it, which makes it a near-free win. It attaches to the **telemetry and test pipeline**: it is the replay-driven complement to sim-based unit tests, built on the same inputs-struct logging, so it specializes [telemetry, replay, and tests](../part-3/29-telemetry-replay-tests.md). The logging captures the IO inputs; the test asserts on the outputs the code produces from them.
+AdvantageKit's deterministic replay — feed a recorded match's inputs back through the code and get
+identical outputs — is usually framed as a debugging tool, but it doubles as a regression fixture:
+check a logged match into the repo, and CI can assert the robot still makes the same decisions after
+a refactor. Any team already logging with AdvantageKit has the infrastructure; almost none collects
+the dividend ([ch. 7](07-cross-cutting-practices.md)'s point exactly), which makes it a near-free
+win. It builds on the same inputs-struct logging as the sim-based tests and attaches to the test
+pipeline. The replay mechanics are in [Part II ch. 15](../part-2/15-control-path.md); Part III
+[ch. 29](../part-3/29-telemetry-replay-tests.md) generalizes the idea.
 
 ## Neural game-piece detection
 
-**Neural game-piece detection runs an on-coprocessor object detector that reports the bearing — and sometimes range — to game pieces, so auto and teleop-assist routines can drive to and grab the best available target.** Beyond AprilTag pose estimation, teams run an object detector — a neural model on a Limelight or a PhotonVision pipeline — that reports where the game pieces are relative to the robot. Routines then turn toward and intake the best available piece. The detector itself is mainstream; most serious teams carry one. The genuinely differentiating part is the *architecture* built on top: closed-loop "drive-to-piece" that rejects bad detections, filters flicker, and degrades gracefully when nothing is seen rather than lunging at a phantom. It pays off in autonomous and in driver-assist teleop, where reliably acquiring pieces without human aim is a scoring multiplier. It attaches to the **vision layer** exactly like AprilTag pose does — the detector is another vision IO producing observations (bearing, range, confidence) consumed above the IO line — so it specializes [vision systems](../part-2/21-vision-systems.md), and the drive-to-piece logic lives in the coordination layer feeding the drivetrain a target. The detector is a vendor coprocessor; its output crosses into the code as plain numbers through the vision IO, keeping the vendor SDK below the line.
+Beyond AprilTag pose estimation, a neural detector on a Limelight or PhotonVision coprocessor
+reports the bearing — and sometimes range — to game pieces, so routines can drive to the best
+available target. The detector itself is common among serious teams; the differentiating part is the
+architecture on top: drive-to-piece logic that rejects bad detections, filters flicker, and degrades
+gracefully when nothing is seen rather than lunging at a phantom. The payoff lands in autonomous and
+driver-assist teleop. Architecturally it is just another vision IO — observations crossing the line
+as plain numbers, the vendor SDK below it — feeding coordination-layer logic;
+[vision systems](../part-2/21-vision-systems.md) has the mechanics.
 
 ## Reactive / adaptive autonomy
 
-**Reactive autonomy re-decides mid-routine on sensed state — skip a missing piece, take the open branch, abort and reposition — instead of running a fixed script.** Most autos are fixed scripts that assume the world cooperates. A reactive auto re-decides on what it actually senses: skip a pickup if the game piece is not detected, choose the open scoring branch when the planned one is blocked, or abort and reposition rather than stalling. In practice it is built from PathPlanner conditional paths and event markers plus a small decision layer that reads the world model. It pays off when the difference between a robust auto and a brittle one is whether it survives a missed first piece — a reactive auto handles that without dying, which over a season is the difference between a reliable ten points and an occasional zero. It attaches to the **coordination layer**: it is the autonomous-mode expression of the same coordination ideas that graphs and trees formalize, reading the world model to branch its command sequence, so it specializes [coordination with graphs and trees](../part-2/23-coordination-graphs-trees.md) and builds on [the world model](../part-2/20-the-world-model.md) as its source of truth.
+Most autos are fixed scripts that assume the world cooperates. A reactive auto re-decides on what it
+actually senses: skip a pickup when the piece is missing, take the open scoring branch, abort and
+reposition rather than stall. In practice it is PathPlanner conditional paths and event markers plus
+a small decision layer reading the world model. Over a season, surviving a missed first piece is the
+difference between a reliable ten points and an occasional zero. It lives in the coordination layer,
+reading [the world model](../part-2/20-the-world-model.md) to branch its command sequence;
+[coordination with graphs and trees](../part-2/23-coordination-graphs-trees.md) formalizes the same
+ideas.
 
 ## QuestNav (VR-headset localization)
 
-**QuestNav mounts a Meta Quest VR headset on the robot as an inside-out 6-DOF tracker and streams its pose over NetworkTables to be fused with AprilTag vision.** A Meta Quest headset is a cheap and extremely good inside-out 6-DOF tracker — it has to be, to render VR without inducing nausea. QuestNav mounts one on the robot, streams its pose over NetworkTables via the `gg.questnav` library, and fuses it with AprilTag vision as a high-rate, low-drift odometry source. It pays off wherever pose accuracy and update rate matter more than the cost and fragility of carrying a consumer headset on a robot — it is the newest technique here, with only a single corpus team using it, and genuinely emerging across FRC for the 2026 season. It attaches to the **vision and world-model seams**: the Quest is just another observation source feeding the same pose estimator, so architecturally it is a new vision IO producing pose measurements, and it specializes [vision systems](../part-2/21-vision-systems.md) and [the world model](../part-2/20-the-world-model.md). Because it fuses through the estimator rather than replacing it, the Quest pose and the AprilTag pose reconcile in one place, and the headset SDK stays below the IO line like any other sensor.
+A Meta Quest headset is a cheap, extremely good inside-out 6-DOF tracker — it has to be, to render
+VR without inducing nausea. QuestNav mounts one on the robot and streams its pose over NetworkTables
+as a high-rate, low-drift odometry source fused with AprilTag vision. The newest technique here —
+one of the 55 season repos uses it, genuinely emerging across the 2025–2026 seasons — it is worth
+carrying where pose accuracy and update rate outweigh the cost and fragility of a consumer headset
+on a robot. Architecturally it is one more observation source feeding the same pose estimator: a new
+vision IO, with the headset SDK below the line like any other sensor. See
+[vision systems](../part-2/21-vision-systems.md) and
+[the world model](../part-2/20-the-world-model.md).
 
 ---
 
-**How to read this chapter:** none of these techniques changes the shape of the architecture — every one attaches at an existing seam, keeps its vendor dependency below the IO line, and can be added or removed without disturbing the rest of the robot. That is what makes them *additive*. Start from the seam each specializes, add it only when its payoff is real for your robot, and the three-seam foundation carries the weight underneath.
+Adopt these from the seam outward: start from the seam each one attaches to, add it when its payoff
+is real for your robot, and let the three-seam foundation carry the weight underneath. That closes
+Part I — the baseline, the views, the seams, the practices, the deviations, and the additions.
+[Part II](../part-2/) opens the hood.

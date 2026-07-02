@@ -5,9 +5,7 @@ weight: 17
 
 *Part I drew the IO seam at the subsystem: one `ElevatorIO` per mechanism, vendor types sealed inside the implementation. This chapter goes one level lower, to the device. It surveys how teams in the corpus actually talk to motors in code — the reusable `MotorIO` contracts six teams build, the design axes they disagree on, and the rarer idea of capability-typed devices where an interface is named for what it does, not the brand that does it. It is the prior art on which Part III will build a single portable motor interface.*
 
-Code is quoted to study the technique, not to copy.
-
-This is a deep dive supporting [Part I ch.5, the IO seam](../part-1/03-the-io-seam.md). That chapter established the rule: a subsystem speaks mechanism semantics (`setHeight(m)`), and the vendor type (`TalonFX`, `SparkMax`) lives only inside the IO implementation. Here we look at what happens *below* that line — at the device-level abstractions a handful of teams build to talk to motors directly.
+This is a deep dive supporting [Part I ch. 3, the IO seam](../part-1/03-the-io-seam.md). That chapter established the rule: a subsystem speaks mechanism semantics (`setHeight(m)`), and the vendor type (`TalonFX`, `SparkMax`) lives only inside the IO implementation. Here we look at what happens *below* that line — at the device-level abstractions a handful of teams build to talk to motors directly.
 
 Two questions drive the chapter. First, the corpus survey: how do FRC teams interact with motors in code, and what does the abstraction look like when they build a reusable one? Second, the alternative: the capability-typed-devices idea, which appeared in [Part I's alternatives entry](../part-1/08-alternatives.md) and is shown here in full — interfaces named by capability (`PositionMotor`, not `ITalonMotor`), a single hardware object that constructs and configures every device, and FOC modeled as an orthogonal opt-in.
 
@@ -26,18 +24,18 @@ Motor hardware in the corpus is near-universal CTRE plus REV, and most teams run
 | `SparkFlex` / `CANSparkFlex` | 25 | NEO Vortex |
 | `ThriftyNova` | 2 | the long tail |
 
-The dominant call idioms, corpus-wide:
+The dominant call idioms, corpus-wide (raw text matches):
 
 - **`.set(...)`** — 8,626 occurrences. The legacy/duty-cycle setter (Phoenix 5, REV).
 - **`.setControl(request)`** — 2,620 occurrences. The Phoenix 6 idiom: build a request object (`VoltageOut`, `MotionMagicVoltage`, `PositionVoltage`, `TorqueCurrentFOC`, and so on) and hand it to the motor.
 
-Every motor abstraction in this chapter is, at bottom, a wrapper around `.setControl(request)`. A second number frames the alternative discussed later: WPILib's shared `MotorController` interface is imported by 23 teams but called only 47 times total, against `setControl` (CTRE) 797 times and `setReference` (REV) 301 times. Teams program the vendor's own control model, not a shared one.
+Every motor abstraction in this chapter is, at bottom, a wrapper around `.setControl(request)`. A second number frames the alternative discussed later: WPILib's shared `MotorController` interface is imported by 23 teams but called only 47 times total, against `setControl` (CTRE) at 797 parsed call sites in the code index (the 2,620 above are raw text matches) and `setReference` (REV) at 301. Teams program the vendor's own control model, not a shared one.
 
 ## The spectrum of motor access
 
-There are two populations, and the gap between them is the whole point.
+There are two populations, and the gap between them is the whole point. Measured across the 63-team full clone:
 
-| Tier | Pattern | Teams |
+| Tier | Pattern | Teams (of 63) |
 |---|---|---|
 | Raw | Vendor type (`TalonFX`/`SparkMax`) instantiated directly inside `subsystems/` | 53 |
 | Partial IO | Some `*IO.java` interface exists (AdvantageKit-style) | 27 |
@@ -45,7 +43,9 @@ There are two populations, and the gap between them is the whole point.
 | ↳ with logged inputs | `@AutoLog` / `*IOInputs` struct present | 23 |
 | Reusable `MotorIO` | A motor-generic IO reused across mechanisms | 6 |
 
-The 53-team raw majority treat the subsystem as the motor wrapper: the vendor object is a field, gear-ratio math is inline, and there is no seam where a simulated or replayed motor could be substituted. The six teams in the bottom row — 254, 1678, 971, 2910, 2706, 5137 — instead define one motor contract and implement it once per device family (`...TalonFX`, `...Sim`, `...SparkMax`). That single decision is what lets simulation, unit tests, and log replay attach later for free.
+(The 27/63 here and chapter 16's 24/55 are the same IO-seam adoption pattern measured against two denominators — the full clone and the one-repo-per-team season index.)
+
+The 53-team raw majority treat the subsystem as the motor wrapper: the vendor object is a field, gear-ratio math is inline, and there is no seam where a simulated or replayed motor could be substituted. The six teams in the bottom row — 254, 1678, 971, 2910, 2637, 5137 — instead define one motor contract and implement it once per device family (`...TalonFX`, `...Sim`, `...SparkMax`). That single decision is what lets simulation, unit tests, and log replay attach later for free.
 
 The rest of this chapter reads those six contracts in full, then turns to the capability-typed variant.
 
@@ -173,6 +173,8 @@ The motor-frame / mechanism-frame split is the distinctive idea here: when a log
 
 ### 971 Spartan Robotics
 
+*(From 971's 2026 second-robot Java codebase — not their well-known C++/Bazel main stack.)*
+
 The minimalist, type-safe answer. An `abstract class`, not an interface, using WPILib `Units` measure types (`Voltage`, `Angle`, `AngularVelocity`, `Distance`) so a unit mismatch is a compile error. Note the deliberate `Angle` versus `Distance` overloads of `setPosition` / `resetPosition` — the same contract serves rotational and linear mechanisms. Telemetry is not a separate struct: Lombok `@Getter` plus AdvantageKit `@AutoLogOutput` fields publish state directly, and a concrete `periodic()` logs the converted values.
 
 ```java
@@ -210,7 +212,7 @@ public abstract class MotorIO {
 
 This is the smallest surface of the six. Every method is `abstract`, so every implementation must satisfy the whole contract — no `default {}` escape hatch and no silent no-op.
 
-### 2706 PhantomCatz
+### 2637 PhantomCatz
 
 A generic interface parameterized over its inputs type (`<T extends MotorIOInputs>`), so each subsystem can extend the inputs struct. Distinctive choices: the inputs use arrays (`appliedVolts[]`, `tempCelcius[]`) to log a leader plus its followers in one struct; it exposes `getSignals()` so the robot can batch-refresh all status signals with one CTRE `BaseStatusSignal.refreshAll(...)`; and it carries an explicit `enable()` / `disable()` / `stop()` lifecycle. Setters are documented as applied only through Setpoints — the control mode is chosen by a higher-level object, not called directly. Gains and motion-magic params are settable at runtime.
 
@@ -411,26 +413,26 @@ The six cluster on a handful of decisions. Reading across them is more useful th
 
 | Axis | Lean (254, 2910, 5137) | Type-safe (971, 1678) |
 |---|---|---|
-| Form | `interface` (254, 2910, 2706) | `abstract class` (971, 1678, 5137) |
+| Form | `interface` (254, 2910, 2637) | `abstract class` (971, 1678, 5137) |
 | Units | raw `double`, mechanism units by convention | WPILib `Units` (`Angle`, `Voltage`, …), compile-checked |
-| Control entry | direct setters (`setVoltageOutput`, `setVelocitySetpoint`) | reified `Setpoint` value object (1678, 2706) |
-| Inputs | flat `@AutoLog` struct (254, 5137, 2706, 2910) | `@AutoLogOutput` fields + `periodic()` (971) |
-| Optional methods | `default {}` no-op (2910, 2706) or `unsupportedFeature()` alert (5137) | `abstract` — every impl must satisfy (254, 971, 1678) |
+| Control entry | direct setters (`setVoltageOutput`, `setVelocitySetpoint`) | reified `Setpoint` value object (1678, 2637) |
+| Inputs | flat `@AutoLog` struct (254, 5137, 2637, 2910) | `@AutoLogOutput` fields + `periodic()` (971) |
+| Optional methods | `default {}` no-op (2910, 2637) or `unsupportedFeature()` alert (5137) | `abstract` — every impl must satisfy (254, 971, 1678) |
 | Motor vs mechanism frame | mostly mechanism-only; 2910 logs both | mechanism-frame (gear math in impl) |
-| Followers | `follow(id, oppose)` call | `followerInputs[]` array + per-follower logging (1678, 2706) |
-| Slots | `int slot` parameter for multiple gain sets (254, 2910, 2706) | per-`Setpoint` (1678) |
+| Followers | `follow(id, oppose)` call | `followerInputs[]` array + per-follower logging (1678, 2637) |
+| Slots | `int slot` parameter for multiple gain sets (254, 2910, 2637) | per-`Setpoint` (1678) |
 
 Several themes are stable across all six.
 
-**What crosses the line.** The command surface is mostly clean — mechanism-unit doubles or WPILib measure types in, no `StatusSignal` out. But config crosses in every one of them: `MotionMagicConfigs` and `VoltageConfigs` (254), `BaseMotorConfig` and `getTalon()` (2910), `Slot0Configs` (5137), `TalonFXConfiguration` (1678), and `setNeutralMode(TalonFX, …)` (2706). Commands abstract well; configuration resists.
+**What crosses the line.** The command surface is mostly clean — mechanism-unit doubles or WPILib measure types in, no `StatusSignal` out. But config crosses in every one of them: `MotionMagicConfigs` and `VoltageConfigs` (254), `BaseMotorConfig` and `getTalon()` (2910), `Slot0Configs` (5137), `TalonFXConfiguration` (1678), and `setNeutralMode(TalonFX, …)` (2637). Commands abstract well; configuration resists.
 
 **Loop placement.** Every contract assumes the control loop runs on the motor controller, not the roboRIO. The verbs are `setMotionMagicSetpoint`, `setPositionSetpoint`, `setVelocityFOCSetpoint` — they hand a target plus gains to the device and let its onboard PID close the loop. None of the six runs a software PID across the seam.
 
-**Units.** Two camps: raw `double` in mechanism units by convention (254, 2910, 2706, 5137), or WPILib `Units` measure types that make a unit mismatch a compile error (971, 1678). The convention camp is terser; the type camp catches the rad-versus-rotation bug at build time.
+**Units.** Two camps: raw `double` in mechanism units by convention (254, 2910, 2637, 5137), or WPILib `Units` measure types that make a unit mismatch a compile error (971, 1678). The convention camp is terser; the type camp catches the rad-versus-rotation bug at build time.
 
 **Config versus command.** The cleanest split is 1678's, where a `Setpoint` is the only way to command, and config-changing setpoints (`…AndCurrentLimit`) are a distinct, named subset. The looser designs mix runtime config setters (`setGainsSlot0`, `setMotionMagicParameters`) into the same flat surface as the commands.
 
-**Capability tiers.** Designs handle "this motor cannot do that" three ways: make everything `abstract` so every impl is complete (971, 1678, 254); make everything a `default {}` no-op so partial impls are legal and silent (2910, 2706); or default to `unsupportedFeature()` so a missing method raises a visible alert (5137).
+**Capability tiers.** Designs handle "this motor cannot do that" three ways: make everything `abstract` so every impl is complete (971, 1678, 254); make everything a `default {}` no-op so partial impls are legal and silent (2910, 2637); or default to `unsupportedFeature()` so a missing method raises a visible alert (5137).
 
 The consensus telemetry, present in nearly every inputs struct: `connected`, `position`, `velocity`, `appliedVolts`, `statorCurrent`, `supplyCurrent`, `tempCelsius`, `rawRotorPosition`. The consensus command verbs: open-loop (duty cycle, voltage, torque-current FOC); closed-loop (position PID, profiled position via Motion Magic, velocity — each with an optional gain slot and feedforward); neutral (brake / coast); config (gains, motion constraints, current limits, soft limits); sensor (zero, set-current-position, encoder fusion); topology (follow); and sim hooks (force position/velocity, force-disconnect).
 
@@ -498,17 +500,12 @@ Today only CTRE implements `TorqueMotor` and `EfficiencyOptimizable`. Abstractin
 Below the interface, each impl talks to its device in the device's native language and uses its best features:
 
 ```java
-final class TalonFXPositionMotor
+final class TalonFXMotor          // one impl offers every role the device can honor
         implements PositionMotor, VelocityMotor, TorqueMotor, EfficiencyOptimizable {
 
     private final TalonFX talon;                                  // vendor type, below the line
     private final MotionMagicVoltage posReq = new MotionMagicVoltage(0).withEnableFOC(true);
-    private final double rotToRad;
 
-    TalonFXPositionMotor(CanDeviceId id, MotorSpec spec) {        // declarative config in
-        this.talon = TalonFXFactory.create(id, spec);            // applies + verifies config
-        this.rotToRad = spec.mechanismRotationsToRadians();
-    }
     public void setPosition(double rad) {
         talon.setControl(posReq.withPosition(rad / rotToRad));    // Motion Magic + FOC
     }
@@ -516,55 +513,15 @@ final class TalonFXPositionMotor
     public void setEfficiencyOptimization(boolean on) { posReq.EnableFOC = on; }
 }
 
-final class SparkMaxPositionMotor implements PositionMotor {      // NO FOC → offers fewer interfaces
-    private final SparkMax spark;
-    // MAXMotion config baked in; setPosition → getClosedLoopController().setReference(...)
-}
-
-final class SimPositionMotor implements PositionMotor {           // physics plant, no vendor at all
-    private final ElevatorSim plant; /* ... */
-}
+final class SparkMaxPositionMotor implements PositionMotor { /* MAXMotion; NO FOC → fewer interfaces */ }
+final class SimPositionMotor      implements PositionMotor { /* physics plant, no vendor at all */ }
 ```
 
 `SparkMaxPositionMotor` implements only `PositionMotor` — it does not pretend to be a `TorqueMotor`. The interface set a device offers is its honest capability advertisement. No lowest-common-denominator flattening, no emulation that lies.
 
-### The hardware object
+### The hardware object, briefly
 
-One object assembles the robot's devices. It is the factory and the configuration home, and it exposes each device through its capability interface:
-
-```java
-final class Hardware {                          // one per robot variant (comp / practice / sim)
-    private final RobotConfig cfg;              // per-robot CAN IDs, ratios, limits
-
-    PositionMotor elevator()  { return new TalonFXPositionMotor(cfg.elevator().id(),  cfg.elevator().spec()); }
-    VelocityMotor leftDrive() { return new TalonFXPositionMotor(cfg.leftDrive().id(), cfg.leftDrive().spec()); }
-    GyroSource    gyro()      { return new Pigeon2Gyro(cfg.gyro().id()); }
-}
-```
-
-The subsystem receives only the interface, injected — never the concrete type, and never `Hardware` itself:
-
-```java
-class Elevator extends SubsystemBase {
-    private final PositionMotor motor;
-    Elevator(PositionMotor motor) { this.motor = motor; }   // depends on a capability, not a vendor
-    public Command toHeight(double m) { return run(() -> motor.setPosition(m / DRUM_RADIUS)); }
-}
-```
-
-That detail is the line between this and the old `RobotMap` anti-pattern: the subsystem depends on `PositionMotor`, a thing it can fully exercise, not on a god-object it has to reach through. The hardware object also is the run-mode switch — one place decides what every interface resolves to:
-
-```java
-static Hardware create(RobotMode mode, RobotConfig cfg) {
-    return switch (mode) {
-        case REAL   -> new RealHardware(cfg);     // TalonFX / SparkMax impls
-        case SIM    -> new SimHardware(cfg);      // SimPositionMotor, etc.
-        case REPLAY -> new ReplayHardware(cfg);   // log-fed impls
-    };
-}
-```
-
-This is the "one place to configure simulation" benefit, achieved without a shared hardware god-object and without any vendor type crossing into a subsystem.
+One `Hardware` object per robot variant constructs and configures every device — through a `TalonFXFactory.create(id, spec)`-style configured factory — and hands each subsystem only the capability interface it needs: `Elevator(PositionMotor motor)`, never the concrete type and never `Hardware` itself. That injection discipline is the line between this and the old `RobotMap` god-object, and the `Hardware.create(mode, cfg)` factory doubles as the run-mode switch: REAL, SIM, and REPLAY each resolve every interface in one place, without any vendor type crossing into a subsystem. The fully worked build — the `Hardware` class, the per-robot spec objects, and the factory — is in [Part I, chapter 8](../part-1/08-alternatives.md) and [Part III, chapter 26](../part-3/26-portable-motor-interface.md).
 
 ### The corpus reality check
 

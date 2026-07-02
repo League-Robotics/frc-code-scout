@@ -3,20 +3,9 @@ title: 23. Coordination II — state graphs and behavior trees
 weight: 23
 ---
 
-*The state machine in [the previous chapter](22-coordination-state-machines.md) is the coordination layer most elite teams stop at. This chapter walks the two rungs past it: modeling the superstructure as a graph of legal states and searching for a safe path, and ticking a behavior tree as a reactive whole-robot brain. Part I named both as the far end of the coordination ladder — the [D2 ceiling and the legitimate deviations](../part-1/08-alternatives.md). Here we show how they work. Code is quoted to study the technique, not to copy.*
+*The wanted/current FSM and the centralized `RobotManager` of [the previous chapter](22-coordination-state-machines.md) are where most elite teams stop. This chapter walks the two rungs past them: modeling the superstructure as a graph of legal states and searching for a safe path, and ticking a behavior tree as a reactive whole-robot brain. [Chapter 5](../part-1/05-the-coordination-seam.md) drew the coordination seam and [chapter 8](../part-1/08-alternatives.md) pointed past it to both paradigms as sound-but-uncommon. Part I argued *why* a team would climb here; this chapter shows the machinery and, for each rung, says plainly when it earns its complexity and when it is over-engineering.*
 
-[Chapter 7](../part-1/05-the-coordination-seam.md) drew the coordination seam and [chapter 14](../part-1/08-alternatives.md) pointed past it to two paradigms it called sound-but-uncommon. This chapter is that deep dive. It continues directly from [chapter 22](22-coordination-state-machines.md): the wanted/current FSM and the centralized `RobotManager` are the rungs below; the state graph and the behavior tree are the two rungs above. Part I argued *why* a team would climb here. This chapter does not re-argue that. It shows the machinery and, for each, says plainly when it earns its complexity and when it is over-engineering.
-
-The two paradigms live at different layers and compose rather than compete:
-
-| Paradigm | Layer | The question it answers | Corpus presence |
-|---|---|---|---|
-| Wanted/current FSM | mechanism | "what state should this mechanism be in?" | universal among serious teams (ch. 22) |
-| State graph + path search | mechanism | "how do I move the superstructure there *safely*?" | established but uncommon (6328, 254, ~5 total) |
-| C-space A\* | mechanism | "how do I reach *any* config, avoiding self-collision?" | effectively 254 alone |
-| Behavior tree | strategy | "what should the robot *pursue* right now?" | ~1 team (3015) |
-
-A clean stack runs top to bottom: a behavior tree decides intent ("score high"), the superstructure (graph or FSM) executes that intent safely. The behavior tree decides; the graph search executes.
+The two paradigms live at different layers and compose rather than compete. The state graph is a mechanism-layer answer to "how do I move the superstructure there *safely*?" — established but uncommon in the corpus, with configuration-space A\* as its far edge (effectively 254 alone). The behavior tree is a strategy-layer answer to a higher question — "what should the robot *pursue* right now?" — and is rarer still (one team, 3015). Beneath both sits the wanted/current FSM of [chapter 22](22-coordination-state-machines.md), the default coordination rung among elite teams. A clean stack would run top to bottom — a behavior tree decides intent ("score high"), the superstructure, graph or FSM, executes that intent safely — but no corpus team actually ships that composed stack. It is plausible, not observed.
 
 ---
 
@@ -85,6 +74,8 @@ The survey's index counts, every one confirmed by reading source, place this par
 | Dijkstra over the superstructure | 0 |
 | A\*-family on the drivetrain (PathPlanner ADStar) | 35 |
 
+One absence needs explaining: 6328, this chapter's worked example, is missing from the transition-type row. Its JGraphT-based graph is caught by a separate index marker — the `jgrapht` import, present in 3 teams — so the sweep for hand-rolled state-graph and transition types misses it by construction, not because the graph is unconfirmed.
+
 Two readings stand out. Dijkstra is at zero because at small graph sizes people hardcode or BFS — nobody reaches for a weighted shortest-path algorithm on a 20-node graph. And genuine A\*-over-the-superstructure is a corpus of one.
 
 ### 6328 — the superstructure as a literal directed graph
@@ -112,6 +103,8 @@ graph.addEdge(SuperState.CORAL_INTAKE, SuperState.L4_CORAL, raiseEdge);
 List<EdgeCommand> path =
     DijkstraShortestPath.findPathBetween(graph, current, goal).getEdgeList();
 ```
+
+One abridgment to flag: the snippet closes with JGraphT's `DijkstraShortestPath` because it is the one-line way to show the search, but 6328's shipped code walks the graph with its own BFS — which is why the corpus table above scores "Dijkstra over the superstructure" at zero.
 
 The line worth dwelling on is the comment: *the interlock is the edge.* The survey states it directly — "the transition logic is data (a graph), not a tangle of if-statements." You never write `if (current == L4 && goal == STOW) { ... }`. You add the edges that are safe, omit the ones that are not, and the search composes the rest.
 
@@ -214,12 +207,15 @@ abstract class BehaviorNode {
 
 // A leaf that runs a WPILib command as a tree action.
 class CommandRunner(private val command: Command) : BehaviorNode() {
+    private var started = false
     override fun tick(blackboard: Blackboard): NodeStatus =
         when {
             !command.isScheduled && !started -> { command.schedule(); started = true; Running }
             command.isFinished               -> Success
             else                             -> Running
         }
+    // abridged: 3015's real implementation also resets `started` on completion
+    // and can return Failure (an interrupted command is not a success)
 }
 
 // A decorator that only ticks its child while a blackboard flag is set.
@@ -286,4 +282,4 @@ Each rung is a refactor motivated by a problem the rung below could not absorb: 
 
 This is the last chapter of Part II. Across these chapters the architecture appeared as a stack of named seams — the [control path](15-control-path.md), the [hardware abstraction line](16-hardware-abstraction.md), [motor interfaces](17-motor-interfaces.md), [subsystem archetypes](18-subsystem-archetypes.md), the [drivetrain](19-the-drivetrain-subsystem.md), the [world model](20-the-world-model.md), [vision](21-vision-systems.md), and coordination ([state machines](22-coordination-state-machines.md), then graphs and trees here). Each was treated as its own kind of thing with its own rules.
 
-[Part III — The League Architecture](../part-3/) argues they are not separate kinds of thing. It presents the unifying model in which every component — a motor, a subsystem, the superstructure, the whole robot — is one recursive shape repeated at different scales. The IO seam, the state seam, and the coordination seam you have been reading as eight distinct chapters turn out to be the same three joints, applied again and again. Read on there.
+[Part III — The League Architecture](../part-3/) argues they are not separate kinds of thing. It presents the unifying model in which every component — a motor, a subsystem, the superstructure, the whole robot — is one recursive shape repeated at different scales. The IO seam, the state seam, and the coordination seam you have been reading as nine distinct chapters turn out to be the same three joints, applied again and again. Read on there.

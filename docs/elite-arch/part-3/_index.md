@@ -14,8 +14,7 @@ intent separated from execution, vendor confinement, the deferred-dividend disci
 exactly one thing: it observes that the three differently shaped seams plus the pile of subsystems are
 all the **same recursive component**, and proposes building to that one contract deliberately.
 
-That component is the `Block`: a configured transfer function with memory, four serializable data
-objects plus one pure step. Naming it buys telemetry, replay, tests, lifecycle, and language
+That component is the `Block`: four serializable data objects plus one pure step. Naming it buys telemetry, replay, tests, lifecycle, and language
 portability **at every scale**, not just at the motor. The part states the shape, recovers the motor
 and swerve interfaces as its leaf and mid-level instances, and is candid about the open questions that
 remain before a team can wire it up and run it.
@@ -27,7 +26,7 @@ remain before a team can wire it up and run it.
 24. [From Elite to League](24-elite-to-league.md) — what we keep, what we change, and what "portable"
     buys.
 25. [The Portable Component Model — the `Block`](25-portable-component-model.md) — four channels, one
-    pure `update`, and the fill-pattern that *is* the taxonomy.
+    pure `update`, the fill-pattern that *is* the taxonomy, and a worked elevator block.
 
 **J. The instances**
 
@@ -40,7 +39,7 @@ remain before a team can wire it up and run it.
 
 **K. The dividends and portability**
 
-29. [Telemetry, replay, and tests — for free, at every scale](29-telemetry-replay-tests.md) — the
+29. [Telemetry, replay, and tests — the dividends, at every scale](29-telemetry-replay-tests.md) — the
     inputs-struct idea generalized from leaves to executives.
 30. [Lifecycle and graceful degradation](30-lifecycle-degradation.md) — health as state, the null
     block as the fault state.
@@ -49,6 +48,6 @@ remain before a team can wire it up and run it.
 
 **L. Maturity of the proposal**
 
-32. [Open questions and the road to a build recipe](32-open-questions.md) — the two load-bearing
-    questions, the three structural gaps, and what must close before the generators emit to this
+32. [Open questions and the road to a build recipe](32-open-questions.md) — the decisions now on the
+    record, the questions still open, and what must close before the generators emit to this
     contract.

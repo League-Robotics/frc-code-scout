@@ -5,15 +5,18 @@ weight: 1
 
 # Inside Competition Robot Code — The Elite and League Architectures
 
-**A three-part wiki.** Part I documents the **Elite Architecture**: the architecture that top FRC
+**A four-part wiki.** Part I documents the **Elite Architecture**: the architecture that top FRC
 teams have actually converged on, reconstructed empirically from reading dozens of public codebases
-and validated against competition results. Part II is the **anatomy** — a component-by-component
+and checked against competition results (the correlation is moderate and heavily confounded by
+program maturity — see ch. 34). Part II is the **anatomy** — a component-by-component
 reference that opens the hood on each major piece. Part III presents the **League Architecture**: our
 own evolved proposal, the same ideas pushed to a single unifying abstraction and made
-language-portable.
+language-portable. Part IV is the **measurement instrument** — the rubric, its calibration, and a
+four-year case study.
 
 > **This page is the annotated table of contents** — the hierarchy, a description of each chapter, and
-> the source documents in `knowledge/` (and `docs/review/`) each chapter is written from. This wiki is
+> the source documents in `knowledge/` (and `docs/review/`) each chapter is written from. Some cited
+> sources have since moved under `knowledge/archived/`; the crosswalk records each file's disposition. This wiki is
 > **self-contained and supersedes** the generated `docs/book`; chapters absorb the cited source material
 > rather than linking out to it. The full source-to-chapter map is
 > [Appendix C — the crosswalk](appendices/source-crosswalk.md).
@@ -33,21 +36,26 @@ true, and does it matter*; Part II answers *how does it work and what do I build
 finishes Part I knows what the three seams are and how a goal becomes a motor voltage — in a
 sentence or two each. Part II is where the hood comes off.
 
-- **New to the project?** Read Part I straight through (ch. 1 → 8).
+- **New to the project?** Read Part I straight through (ch. 1 → 9).
 - **Building a robot?** Read the five-views overview (ch. 2), then the rubric and maturity ladder in
-  the [How We Develop This](appendices/how-we-developed-this/) appendix, then work through Part II for
+  the [How We Developed This](appendices/how-we-developed-this/) appendix, then work through Part II for
   the mechanics, then Part III.
 - **Need the detail on one component?** Jump straight to its Part II chapter (ch. 15 → 23).
 - **Evaluating the proposal?** Part III (ch. 24 → 32), ending on the open questions in ch. 32.
+- **Scoring a team?** Read the rubric in full (ch. 33), then the caveats in the San Diego scoresheet
+  (ch. 34), and use the Patribots study (ch. 35) as the worked example.
 
-The numbering is the book order. The lettered sections are the shelf it sits on.
+The numbering is the book order. The lettered sections are the shelf it sits on. One note on the
+numbers: chapters 10–14 (and section letter E) don't exist — that material became
+[Appendix A](appendices/how-we-developed-this/), and the numbering is preserved so older citations
+still resolve. Nothing is missing.
 
 ---
 
 # Part I — The Elite Architecture *(descriptive: what top teams actually do)*
 
 *The architecture nobody designed and everybody arrived at. Reconstructed from the corpus, turned
-into a measurement instrument, and checked against who actually wins.*
+into a measurement instrument, and checked against competition results.*
 
 ## A. Orientation
 
@@ -215,7 +223,8 @@ real coordinators in the corpus.
 
 ### 23. Coordination II — state graphs and behavior trees
 The far end of the coordination ladder: coordination as **graph search** over a superstructure state
-graph (254/6328's jgrapht; A\* over a discretized configuration space), and **behavior trees** — the
+graph (explicit state graphs in ~5 teams; genuine A\* over a discretized configuration space in 254
+alone), and **behavior trees** — the
 re-ticked SUCCESS/FAILURE/RUNNING tree borrowed from game AI (3015's full runtime + visual editor).
 When each beats an FSM, and why explicit behavior trees are nearly absent in FRC while their
 command-group cousin is universal.
@@ -274,11 +283,11 @@ why every level is named `…State`.
 
 ## K. The dividends and portability
 
-### 29. Telemetry, replay, and tests — for free, at every scale
+### 29. Telemetry, replay, and tests — the dividends, at every scale
 What four loggable PODs per block buy: snapshot every block's channels each tick and you have
 AdvantageKit-grade replay and telemetry for the *entire robot at every altitude*, not just motors; a
 pure `update` makes every block unit-testable by replaying recorded inputs. The Elite inputs-struct
-idea (ch. 16) generalized from leaves to executives.
+idea (ch. 3 and 16) generalized from leaves to executives.
 *Sources: `specs/portable-component-model.md` (§2, §4), `build-spec/logging.md`,
 `build-spec/testing.md`, `build-spec/simulation.md`.*
 
@@ -302,12 +311,14 @@ source-of-truth that makes it language-neutral.
 ## L. Maturity of the proposal
 
 ### 32. Open questions and the road to a build recipe
-The honest close: the League model is a living proposal, not finished doctrine. The two load-bearing
-open questions (is `Observations` a fifth channel or just "children's `State`"? generic scheduler vs
-hand-wired composition?) and the structural gaps the review surfaced — execution order (two-pass),
-`RobotState`'s cross-cutting dual-graph (commands form a tree, state a DAG), the WPILib integration
-choice (wrap blocks in `Subsystem.periodic()`), and splitting `Config` retuning from mode switches.
-What must close before `scaffold-robot`/`add-subsystem` emit to this contract by default.
+The honest close: the League model is a living proposal, not finished doctrine. Two questions are
+now decided (`Observations` is the children's `State` plus the tick timestamp; execution runs
+state-up, then commands-down, matching the Elite loop), and the real open ones are named: generic
+scheduler vs hand-wired composition, threading against the high-rate odometry queue, the
+command-to-goal adapter for WPILib triggers and autos, and the in-loop allocation discipline —
+plus the structural gaps the review surfaced (`RobotState`'s dual-graph, the `Subsystem.periodic()`
+wrap, splitting `Config` retuning from mode switches). What must close before
+`scaffold-robot`/`add-subsystem` emit to this contract by default.
 *Sources: `docs/review/portable-component-model-review.md`,
 `specs/portable-component-model.md` (Open Questions).*
 
@@ -330,15 +341,15 @@ per-team D1–D8 scoresheet and the per-dimension correlation table. *Sources:
 `survey/sd-frc-final-report.md` (+ `*.csv`, inventories).*
 
 ### 35. The Patribots, four years
-One team (4738) scored season by season with full commit history — a monotonic climb 5.0 → 20.0 — the
-rubric in motion, and the two rules it proves: *rewrite in the offseason*, and *great code can still
-carry a four-year zero.* *Source: `examples/patribots-four-year-scoring.md`.*
+One team (4738) scored season by season with full commit history — a four-season climb 5.0 → 20.0 —
+the rubric in motion, and the two rules it illustrates: *rewrite in the offseason*, and *great code
+can still carry a four-year zero.* *Source: `examples/patribots-four-year-scoring.md`.*
 
 ---
 
 # Appendices
 
-- **Appendix A — How We Develop This.** The method behind Part I, as a five-chapter narrative: how the
+- **Appendix A — How We Developed This.** The method behind Part I, as a five-chapter narrative: how the
   corpus was read (and the *score what's used, not present* rule), the eight-dimension rubric, the
   novice-to-elite maturity ladder, what the architecture actually predicts against competition
   results, and the foundation-first build order. *Sources: `examples/methodology.md`, `rubric/rubric.md`,
@@ -355,7 +366,7 @@ carry a four-year zero.* *Source: `examples/patribots-four-year-scoring.md`.*
 
 ---
 
-# Lessons from Outside *(the closing section — what the broader field treats as table stakes)*
+# Lessons from Outside *(shelved with the appendices — what the broader field treats as table stakes)*
 
 *Stepping outside FRC to name what the Elite Architecture is still missing. A single survey chapter
 today; each lesson will grow its own treatment over time.*
@@ -378,17 +389,17 @@ architecture.
 
 1. **Part I ↔ Part II overlap is real and intended — keep it honest.** Several components appear in
    both (IO seam: ch. 3 + 16–17; world model: ch. 4 + 20; coordination: ch. 5 + 22–23; drivetrain:
-   ch. 6 + 19). The rule is depth: Part I states and motivates, Part II builds. When drafting, each
-   Part I seam chapter should end with an explicit "deep dive: Part II ch. X" pointer, and Part II
-   should not re-argue *why* — only *how*. (The old at-a-glance and foundation-first chapters are now ch. 2 and the
-   How We Develop This appendix respectively.)
-2. **Chapter granularity in Part II's instances and Part III.** The motor and swerve specs are long
-   (752 and 530 lines); ch. 26–27 and possibly ch. 17/19 may each split into 2–3 wiki pages. The
-   subsystem-archetype chapter (ch. 18) folds five source docs — it may want to be five short pages
-   under one section rather than one long chapter. Decide when drafting.
-3. **Coordination as one chapter or two.** Ch. 22 (state machines) and ch. 23 (state graphs +
-   behavior trees) are split because both are meaty and you named them separately; they could merge
-   into one "Coordination paradigms" chapter with subsections.
+   ch. 6 + 19). The rule is depth: Part I states and motivates, Part II builds. Each Part I seam
+   chapter ends with an explicit "deep dive: Part II ch. X" pointer, and Part II does not re-argue
+   *why* — only *how*.
+2. **Chapter granularity — decided: keep single pages.** Ch. 17, 18, 19, 26, and 27 stay as one
+   page each; splitting would churn links for little gain. Revisit only if a page outgrows a
+   single sitting.
+3. **Coordination as one chapter or two — decided: keep the split.** Ch. 22 is "build this";
+   ch. 23 is "know this exists, probably don't build it." Different readers, different registers.
+   The full coordination-ladder graphic lives once, at the close of ch. 23.
 4. **Tooling scope.** Whether the wiki documents the scoring/scaffolding *tooling* (`analyze-team`,
    `scaffold-robot`, the plugin skills in `AGENTS.md`) or stays purely architectural. Currently out
    of scope.
+5. **Chapter numbering — decided: keep the gap.** Chapters 10–14 / section E were absorbed into
+   Appendix A; the numbers are reserved so old citations resolve (noted in "How to read it").

@@ -6,6 +6,8 @@ weight: 33
 
 **This is the complete, authoritative rubric — eight dimensions, each scored 0–4 against anchored, observable indicators, with half-steps allowed.** The companion chapter [how to read the rubric](../appendices/how-we-developed-this/02-the-rubric.md) explains why it is shaped this way and how to use it; this page carries every anchor, every caution, and the grep/AST cheat-sheet in full, so it can be scored from directly.
 
+Three terms carry weight throughout and are defined earlier in the book: the **IO line** and **loop-above vs loop-below** ([Part II ch. 16](../part-2/16-hardware-abstraction.md)), and **goal-fanout** — a coordinator turning one robot-wide goal into per-subsystem states ([Part I ch. 5](../part-1/05-the-coordination-seam.md)). On effort: budget roughly an hour per repo for a careful confirmed score — the grep pass takes minutes; opening the files behind every positive hit is the bulk of the work.
+
 ---
 
 ## Why dimensions, not a single ladder score
@@ -21,7 +23,7 @@ So: score each dimension independently, report the vector, and read the *shape* 
 - **Unit** — each team's most recent real competition-season repo (2025 or 2026; not templates, training repos, or off-season toys). Record the repo name and season on the scoresheet.
 - **Adjacent repos count for one dimension only** — separate team-library repos (`SuperCORE`, `WarlordsLib`, `3128-common`, `NOMADBase`) and training repos count toward **D8 (Sustainability)** but not toward the code dimensions, which are scored from the season repo alone.
 - **Score what's used, not what's present.** A Choreo vendordep JSON with no `.traj` files and no Choreo imports is not Choreo adoption. An empty `src/test` folder is not testing. Confirm every indicator by opening at least one file — see [Part I ch. 3 — the IO seam](../part-1/03-the-io-seam.md) for why the seam is the load-bearing structure to confirm.
-- **Half-steps are allowed** (e.g., 2.5) when a team sits clearly between anchors. Don't agonize.
+- **Half-steps are allowed** (e.g., 2.5) when a team sits clearly between anchors. Don't agonize. A legitimate 2.5 on D1 is IO interfaces on most mechanisms but selection still scattered across files — confirmed past the L2 anchor, short of L3. An illegitimate 2.5 is splitting the difference because you couldn't tell whether the `Superstructure` is real — that's an unconfirmed candidate, not a half-step; go open the file.
 - **Known blind spot** — repos are shallow clones with `.git` stripped, so commit history, PRs, and contributor counts are unobservable. D8 is scored from artifacts only and should be treated as a floor, not a ceiling.
 - **Language note** — anchors are written in Java/WPILib terms. Kotlin (6695) and Python/RobotPy teams hit the same anchors with different syntax: MagicBot's framework FSM counts at D2 level 2, its component injection counts at D1 level 2.
 
@@ -54,7 +56,11 @@ Most-common subsystems (by `subsystems/<dir>`): **vision · intake · drive · s
 
 ## What predicts competition results — and why you must read the code
 
-Measured 2026 against Statbotics EPA, leave-one-**team**-out cross-validated over 232 team-years / 55 teams, cluster-bootstrap CIs. Three results should shape how you use this rubric:
+Measured 2026 against Statbotics EPA, leave-one-**team**-out cross-validated over 232 team-years / 55 teams, cluster-bootstrap CIs. (The cross-validation pooled every available season repo per team — 232 team-years across the 55 teams — while rubric scoring uses each team's most recent season.)
+
+**The two validation datasets.** This section reports the cross-validated study over the full indexed corpus. The book's other validation — [the San Diego scoresheet](34-the-san-diego-scoresheet.md) — is a companion study: 24 local teams hand-scored on this rubric and paired with season-matched EPA. The two are different samples answering related questions; where this section calibrates the *instrument* (confirmed vs mechanical passes, per-dimension trust), ch. 34 asks whether the scores track winning in one region.
+
+Three results should shape how you use this rubric:
 
 1. **Confirming use, not presence, roughly doubles the rubric's predictive validity.** On the same 55 teams, the **agent-confirmed** D1–D8 (a model that opened the files) predicts EPA at Spearman **ρ ≈ 0.53**; the **mechanical candidate** pass (grep/SQL hits, scored as presence) reaches only **ρ ≈ 0.29**. The paired difference is significant (95% CI `[0.04, 0.44]`). This is the empirical case for the golden rule — the cheap pass is a lead sheet, not a score.
 
@@ -71,7 +77,9 @@ Measured 2026 against Statbotics EPA, leave-one-**team**-out cross-validated ove
    | **D6 Auto/Path · D7 Vision** | **0.60** | **no — confirm by reading** (files present ≠ trajectories driven / vision fused) |
    | **D8 Sustainability** | **0.57** | **no — read the README/CI/library; history is shallow** |
 
-   Spend your reading budget where κ is low: **D6, D7, D8** are where "present" most diverges from "used." Equal-weighting the eight dimensions is fine — an EPA-optimal re-weighting was not distinguishable from equal weight on this sample, so don't over-engineer the sum.
+   Spend your reading budget where κ is low: **D6, D7, D8** are where "present" most diverges from "used."
+
+One design decision deserves its own sentence: **the eight dimensions are equally weighted, deliberately.** An EPA-optimal re-weighting was tested and was not distinguishable from equal weight on this sample — so don't over-engineer the sum.
 
 ---
 
@@ -123,7 +131,7 @@ Measured 2026 against Statbotics EPA, leave-one-**team**-out cross-validated ove
 | 3 | Whole-robot sim workflow | Sim covers drivetrain + mechanisms + (ideally) vision; maple-sim or equivalent dynamics; evidence the team develops in sim (sim-specific configs, sim auto-testing mode) |
 | 4 | Sim/replay as primary verification | Deterministic re-simulation or log replay of real matches treated as a workflow (replay IO variants, ideal-sim variants, 4481 style) |
 
-**Grep:** `simulationPeriodic`, `ElevatorSim|SingleJointedArmSim|FlywheelSim|DCMotorSim|SwerveDriveSim`, `maple-sim` / `org.ironmaple`, `*IOReplay*`, `IdealSim`.
+**Grep:** `simulationPeriodic`, the WPILib physics classes `ElevatorSim|SingleJointedArmSim|FlywheelSim|DCMotorSim`, maple-sim's `SwerveDriveSimulation` (WPILib ships no swerve-drive sim class), `maple-sim` / `org.ironmaple`, `*IOReplay*`, `IdealSim`.
 
 ---
 
@@ -177,7 +185,7 @@ Measured 2026 against Statbotics EPA, leave-one-**team**-out cross-validated ove
 
 **Grep:** `pathplanner` dir under `src/main/deploy`, `PathPlannerLib.json`, `choreo` / `.traj` / `.chor`, `Repulsor`, `RepulsorField`, `AutoBuilder`, `AutoBuilder.pathfind*` (on-the-fly, L3).
 
-**Confirm use — this is the lowest-trust dimension (κ 0.60).** Choreo `.traj`/`.chor` *files* count for nothing on their own: in the corpus, 15 of the teams with Choreo files **never reference them in code**, and PathPlanner `.auto` files frequently carry `choreoAuto:false`. Require an actual code reference — `fromChoreoTrajectory(...)`, `Choreo.loadTrajectory(...)`, a `choreo.auto.AutoFactory` — before crediting Choreo at L3. Likewise confirm `AutoBuilder.configure(...)` is wired with real constraints, not just imported.
+**Confirm use — this is the lowest-trust dimension (κ 0.60).** Choreo `.traj`/`.chor` *files* count for nothing on their own: 15 teams in the corpus carry Choreo files they **never reference in code**, and PathPlanner `.auto` files frequently carry `choreoAuto:false`. Require an actual code reference — `fromChoreoTrajectory(...)`, `Choreo.loadTrajectory(...)`, a `choreo.auto.AutoFactory` — before crediting Choreo at L3. Likewise confirm `AutoBuilder.configure(...)` is wired with real constraints, not just imported.
 
 ---
 
@@ -243,4 +251,6 @@ One row per team. The sum is reported, but the profile is the finding.
 3. Open the files behind every positive hit — confirm use, not presence. Adjust the level.
 4. Check the team's other repos *only* for D8 (libraries, templates, training).
 5. Write 2–3 sentences of profile notes: the shape, the likely explanation, the one highest-leverage next step for the team.
+
+A worked example of what step 2 produces — the raw mechanical-candidate output for one Reefscape 2025 repo, with per-dimension AST hits and the files to open — lives in the repository at `knowledge/examples/sample-score-output-reefscape2025.md`. It is a lead sheet in exactly the sense above: a heuristic Σ floor plus a list of files to confirm, not a score.
 

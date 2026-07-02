@@ -16,6 +16,13 @@ architecture was read from — **to study the technique, not to copy.**
 The dividing line with Part I is depth: Part I motivates, Part II builds. Where a Part I chapter named
 a seam and pointed here, this is the page it pointed to.
 
+> **Which corpus, which N.** Part II cites counts from three related datasets: a **37-team hand
+> survey** (close reading, one team at a time), a **55-repo season index** (one repository per team
+> for the indexed season), and a **63-team full clone** (684 repositories, with a parsed-call DuckDB
+> index). The same fact can therefore carry different denominators — 24/55 and 27/63 are both correct
+> measurements of IO-seam adoption, taken against two different bases. Every count in these chapters
+> names its denominator.
+
 ## Chapters
 
 **F. The control path and abstraction**

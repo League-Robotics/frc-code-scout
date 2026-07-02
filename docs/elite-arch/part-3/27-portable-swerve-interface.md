@@ -43,8 +43,8 @@ simultaneously the replay seam, the sim-mock seam, and the vendor-swap seam: one
 ## L1 is just two motor blocks and an encoder
 
 The seam to adopt is AdvantageKit's `ModuleIO`/`GyroIO` — minimal and field-proven: a per-module read
-struct plus five write verbs (drive open-loop, drive velocity, steer open-loop, steer position), and a
-gyro read struct. But the clean formulation is not a fresh interface. Those five verbs are exactly **two
+struct plus four write verbs (drive open-loop, drive velocity, steer open-loop, steer position), and a
+gyro read struct. But the clean formulation is not a fresh interface. Those four verbs are exactly **two
 motors' worth of the motor spec** plus an absolute encoder:
 
 ```
@@ -82,7 +82,8 @@ heights. **Rule of thumb: own the motors → per-module; inherit a vendor swerve
 AdvantageKit stops at `runVelocity(ChassisSpeeds)`; CTRE's `SwerveRequest` is the better idea worth
 lifting — control is an intent object you hand the drivetrain each loop, not a method you call —
 recast off vendor types as a tagged union, so requests are loggable and replayable like everything
-else. The arms are not speculative; the counts are corpus reference frequencies across 683 repos, so
+else. The arms are not speculative; the counts are corpus reference frequencies across 683 repos (the
+full cloned corpus — see [Appendix A](../appendices/how-we-developed-this/)), so
 the union is the measured ~90% of real usage:
 
 ```
@@ -99,11 +100,16 @@ modifiers: DriveRequestType drive = OPEN_LOOP | VELOCITY  // lands on the two Mo
            wheelForceFeedforwardsX/Y                      // the L3 setpoint generator's per-module forces
 ```
 
+(One vintage note: Phoenix 6's 2025 release split `ApplyChassisSpeeds` into `ApplyRobotSpeeds` and
+`ApplyFieldSpeeds`; the counts above use the older class name because most of the corpus predates the
+split.)
+
 `DriveRequestType` *is* the whole open-vs-closed-loop switch, and it maps straight onto the two
 `ModuleIO` drive verbs — no extra machinery. One naming decision is deliberate: the characterization
 arm is **`Characterize`**, not CTRE's `SysId`. "System identification" collides head-on with software's
 prior claims on both words — `getSysId()` in any other codebase returns a string handle, not a
-feedforward routine — so it fails the rule that a name must survive a change of reader. The general
+feedforward routine — so it fails [ch. 26](26-portable-motor-interface.md)'s
+survive-a-change-of-reader rule. The general
 policy: *import a control term only if the destination domain hasn't already spent the word.* `plant`,
 `chassis speeds`, `kinematics`, `pose` import cleanly; `system identification` and bare `observer` do
 not.
@@ -129,7 +135,8 @@ arbitrary-feedforward field of the L1 drive command — closing the loop with th
 
 A team climbs capability tiers — drive-only → fused localization → feasibility-planned — over the
 *same L1*, never re-cutting the seam. And the whole stack crosses to ROS cleanly: a swerve drive is a
-`Twist`-in / `Odometry`-out component with four `JointState` pairs underneath, which is exactly
-`ros2_control`'s swerve-controller shape ([ch. 31](31-ros-bridge-portability.md)). With the leaf and
+`Twist`-in / `Odometry`-out component with four `JointState` pairs underneath — the shape a
+`ros2_control` swerve controller takes (cf. `diff_drive_controller`; swerve controllers exist as
+third-party packages) ([ch. 31](31-ros-bridge-portability.md)). With the leaf and
 mid-level blocks in hand, the next chapter recovers the two higher seams as blocks:
 [`RobotState` and `Superstructure`](28-robotstate-superstructure-blocks.md).

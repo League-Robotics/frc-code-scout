@@ -3,11 +3,11 @@ title: 16. Hardware abstraction and the IO line
 weight: 16
 ---
 
-*Part I argued that a subsystem should depend on a contract, not on a motor. This chapter shows the mechanics: the IO layer is the Strategy pattern, "IO layer" and "hardware abstraction" name two different axes, and a single diagnostic — which side of the line the control loop is on — classifies any interface you find. Code is quoted to study the technique, not to copy.*
+*Part I argued that a subsystem should depend on a contract, not on a motor. This chapter shows the mechanics: the IO layer is the Strategy pattern, "IO layer" and "hardware abstraction" name two different axes, and a single diagnostic — which side of the line the control loop is on — classifies any interface you find.*
 
-Part I, [chapter 5](../part-1/03-the-io-seam.md), motivated the IO seam and then deferred the implementation. This is that deferred deep dive. The case for the seam is made; here we open the files and show how the boundary is actually built, what every implementation in the corpus shares, and the choices that distinguish one team's IO layer from another's.
+Part I, [chapter 3](../part-1/03-the-io-seam.md), motivated the IO seam and then deferred the implementation. This is that deferred deep dive. The case for the seam is made; here we open the files and show how the boundary is actually built, what every implementation in the corpus shares, and the choices that distinguish one team's IO layer from another's.
 
-The IO seam appears in some form in 24 of the corpus teams — the single most widely shared architectural idea in serious FRC code, and the default rather than the exception among the strong programs. That convergence is the subject of the rest of this chapter: not whether to draw the line, but where it sits and what crosses it.
+The IO seam appears in some form in 24 of the 55 season-index repos — the single most widely shared architectural idea in serious FRC code, and the default rather than the exception among the strong programs. That convergence is the subject of the rest of this chapter: not whether to draw the line, but where it sits and what crosses it.
 
 ## The pattern has an older name
 
@@ -34,7 +34,7 @@ Strategy and Bridge look almost identical in code. GoF distinguishes them by int
 | When the choice happens | Every deploy (real vs. sim vs. replay) | At design time (device independence) |
 | The IO layer | Leans this way | Less so |
 
-The IO layer leans Strategy because the swap is a runtime choice made on every deploy. The distinction matters for the section after next, where the line between the two blurs in real code.
+The IO layer leans Strategy because the swap is a runtime choice made on every deploy. The distinction matters later in this chapter, in "The line that matters," where the line between the two blurs in real code.
 
 ## The two axes that get tangled
 
@@ -111,7 +111,7 @@ One impurity is worth noting: SciBorgs' `position()` returns meters, an elevator
 If instead each implementation carries its own controller, the interface can speak in the subsystem's own terms — `setPosition(inches)` — and the implementations are responsible for running the loop that gets there. PhantomCatz do this. Their interface commands a position *and* exposes the gains, because the controller lives in the implementation (here, CTRE's on-motor MotionMagic firmware):
 
 ```java
-// 2706 PhantomCatz — gains pushed BELOW the line; the loop runs in the implementation
+// 2637 PhantomCatz — gains pushed BELOW the line; the loop runs in the implementation
 default void setPosition(double inches) {}                      // intent
 default void setGainsSlot0(double kP, double kI, double kD,
     double kS, double kV, double kA, double kG) {}             // the loop's gains...
@@ -124,7 +124,7 @@ Here the interface reads at the right level for an elevator, and the implementat
 The full PhantomCatz interface is the same one quoted in Part I: the output verb is `setPosition`, the readback is `positionInch`, and the elevator never traffics in volts at the subsystem level.
 
 ```java
-// 2706 PhantomCatz — CatzElevator/ElevatorIO.java (abridged to the essential surface)
+// 2637 PhantomCatz — CatzElevator/ElevatorIO.java (abridged to the essential surface)
 public interface ElevatorIO {
   @AutoLog
   class ElevatorIOInputs {
@@ -150,7 +150,7 @@ Both styles are legitimate Strategy implementations sitting at the IO-layer loca
 | What it reads as | A device pipe (HAL-like) | A subsystem-intent contract |
 | Where PID/FF lives | In the subsystem, written once | In each implementation |
 | Implementations are | Trivial (forward the volts) | Full bundles (each runs a loop) |
-| Corpus example | SciBorgs 1155 | PhantomCatz 2706 (CTRE MotionMagic) |
+| Corpus example | SciBorgs 1155 | PhantomCatz 2637 (CTRE MotionMagic) |
 
 So: a pure IO layer is Strategy applied at subsystem granularity, and whether it *also* looks like a hardware abstraction layer depends entirely on whether you left the control loop above it. See `setVoltage` on something named for a mechanism — the loop is above, the interface is a HAL. See `setPosition` — the loop is below, the interface is a subsystem contract. Same location, same pattern, different placement of the brains. The detailed control-path treatment is in [chapter 15](15-control-path.md).
 
@@ -159,7 +159,7 @@ So: a pure IO layer is Strategy applied at subsystem granularity, and whether it
 Selection lives in one place. PhantomCatz switch on robot mode, with an anonymous no-op for replay:
 
 ```java
-// 2706 PhantomCatz — strategy selection
+// 2637 PhantomCatz — strategy selection
 elevatorIO = switch (Constants.getRobotMode()) {
   case REAL    -> new ElevatorIOReal();   // CTRE MotionMagic to a position
   case SIM     -> new ElevatorIOSim();    // physics model to a position
@@ -241,7 +241,7 @@ The anonymous form only works with the struct style, where methods can default t
 
 In Kotlin (3636, 4099) the architecture is identical to 6328's, but the language enforces for free what Java teams hand-roll. The same `FunnelIO` interface, a real implementation, and a sim implementation — but the singleton, the unit types, and the inputs class are language features, not boilerplate:
 
-```java
+```kotlin
 // 3636 — FunnelIO.kt (abridged; active fields shown, commented telemetry omitted)
 @Logged
 open class FunnelInputs { /* logged fields */ }
@@ -275,7 +275,7 @@ The `Voltage` parameter type is the lesson: in Kotlin a height and a voltage are
 The corpus names implementations by device, not by the abstract word "Real":
 
 - The sim impl is reliably `XxxIOSim` (or `SimXxx`).
-- The hardware impl is named **by device** — `XxxIOTalonFX`, `XxxIOSparkMax`, `XxxIOKrakenX60`, `GyroIOPigeon2`, `VisionIOLimelight` — **not `XxxIOReal`**. Only ~5 teams use `Real`. Naming the device documents the vendor at the seam.
+- The hardware impl is named **by device** — `XxxIOTalonFX`, `XxxIOSparkMax`, `XxxIOKrakenX60`, `GyroIOPigeon2`, `VisionIOLimelight` — **not `XxxIOReal`**. Only ~5 of the 55 season repos use `Real`. Naming the device documents the vendor at the seam.
 - The `XxxIOInputs` struct always co-exists with the interface; the null-object / replay variants are real but rare (~1 team ships a dedicated replay impl).
 
 The four files that constitute a subsystem (the "quartet") are:

@@ -5,11 +5,11 @@ weight: 15
 
 *This is the deep dive Part I deferred and the map for everything that follows in Part II. A button press or an autonomous routine becomes a robot-wide goal, becomes per-subsystem setpoints, becomes an IO call, becomes a motor voltage — and measured state flows back up the same structure to a single world model. Trace that path once and the rest of Part II is detail.*
 
-Part I argued for the shape of the architecture: three seams ([../part-1/02-five-views.md](../part-1/02-five-views.md)) built foundation-first in a fixed order ([../appendices/how-we-developed-this/05-foundation-first.md](../appendices/how-we-developed-this/05-foundation-first.md)). It did not show how data actually moves through that shape during a 20 ms cycle. That is this chapter. We trace one full control path — from a teleop binding or an auto routine all the way down to a motor voltage, and the measured state all the way back up — and then walk several concrete scenarios that are each a specialization of the same loop.
+Part I argued for the shape of the architecture: three seams ([the architecture in five views](../part-1/02-five-views.md)) built foundation-first in a fixed order ([the foundation-first appendix](../appendices/how-we-developed-this/05-foundation-first.md)). It did not show how data actually moves through that shape during a 20 ms cycle. That is this chapter. We trace one full control path — from a teleop binding or an auto routine all the way down to a motor voltage, and the measured state all the way back up — and then walk several concrete scenarios that are each a specialization of the same loop.
 
-Code is quoted to study the technique, not to copy. The examples are abridged from the build spec; the point is the data flow, not a drop-in implementation.
+The examples are abridged from the build spec; the point is the data flow, not a drop-in implementation.
 
-Treat this chapter as the orienting map for Part II. Each later chapter zooms in on one stop along the path traced here: hardware abstraction at the IO line ([16-hardware-abstraction.md](16-hardware-abstraction.md)), the motor interfaces below it ([17-motor-interfaces.md](17-motor-interfaces.md)), the subsystem archetypes that sit on it ([18-subsystem-archetypes.md](18-subsystem-archetypes.md), [19-the-drivetrain-subsystem.md](19-the-drivetrain-subsystem.md)), the world model the path reads from ([20-the-world-model.md](20-the-world-model.md), [21-vision-systems.md](21-vision-systems.md)), and the coordination layer that turns intent into setpoints ([22-coordination-state-machines.md](22-coordination-state-machines.md), [23-coordination-graphs-trees.md](23-coordination-graphs-trees.md)).
+Treat this chapter as the orienting map for Part II. Each later chapter zooms in on one stop along the path traced here: [hardware abstraction at the IO line](16-hardware-abstraction.md), the [motor interfaces](17-motor-interfaces.md) below it, the [subsystem archetypes](18-subsystem-archetypes.md) that sit on it and [the drivetrain](19-the-drivetrain-subsystem.md), [the world model](20-the-world-model.md) the path reads from and [the vision systems](21-vision-systems.md) that feed it, and the coordination layer that turns intent into setpoints ([state machines and the superstructure](22-coordination-state-machines.md), [state graphs and behavior trees](23-coordination-graphs-trees.md)).
 
 ---
 
@@ -71,7 +71,7 @@ ADD.GRAPH -> FOUND.SUP: "replaces transition fn" { style.stroke-dash: 3 }
 
 Read the solid arrows top to bottom and that is the command path: bindings call the Superstructure, the Superstructure sets goals on subsystems, subsystems call their IO, IO drives hardware. Read the arrows that feed `RobotState` and the logging facade and that is the data path coming back up. The dotted add-ons all hang off one of the three seams; none of them reach into a subsystem to do their job.
 
-The signature of the foundation, on disk, is a four-file quartet per mechanism — `XxxIO`, `XxxIOInputs`, an `XxxIO<impl>`, and `XxxIOSim`. If a new team member can find those four files for any mechanism, the architecture is intact. (Naming note from the corpus: the hardware impl is named by device — `ElevatorIOTalonFX`, `GyroIOPigeon2`, `VisionIOLimelight` — not literally `IOReal`. [16-hardware-abstraction.md](16-hardware-abstraction.md) covers that line in depth.)
+The signature of the foundation, on disk, is a four-file quartet per mechanism — `XxxIO`, `XxxIOInputs`, an `XxxIO<impl>`, and `XxxIOSim`. If a new team member can find those four files for any mechanism, the architecture is intact. (Naming note from the corpus: the hardware impl is named by device — `ElevatorIOTalonFX`, `GyroIOPigeon2`, `VisionIOLimelight` — not literally `IOReal`. [Chapter 16](16-hardware-abstraction.md) covers that line in depth.)
 
 ---
 
@@ -105,7 +105,7 @@ Three things follow from this one selection point.
 - **SIM** constructs simulation implementations. The same subsystem logic runs against a physics model instead of hardware; nothing above the IO line knows the difference.
 - **REPLAY** constructs an empty no-op implementation — `new ElevatorIO() {}` — that does nothing and reads nothing. In replay the inputs struct is overwritten from a recorded log before the subsystem ever sees it, so the no-op has nothing to do. You write this empty body on day one. It costs nothing and it is the entire reason replay later requires zero new subsystem code.
 
-Because the rest of the codebase only ever holds an `XxxIO` reference, the subsystems, commands, and Superstructure are written once and run unmodified in all three modes. The fork is one `switch`, not a parallel code path. That single selection point is what makes scenario 5.D (replay) free later in this chapter.
+Because the rest of the codebase only ever holds an `XxxIO` reference, the subsystems, commands, and Superstructure are written once and run unmodified in all three modes. The fork is one `switch`, not a parallel code path. That single selection point is what makes scenario §15.6.D (replay) free later in this chapter.
 
 ---
 
@@ -157,21 +157,11 @@ class XxxIOInputs {
 }
 ```
 
-Building the inputs-struct style (the interface fills this object each cycle via `updateInputs`) rather than plain getters is the one decision that keeps logging and replay available later. It is a few lines of boilerplate per subsystem — annotate the struct `@AutoLog` for AdvantageKit, or hand-log its fields for DogLog — and it is why the log/replay choice can be deferred. [17-motor-interfaces.md](17-motor-interfaces.md) goes further into what the IO contract carries beyond `updateInputs`/`setVoltage` (brake mode, current limits, characterization).
+Building the inputs-struct style (the interface fills this object each cycle via `updateInputs`) rather than plain getters is the one decision that keeps logging and replay available later. It is a few lines of boilerplate per subsystem — annotate the struct `@AutoLog` for AdvantageKit, or hand-log its fields for DogLog — and it is why the log/replay choice can be deferred. [Chapter 17](17-motor-interfaces.md) goes further into what the IO contract carries beyond `updateInputs`/`setVoltage` (brake mode, current limits, characterization).
 
 ### Where the loop lives: above or below the line
 
-A second per-subsystem decision shapes the actuate step. The PID and feedforward can sit on either side of the IO interface.
-
-| | Loop **above** the line | Loop **below** the line |
-|---|---|---|
-| Interface command | `setVoltage(volts)` | `setSetpoint(inches)` |
-| Reads as | a device pipe (HAL-like) | a subsystem-intent contract |
-| PID/FF written | once, in the subsystem | once per implementation |
-| Implementations | trivial (forward volts) | full bundles (each runs a loop) |
-| Use when | you want one tuning, sim parity is easy | you lean on on-motor control |
-
-For mechanisms you simulate, keep the loop **above** the line (`setVoltage`): the sim and real implementations then share the subsystem's one controller and stay in parity for free. Push the loop below the line only where you deliberately exploit firmware control, such as Phoenix 6 MotionMagic on a swerve azimuth. [18-subsystem-archetypes.md](18-subsystem-archetypes.md) maps which archetypes lean which way.
+A second per-subsystem decision shapes the actuate step: the PID and feedforward can sit above the IO interface (the interface takes `setVoltage(volts)` and the subsystem owns one controller that Sim and Real share) or below it (the interface takes `setSetpoint(inches)` and each implementation runs its own loop, typically on-motor firmware). Keep the loop above the line for anything you simulate; push it below only to deliberately exploit firmware control such as Phoenix 6 MotionMagic — [chapter 16](16-hardware-abstraction.md) gives the full side-by-side comparison, and [chapter 18](18-subsystem-archetypes.md) maps which archetypes lean which way.
 
 ---
 
@@ -189,27 +179,33 @@ public class RobotState {
 }
 ```
 
-On day one only `addOdometry` and `getPose` are exercised. `addVisionMeasurement` exists but is uncalled — it is the vision seam, pre-cut. Centralizing the estimate here, rather than letting the drive subsystem privately own it, is what lets vision, pathfinding, and auto all share one consistent world model. [20-the-world-model.md](20-the-world-model.md) and [21-vision-systems.md](21-vision-systems.md) develop this seam in full.
+On day one only `addOdometry` and `getPose` are exercised. `addVisionMeasurement` exists but is uncalled — it is the vision seam, pre-cut. Centralizing the estimate here, rather than letting the drive subsystem privately own it, is what lets vision, pathfinding, and auto all share one consistent world model. [Chapters 20](20-the-world-model.md) [and 21](21-vision-systems.md) develop this seam in full.
 
 ## 15.5 The coordination seam the path passes through
 
 The decide step's "turn a goal into setpoints" happens in the `Superstructure`. It takes one robot-wide goal and fans it out to subsystems through a single transition function that may reject or reorder a transition for safety.
 
 ```java
-public class Superstructure {
+public class Superstructure extends SubsystemBase {   // SubsystemBase: schedulable, owns run/runOnce
     public enum Goal { STOW, INTAKE, SCORE_L4, CLIMB }
-    private Goal goal = Goal.STOW;
-    public Command requestGoal(Goal g) { return runOnce(() -> applyGoal(g)); }
-    private void applyGoal(Goal g) {       // <-- the seam. interlocks live here.
-        switch (g) {
-            case SCORE_L4 -> { arm.setGoal(CLEAR); elevator.setGoal(L4); arm.setGoal(SCORE); }
+    public Command requestGoal(Goal g) { return applyGoal(g); }
+    private Command applyGoal(Goal g) {       // <-- the seam. interlocks live here.
+        return switch (g) {
+            case SCORE_L4 -> Commands.sequence(       // sequenced, each step guarded —
+                arm.setGoalCommand(CLEAR),            // three plain setGoal() calls would
+                Commands.waitUntil(arm::atGoal),      // all land in the same cycle and
+                elevator.setGoalCommand(L4),          // the last would overwrite the first
+                Commands.waitUntil(elevator::atGoal),
+                arm.setGoalCommand(SCORE));
             // ...
-        }
+        };
     }
 }
 ```
 
-The seam is that **all transitions pass through one function**. The foundation version is a `switch` over a goal enum; later its body can be replaced with a guarded transition table, a motion planner, or a graph search without changing a single caller. The two coordination chapters cover that progression: [22-coordination-state-machines.md](22-coordination-state-machines.md) for the state-machine form, [23-coordination-graphs-trees.md](23-coordination-graphs-trees.md) for graphs and trees.
+(`CLEAR`, `L4`, `SCORE` — like `setModuleStates` in the scenarios below — are schematic names, not a real API.)
+
+The seam is that **all transitions pass through one function**. The foundation version is a `switch` over a goal enum; later its body can be replaced with a guarded transition table, a motion planner, or a graph search without changing a single caller. The two coordination chapters cover that progression: [chapter 22](22-coordination-state-machines.md) for the state-machine form, [chapter 23](23-coordination-graphs-trees.md) for graphs and trees.
 
 ---
 
@@ -276,7 +272,7 @@ S4 -> DONE
 
 In the foundation, `applyGoal` hand-sequences the safe order with `Commands.sequence(...)` and `waitUntil(...)`, where each subsystem exposes a cheap predicate (`isClosed()`, `isStowed()`) read from its inputs struct. Later, a declarative transition table or a motion planner that knows mechanism geometry can compute the safe interpolation automatically — and because every transition already routes through `applyGoal`, you replace the body, not the callers.
 
-The subsystems stay dumb: they execute setpoints and report state. The knowledge that two states are mutually exclusive lives in the coordinator, the only object that sees all mechanisms at once. [22-coordination-state-machines.md](22-coordination-state-machines.md) develops the guard from a `switch` into a real transition function.
+The subsystems stay dumb: they execute setpoints and report state. The knowledge that two states are mutually exclusive lives in the coordinator, the only object that sees all mechanisms at once. [Chapter 22](22-coordination-state-machines.md) develops the guard from a `switch` into a real transition function.
 
 ### 15.6.C Operator intent vs execution
 
@@ -328,4 +324,4 @@ This is why teams that build the seam and never collect replay are leaving the d
 
 A binding or auto routine requests a `Goal`. The Superstructure's `applyGoal` reads `RobotState`, runs any interlock, and sets per-subsystem setpoints. Each subsystem, every 20 ms, reads its IO inputs, logs them, decides against the active setpoint, and actuates through its IO down to a motor voltage. Measured state flows back up: IO inputs into the subsystem, odometry and corrections into `RobotState`, pose back into the Superstructure for the next decision. Vision feeds the state seam without touching drive; replay feeds the IO seam without touching subsystems; coordination changes the Superstructure body without touching callers.
 
-Everything in Part II is a closer look at one stop on that path. The next chapter starts at the bottom — the IO line itself, and what it means to keep vendor types below it: [16-hardware-abstraction.md](16-hardware-abstraction.md).
+Everything in Part II is a closer look at one stop on that path. The next chapter starts at the bottom — the IO line itself, and what it means to keep vendor types below it: [chapter 16, hardware abstraction and the IO line](16-hardware-abstraction.md).

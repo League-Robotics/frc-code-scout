@@ -19,7 +19,13 @@ like on one real team?*
 34. [The San Diego scoresheet](34-the-san-diego-scoresheet.md) — the rubric run on 24 teams against
     season-matched Statbotics EPA: does better code track winning? (Yes — moderately, and unevenly.)
 35. [The Patribots, four years](35-the-patribots-four-years.md) — one team scored season by season with
-    full commit history: the rubric in motion, and the two rules it proves.
+    full commit history: the rubric in motion, and the two rules it illustrates.
+
+Two validation datasets appear across these chapters and are easy to conflate: ch. 33 cites a
+**cross-validated study** over the full indexed corpus (55 teams; the cross-validation pooled every
+available season repo per team — 232 team-years — while rubric scoring uses each team's most recent
+season), and ch. 34 is a **hand-scored companion study** of 24 San Diego teams paired with
+season-matched EPA. They are different samples answering related questions.
 
 The method *behind* the rubric — how the corpus was read and why the dimensions are what they are —
 lives in [Appendix A — How We Developed This](../appendices/how-we-developed-this/).

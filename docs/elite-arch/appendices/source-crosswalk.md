@@ -7,6 +7,7 @@ weight: 3
 
 | Source document | Absorbed by | Disposition |
 | --- | --- | --- |
+| `INDEX.md` | — (the annotated index of `knowledge/` itself) | Not absorbed — tooling/index; read by skills to navigate the corpus |
 | **build-spec/** | | |
 | `elite-architecture.md` | [Part I](../part-1/) + [Part II](../part-2/) (ch. 1–23) | TOOL DEP — kept; source for scaffold-robot / analyze-team |
 | `code-review-principles.md` | [Appendix D](reviewing-for-the-seams.md) | ARCHIVED |
@@ -27,9 +28,12 @@ weight: 3
 | `rubric.md` | [Scoring — the rubric in full](../scoring/33-the-rubric.md) + [Appendix A ch. 2](how-we-developed-this/02-the-rubric.md) | TOOL DEP — kept; read by `build_site.py`, `agent_score.py`, scoring skills |
 | **survey/** | | |
 | `sd-frc-final-report.md` (+ inventories + `*.csv`) | [Scoring — the San Diego scoresheet](../scoring/34-the-san-diego-scoresheet.md) + [Appendix A ch. 4](how-we-developed-this/04-what-it-predicts.md) | KEPT (reference) |
+| `sd-frc-scores-pilot.md` | [Appendix A ch. 2](how-we-developed-this/02-the-rubric.md) (the pilot that fixed two scoring rules) + [Scoring — the San Diego scoresheet](../scoring/34-the-san-diego-scoresheet.md) | KEPT (reference) |
 | **examples/** | | |
 | `methodology.md` | [Appendix A ch. 1](how-we-developed-this/01-reading-the-corpus.md) | KEPT (reference) |
+| `sample-score-output-reefscape2025.md` | [Scoring — the rubric in full](../scoring/33-the-rubric.md) (worked candidate-pass example, cited in the scoring procedure) | KEPT (reference) |
 | `patribots-four-year-scoring.md` | [Scoring — the Patribots, four years](../scoring/35-the-patribots-four-years.md) | KEPT (reference) |
+| `patribots-four-year-scoring.pdf` | same as the `.md` above (PDF rendering) | KEPT (reference artifact) |
 | **alternatives/** | | |
 | `01–04` + `README` | [Part I ch. 8](../part-1/08-alternatives.md), [Part II ch. 23](../part-2/23-coordination-graphs-trees.md) | KEPT (reference) |
 | **specs/** | | |

@@ -28,7 +28,7 @@ surface and seal the config inside the implementation.
 *Pays off* when several mechanically similar mechanisms can share one implementation, or you have a
 real multi-vendor or multi-robot future. *Over-engineering* for a single mechanism where the
 subsystem-level seam already says everything. The corpus shows a device-level `MotorIO` in about ten
-teams, but almost all leak vendor types; the vendor-clean form is rare, which is why it's an
+of the 55 season repos, but almost all leak vendor types; the vendor-clean form is rare, which is why it's an
 alternative. It is also the most direct on-ramp to [Part III](../part-3/), whose motor interface is
 this idea made portable.
 
@@ -54,10 +54,12 @@ a discretized configuration space, where "obstacles" are self-collision regions.
 interlocks-as-edge-existence (declare safety once, locally) and verifiable coordination (a graph can be
 exhaustively checked that every transition terminates safely, which hand-coded sequences cannot).
 
-*Pays off* when the N² hand-coded transitions get error-prone and you want provable safety; teams
-already run anytime A\* on the drivetrain, so this is the same algorithm one layer up. *Over-engineering*
-before a team has hit the limits of a finite-state machine. Established but uncommon — 254 is the
-corpus's one full instance.
+*Pays off* when the N² transitions (every pair hand-coded) get error-prone and you want provable
+safety; teams already run anytime A\* (it returns the best path found so far) on the drivetrain, so
+this is the same algorithm one layer up. *Over-engineering* before a team has hit the limits of a
+finite-state machine. Established but uncommon: explicit state-graph or transition types appear in
+about five teams (190, 254, 2910, 3476, 5026), 6328's graph is caught separately by its JGraphT
+dependency, and genuine A\* over a discretized configuration space is 254 alone.
 
 ## Behavior trees
 
@@ -76,5 +78,11 @@ the delta is using it as a top-level *reactive brain* rather than a fixed script
 Two of these — capability-typed devices and the plant — point directly at the proposal in
 [Part III](../part-3/), where one component shape spans motors, sensors, subsystems, and executives,
 and truth-versus-estimate is built into the model. The other two are the D2 ceiling the Elite
-Architecture already gestures at. That closes Part I: the architecture, why to believe it, how to grow
-it, and where it can legitimately differ. Part II opens the hood.
+Architecture already gestures at.
+
+One boundary is worth drawing precisely before Part I's final chapter. Everything in this chapter is
+an **alternative**: a different way to build one of the seams themselves, adopted *instead of* the
+default. The next chapter collects the opposite category — **additive** techniques that leave every
+seam exactly as it is and attach new capability at one of them, so they can be added or removed
+without restructuring the robot. Alternatives replace a seam's design; additions specialize it. With
+that distinction in hand: [other advanced topics](09-other-advanced-topics.md).

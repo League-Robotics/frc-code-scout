@@ -7,7 +7,9 @@ single transition function that is allowed to *reorder or reject* a transition f
 asks for `SCORE_L4`; the superstructure decides the legal sequence — clear the frame, raise the
 elevator, then score — that realizes it. It is the one object that sees every mechanism at once, so the
 knowledge that "the arm must clear before the elevator rises" lives in exactly one place instead of
-scattered across subsystems.
+scattered across subsystems. A note on names: throughout the book, lowercase *coordinator* is the
+role, *superstructure* is FRC's house name for it, and backticked `Superstructure` marks the concrete
+class teams give it.
 
 ## Intent versus execution
 
@@ -46,22 +48,25 @@ orders them by how much the transition logic is *data* rather than *code*:
 | Level | Shape | Example |
 |---|---|---|
 | 1 | command composition — sequential/parallel groups, no coordinator | most teams |
-| 2 | **wanted/current** FSM, distributed (one per subsystem + a top one) | 2910, 4099 |
+| 2 | **wanted/current** FSM (defined in [ch. 22](../part-2/22-coordination-state-machines.md)), distributed (one per subsystem + a top one) | 2910, 4099 |
 | 2 | **centralized** `RobotManager` — one FSM, dumb subsystems | 581, 3128 |
 | 3 | a `Superstructure` coordinator separating intent from execution, with kinematic safety | 254, 3476, 6328 |
-| 4 | **state graph** — transitions are data, pathfind through legal states (JGraphT / A\*) | 6328, 254 |
+| 4 | **state graph** — transitions are data, pathfind through legal states | ~5 teams; see below |
 
 The full six include two more at the frontier: the **behavior tree** borrowed from game AI (3015 ship
 a complete runtime with a visual editor), and **inter-process message passing** (971's custom robotics
-OS, where each subsystem is a separate process behind a typed message contract). Those are the
-"transitions outgrew the FSM" tools; [Part II ch. 23](../part-2/23-coordination-graphs-trees.md) takes
-the graph and tree forms apart, and the message-bus extreme is covered in
-[Lessons from Outside](../appendices/lessons-from-outside/01-lessons-from-outside.md).
+OS, where each subsystem is a separate process behind a typed message contract). The seam's primary
+deep dive is [Part II ch. 22](../part-2/22-coordination-state-machines.md), which builds the FSM and
+transition-function mechanics; [Part II ch. 23](../part-2/23-coordination-graphs-trees.md) takes the
+"transitions outgrew the FSM" tools — the graph and tree forms — apart, and the message-bus extreme
+is covered in [Lessons from Outside](../appendices/lessons-from-outside/01-lessons-from-outside.md).
 
-The corpus shows `Superstructure` in 22 teams and a generic `*StateMachine` in 12, while the true
-ceiling markers — `jgrapht`, a `WantedState` enum, a behavior-tree runtime — appear in one to three
-teams each. A `Superstructure` at level 3, optionally backed by a state machine, is the common elite
-path; the graph and tree are rare.
+The corpus shows `Superstructure` in 22 of the 55 season repos and a generic `*StateMachine` in 12.
+At the ceiling, explicit state-graph or transition types appear in about five teams (190, 254, 2910,
+3476, 5026); 6328's graph shows up separately through the `jgrapht` dependency marker (three teams);
+and genuine A\* search over a discretized configuration space is 254 alone. The other frontier
+markers — a `WantedState` enum, a behavior-tree runtime — are similarly rare. A `Superstructure` at
+level 3, optionally backed by a state machine, is the common elite path; the graph and tree are rare.
 
 ## The level-1-in-level-3-clothing trap
 

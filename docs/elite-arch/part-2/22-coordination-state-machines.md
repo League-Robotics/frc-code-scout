@@ -3,17 +3,17 @@ title: 22. Coordination I — state machines and the superstructure
 weight: 22
 ---
 
-*Part I's chapter on [the coordination seam](../part-1/05-the-coordination-seam.md) named six paradigms and deferred their construction. This chapter builds the common ones: the superstructure as the single object that turns one robot-wide goal into a coordinated set of guarded subsystem setpoints, and the two finite-state-machine shapes the corpus uses to do it. The far end of the spectrum — transitions as data, searched as a graph or walked as a behavior tree — is the [next chapter](23-coordination-graphs-trees.md).*
+*Part I's chapter on [the coordination seam](../part-1/05-the-coordination-seam.md) named six paradigms and deferred their construction. This chapter builds the common ones: the superstructure, and the two finite-state-machine shapes the corpus uses to run it. The far end of the spectrum — transitions as data, searched as a graph or walked as a behavior tree — is the [next chapter](23-coordination-graphs-trees.md).*
 
-Code is quoted to study the technique, not to copy. Build the contract for your robot.
+Build the contract for your robot.
 
-This chapter is the deep dive [chapter 7](../part-1/05-the-coordination-seam.md) pointed to. Part I argued why a coordination seam exists and where it sits relative to the [control path](15-control-path.md), the [subsystem archetypes](18-subsystem-archetypes.md), and the [world model](20-the-world-model.md). It will not re-argue that here. What follows is the engineering: the I/O boundary the seam presents, the three implementations the corpus actually ships, the maturity ladder they fall on, where kinematic interlocks live, and how you test the safe ordering without a robot.
+This chapter is the deep dive [chapter 5](../part-1/05-the-coordination-seam.md) pointed to. Part I argued why a coordination seam exists and where it sits relative to the [control path](15-control-path.md), the [subsystem archetypes](18-subsystem-archetypes.md), and the [world model](20-the-world-model.md). It will not re-argue that here. What follows is the engineering: the I/O boundary the seam presents, the three implementations the corpus actually ships, the maturity ladder they fall on, where kinematic interlocks live, and how you test the safe ordering without a robot.
 
 ---
 
 ## 1. The seam, stated as a boundary
 
-The superstructure turns one robot-wide goal into a coordinated set of subsystem setpoints, through a single transition function that is allowed to reorder or reject a transition for safety. A button asks for `SCORE_L4`; the superstructure decides the legal sequence — clear the frame, raise the elevator, then score — that realizes it. It is the one object that sees every mechanism at once, so the knowledge that "the arm must clear before the elevator rises" lives in exactly one place instead of scattered across subsystems.
+The superstructure turns one robot-wide goal into a coordinated set of subsystem setpoints, through a single transition function that is allowed to reorder or reject a transition for safety. A button asks for `SCORE_L4` (the game's level-4 scoring target — no relation to rubric levels, which this chapter writes D2-level-3 style); the superstructure decides the legal sequence — clear the frame, raise the elevator, then score — that realizes it. It is the one object that sees every mechanism at once, so the knowledge that "the arm must clear before the elevator rises" lives in exactly one place instead of scattered across subsystems.
 
 Like [RobotState](20-the-world-model.md), the superstructure is a "subsystem" with no hardware. Its I/O is goals in, subsystem setpoints out:
 
@@ -53,7 +53,7 @@ What it omits is as load-bearing as what it has. No `TalonFX`, no `*IO` interfac
 
 ## 2. How wide a paradigm this is
 
-This is the richest point of architectural divergence in FRC, and the survey of 37 teams quantifies it. A class named `Superstructure` appears in 22 teams; a generic `*StateMachine` in 12. Across all three sweeps the survey identified six coordination paradigms, with an orthogonal centralized-vs-distributed axis layered on top:
+This is the richest point of architectural divergence in FRC. The class-name counts come from the 55-repo season index: a class named `Superstructure` appears in 22 of 55 repos, a generic `*StateMachine` in 12 of 55. (The [next chapter](23-coordination-graphs-trees.md)'s index table puts `Superstructure` coordinators at 28 — that broader marker counts any class playing the coordinator role, whatever it is named; the 22 here is the literal class name.) The hand survey of 37 teams is what read past the names — it identified six coordination paradigms, with an orthogonal centralized-vs-distributed axis layered on top:
 
 | Paradigm | Exemplars | Best at |
 |---|---|---|
@@ -72,7 +72,7 @@ The first three rows, plus the boundary of the fourth, are this chapter. The sta
 
 The first shape the corpus uses is a single object holding the whole robot's state machine, driving subsystems that deliberately expose only state setters. The survey calls this the 581/3128 pattern: "a single `RobotManager` holds the entire robot's state machine and drives a set of deliberately 'dumb' subsystems that only expose setters. Mechanism behavior lives in one place; subsystems own no decision logic." It is a genuine architectural fork from the distributed FSM — the centralized version "makes whole-robot states trivial to reason about but concentrates all complexity in one file."
 
-The goal is an enum where each robot state bundles a target state for every subsystem. 3128's `RobotManager` extends an FSM base and fans one `RobotStates` value out:
+The goal is an enum where each robot state bundles a target state for every subsystem. 3128's `RobotManager` extends an FSM base and fans one `RobotStates` value out. (Despite the name, 3128's `RobotStates` is a goal enum — no relation to the `RobotState` world-model class of [chapter 20](20-the-world-model.md).)
 
 ```java
 // 3128 Aluminum Narwhals — subsystems/Robot/RobotManager.java
@@ -161,7 +161,7 @@ private SystemState handleStateTransitions() {
 // each periodic(): currentState = handleStateTransitions(); applyStates();
 ```
 
-A caller sets `wantedState` and walks away. It never knows what sequence of physical steps the subsystem must run to honor the request, and it cannot put the mechanism into an illegal configuration because only `handleStateTransitions()` writes `SystemState`. The superstructure does the same at the next level up — its wanted state is a robot-wide goal, its current state is what it has actually achieved, and the same transition function mediates between them.
+A caller sets `wantedState` and walks away. It never knows what sequence of physical steps the subsystem must run to honor the request, and it cannot put the mechanism into an illegal configuration because only `handleStateTransitions()` writes `SystemState`. The superstructure does the same at the next level up — its wanted state is a robot-wide goal, its current state is what it has actually achieved, and the same transition function mediates between them. A vocabulary note: *wanted* (2910), *target* (3476), and *goal* (3128, and the rubric's word) all name the same half of the pair — the requested state, as distinct from the achieved one.
 
 This is the in-process equivalent of 971's `Goal` / `Status` message split, achieved with two enums inside one process. The distributed form (2910, 33, 4099, 4504) localizes each mechanism's intent-vs-execution split — one wanted/current machine per subsystem, plus one on top. The centralized form (581, 3128) collapses the per-subsystem machines into a single `RobotManager`. Same intent-vs-execution principle; opposite choices about where the machines live.
 
@@ -195,7 +195,7 @@ The two level-2 rows are the centralized/distributed fork, not a quality differe
 
 The defining job of a level-3 superstructure is kinematic safety: ensuring two mechanisms that can collide never do. The architectural rule is that this knowledge lives in the *one* transition function, as guards and sequencing — not scattered across subsystems. 3128's `waitUntil(() -> climber.winch.atSetpoint())` is one such guard. The general form is "the arm must clear the frame before the elevator rises," expressed as ordering inside the seam.
 
-(Some teams pull the geometry out further still — 1678's dedicated `MotionPlanner` owns collision-free arm/elevator motion as its own layer, with a tellingly-named `UnsafePivotAndElevatorSynchronousToPositionMotionMagic` command coordinating the two axes so they arrive together. That separation of "where we want to be" from "what path through space is safe" is [chapter 23](23-coordination-graphs-trees.md) territory; here the interlock lives directly in the transition function.)
+(Some teams pull the geometry out further still — 1678's dedicated `MotionPlanner` owns collision-free arm/elevator motion as its own layer; [chapter 23](23-coordination-graphs-trees.md) treats it in full. Here the interlock lives directly in the transition function.)
 
 Interlocks are exactly what you want to test, and the superstructure is the one place they live, so it is the one place to test them. Because the subsystems below it run on their `*IOSim` implementations, you construct the whole thing in sim, request a dangerous goal, and assert the *order*:
 
@@ -203,9 +203,12 @@ Interlocks are exactly what you want to test, and the superstructure is the one 
 // construct subsystems on Sim, build the superstructure, request a dangerous goal:
 var sup = new Superstructure(Elevator.create(), Arm.create() /* both Sim in a test */);
 run(sup.requestGoal(SCORE_L4));
-fastForward();
-// assert the guard held: the arm cleared the frame BEFORE the elevator passed the danger zone
-assertTrue(armClearedBeforeElevatorRose);   // the interlock, verified without a robot
+// step the sim to completion, recording the first tick each threshold was crossed
+// (firstTick is an abridged test helper — poll the condition while fast-forwarding)
+double tArmClear = firstTick(() -> arm.getAngle() > ARM_CLEAR_ANGLE);
+double tElevRise = firstTick(() -> elevator.getHeight() > DANGER_HEIGHT);
+// assert the guard held: the arm cleared the frame BEFORE the elevator entered the danger zone
+assertTrue(tArmClear < tElevRise);          // the interlock, verified without a robot
 ```
 
 This is the test that catches the failure mode that breaks robots — two mechanisms colliding — and it costs nothing once the subsystems have sim implementations. It also explains why §3 flagged 3128's static fields and §4 noted 3476's constructor injection: the test above only works if you can hand the superstructure sim-backed subsystems. A superstructure that reaches its mechanisms through `getInstance()` cannot be constructed against sim in a test. Take subsystems by constructor (3476, and 5190 below) rather than `getInstance()` (3128), and the interlock test is available; skip injection, and it is not.

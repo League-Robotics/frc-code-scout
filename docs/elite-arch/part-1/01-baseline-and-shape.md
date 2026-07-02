@@ -6,7 +6,7 @@ Every WPILib team starts from the same place. The Elite Architecture is best und
 thing teams build from scratch but as a specific set of additions to that shared starting point — so
 this chapter names the starting point, then names the two lenses the rest of Part I reads the
 architecture through. A reader who finishes it knows *what* the architecture is made of and *how the
-next seven chapters look at it.*
+next eight chapters look at it.*
 
 ## The starting point: two nouns
 
@@ -60,7 +60,10 @@ who need it — message-passing process isolation. The rungs are not adopted in 
 have a clean IO layer and no coordinator, or strong logging bolted onto baseline command code. That
 unevenness is why the architecture is worth seeing from several angles before judging any one team
 against it. (How to score where a program sits on these rungs is the subject of the
-[How We Developed This](../appendices/how-we-developed-this/) appendix.)
+[How We Developed This](../appendices/how-we-developed-this/) appendix.) Throughout, we tag each
+pattern with its dimension in the eight-dimension scoring rubric — D1 through D8
+([ch. 33](../scoring/33-the-rubric.md) / [Appendix A](../appendices/how-we-developed-this/)) — so the
+chapters and the scores cross-reference.
 
 Naming the baseline as the zero is not a way to disparage it. Baseline command-based is *correct*, and
 for most rungs of most seasons it is enough to win regional matches. The point of fixing it as the
