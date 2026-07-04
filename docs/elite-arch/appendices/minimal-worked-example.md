@@ -6,7 +6,7 @@ weight: 5
 **This is the whole book, once, in the smallest robot that still has all the layers.** Two wheels,
 one color sensor, one job: *drive forward until the sensor sees the red line, then stop.* That is
 enough to need a hardware abstraction layer, two subsystems, a planner, a configuration object, and
-commands — and every one of them is the same four-part block from
+commands — and every one of them presents the same four-channel faceplate from
 [ch. 25](../part-3/25-portable-component-model.md):
 
 > **`Config`** in once · **`Command_in`** each tick · **`State`** out each tick · **`Command_out`**
@@ -22,30 +22,30 @@ and the lifecycle.
 ## The cast, by fill-pattern
 
 The fill-pattern *is* the taxonomy ([ch. 25](../part-3/25-portable-component-model.md)): which
-channels a block populates tells you what it is.
+channels a component populates tells you what it is.
 
-| Block | Layer | `Config` | `Command_in` | `State` | `Command_out` |
+| Component | Layer | `Config` | `Command_in` | `State` | `Command_out` |
 |---|---|:--:|---|---|---|
 | `MotorIO` (×2) | HAL leaf | CAN id, inversion | `MotorCommand` (volts) | `MotorState` | — (it *is* the metal) |
 | `ColorSensorIO` | HAL leaf | I²C port | — | `ColorSensorState` (raw counts) | — |
 | `Drive` | subsystem | gearing, wheel radius, gains | `DriveCommand` (m/s) | `DriveState` | 2× `MotorCommand` |
-| `ColorSense` | subsystem | target color, tolerance | — *(a sensor block)* | `ColorSenseState` (meaning) | — |
+| `ColorSense` | subsystem | target color, tolerance | — *(a sensor)* | `ColorSenseState` (meaning) | — |
 | `Superstructure` | executive | seek speed | `Goal` (driver intent) | `PlannerState` (mode, ready) | 1× `DriveCommand` |
 
 Read the rows and the recursion from [ch. 28](../part-3/28-robotstate-superstructure-blocks.md) is
-visible: the planner and the drive are *the same kind of block* — all four channels filled — differing
-only in whether `Command_out` feeds subsystems or motors. `ColorSense` fills neither command channel:
-that emptiness is what makes it a sensor, not a controller. This robot is deliberately too small to
-need a `RobotState` — with one drivebase and one sensor there is nothing to fuse — but when vision or
-odometry consumers arrive, the estimator block of
+visible: the planner and the drive are *the same kind of component* — all four channels filled —
+differing only in whether `Command_out` feeds subsystems or motors. `ColorSense` fills neither command
+channel: that emptiness is what makes it a sensor, not a controller. This robot is deliberately too
+small to need a `RobotState` — with one drivebase and one sensor there is nothing to fuse — but when
+vision or odometry consumers arrive, the estimator of
 [ch. 28](../part-3/28-robotstate-superstructure-blocks.md) drops in beside these without touching them.
 
 ```d2
 direction: down
 DRV: "Driver — A button"
-SUP: "Superstructure (planner block)\nupdate(Goal, obs) → DriveCommand"
-DR: "Drive (subsystem block)\nupdate(DriveCommand, obs) → 2× MotorCommand"
-CS: "ColorSense (sensor block)\nupdate(obs) → ColorSenseState"
+SUP: "Superstructure (planner)\nupdate(Goal, obs) → DriveCommand"
+DR: "Drive (subsystem)\nupdate(DriveCommand, obs) → 2× MotorCommand"
+CS: "ColorSense (sensor)\nupdate(obs) → ColorSenseState"
 LM: "MotorIO left"
 RM: "MotorIO right"
 CIO: "ColorSensorIO"
@@ -61,7 +61,7 @@ DR -> SUP: "DriveState (state up)" { style.stroke-dash: 4 }
 ```
 
 On disk it is the quartet-per-subsystem layout of [ch. 3](../part-1/03-the-io-seam.md), plus one pure
-block file per level:
+logic file per level:
 
 ```text
 frc/robot/
@@ -69,16 +69,16 @@ frc/robot/
   RobotContainer.java            // run-mode selection + button → goal bindings
   superstructure/
     Superstructure.java          //   shell: WPILib subsystem, wiring layer
-    PlannerBlock.java            //   pure: the guarded transition function
+    PlannerLogic.java            //   pure: the guarded transition function
     Goal.java  PlannerConfig.java  PlannerState.java  PlannerObs.java  PlannerTick.java
   subsystems/
     drive/
       Drive.java                 //   shell
-      DriveBlock.java            //   pure
+      DriveLogic.java            //   pure
       DriveConfig.java  DriveCommand.java  DriveState.java  DriveObs.java  DriveTick.java
     colorsense/
       ColorSense.java            //   shell
-      ColorSenseBlock.java       //   pure
+      ColorSenseLogic.java       //   pure
       ColorSenseConfig.java  ColorSenseState.java  ColorSenseObs.java
   hal/
     MotorIO.java  MotorCommand.java  MotorState.java
@@ -107,7 +107,7 @@ public record MotorCommand(double volts) {
   public static MotorCommand neutral() { return new MotorCommand(0.0); }
 }
 
-// hal/MotorIO.java — the downward edge of the leaf block: read samples in, apply pushes out
+// hal/MotorIO.java — the downward edge of the leaf component: read samples in, apply pushes out
 public interface MotorIO {
   MotorState read();               // once per tick, into a POD
   void apply(MotorCommand cmd);    // once per tick, out to metal
@@ -201,11 +201,11 @@ public class ColorSensorIOSim implements ColorSensorIO {
 
 ## Layer 2 — the subsystems
 
-A subsystem is two files that must never be confused: a **pure block** (the four PODs and the
+A subsystem is two files that must never be confused: a **pure logic class** (the four PODs and the
 `update`) and a **thin impure shell** (a WPILib `Subsystem` whose `periodic()` does exactly
-`read → update → apply`). The block computes; the shell touches the world.
+`read → update → apply`). The logic computes; the shell touches the world.
 
-### Drive — a controller block over two motor leaves
+### Drive — a controller over two motor leaves
 
 First the four channels plus the observations and the tick, each its own POD:
 
@@ -230,7 +230,7 @@ public record DriveState(
 }
 
 // subsystems/drive/DriveObs.java — Observations: the children's State + the tick's time.
-// The timestamp is data, delivered like any other fact — no block ever reads a clock.
+// The timestamp is data, delivered like any other fact — no component ever reads a clock.
 public record DriveObs(double timestampS, MotorState left, MotorState right) {}
 
 // subsystems/drive/DriveTick.java — what update RETURNS: State′ and Command_out
@@ -241,11 +241,11 @@ Then the pure step. No hardware handle, no clock, no scheduler — feedforward p
 feedback, written once, shared by real and sim because the loop is above the IO line:
 
 ```java
-// subsystems/drive/DriveBlock.java
-public class DriveBlock {
+// subsystems/drive/DriveLogic.java
+public class DriveLogic {
   private final DriveConfig cfg;
 
-  public DriveBlock(DriveConfig cfg) { this.cfg = cfg; }
+  public DriveLogic(DriveConfig cfg) { this.cfg = cfg; }
 
   public DriveTick update(DriveCommand cmd, DriveObs obs) {
     double distanceM = (toMeters(obs.left().positionRad())
@@ -273,13 +273,13 @@ And the shell — the only impure code, three lines of wiring plus logging:
 ```java
 // subsystems/drive/Drive.java
 public class Drive extends SubsystemBase {
-  private final DriveBlock block;
+  private final DriveLogic logic;
   private final MotorIO left, right;                  // vendor types live below this line
   private DriveCommand cmd = DriveCommand.stop();
   private DriveState state = DriveState.initial();
 
   public Drive(DriveConfig cfg, MotorIO left, MotorIO right) {
-    this.block = new DriveBlock(cfg);
+    this.logic = new DriveLogic(cfg);
     this.left = left;
     this.right = right;
   }
@@ -289,7 +289,7 @@ public class Drive extends SubsystemBase {
 
   @Override public void periodic() {
     var obs  = new DriveObs(Timer.getFPGATimestamp(), left.read(), right.read()); // 1. read
-    var tick = block.update(cmd, obs);                                            // 2. pure step
+    var tick = logic.update(cmd, obs);                                            // 2. pure step
     left.apply(tick.left());                                                      // 3. actuate
     right.apply(tick.right());
     state = tick.state();
@@ -298,11 +298,11 @@ public class Drive extends SubsystemBase {
 }
 ```
 
-### ColorSense — a sensor block over one sensor leaf
+### ColorSense — a sensor over one sensor leaf
 
 The sensor subsystem exists to convert *device truth* (raw color counts) into *robot meaning* ("that
 is the line we stop at"). Its command channels are empty — `update` takes only observations and
-returns only state — which per the fill-pattern table makes it a sensor block, the same shape
+returns only state — which per the fill-pattern table makes it a sensor, the same fill-pattern
 `RobotState` would have ([ch. 28](../part-3/28-robotstate-superstructure-blocks.md)):
 
 ```java
@@ -319,11 +319,11 @@ public record ColorSenseState(double matchError, boolean onTarget, boolean conne
 // subsystems/colorsense/ColorSenseObs.java
 public record ColorSenseObs(double timestampS, ColorSensorState raw) {}
 
-// subsystems/colorsense/ColorSenseBlock.java — no Command_in, no Command_out: update(obs) only
-public class ColorSenseBlock {
+// subsystems/colorsense/ColorSenseLogic.java — no Command_in, no Command_out: update(obs) only
+public class ColorSenseLogic {
   private final ColorSenseConfig cfg;
 
-  public ColorSenseBlock(ColorSenseConfig cfg) { this.cfg = cfg; }
+  public ColorSenseLogic(ColorSenseConfig cfg) { this.cfg = cfg; }
 
   public ColorSenseState update(ColorSenseObs obs) {
     double err = Math.abs(obs.raw().red()   - cfg.targetRed())
@@ -336,19 +336,19 @@ public class ColorSenseBlock {
 
 // subsystems/colorsense/ColorSense.java — the shell; note there is nothing to apply
 public class ColorSense extends SubsystemBase {
-  private final ColorSenseBlock block;
+  private final ColorSenseLogic logic;
   private final ColorSensorIO io;
   private ColorSenseState state = ColorSenseState.initial();
 
   public ColorSense(ColorSenseConfig cfg, ColorSensorIO io) {
-    this.block = new ColorSenseBlock(cfg);
+    this.logic = new ColorSenseLogic(cfg);
     this.io = io;
   }
 
   public ColorSenseState state() { return state; }
 
   @Override public void periodic() {
-    state = block.update(new ColorSenseObs(Timer.getFPGATimestamp(), io.read()));
+    state = logic.update(new ColorSenseObs(Timer.getFPGATimestamp(), io.read()));
     // log obs + state
   }
 }
@@ -356,7 +356,7 @@ public class ColorSense extends SubsystemBase {
 
 ## Layer 3 — the superstructure (the planner)
 
-The executive is the same four-channel block one altitude up
+The executive presents the same four-channel faceplate one altitude up
 ([ch. 28](../part-3/28-robotstate-superstructure-blocks.md)): its `Command_in` is a robot-wide
 `Goal`, its `Observations` are its children's `State`, its `Command_out` is a per-subsystem command,
 and its `update` **is** the guarded transition function of
@@ -376,7 +376,7 @@ public record PlannerState(Goal goal, Mode mode, boolean ready) {
   public static PlannerState initial() { return new PlannerState(Goal.IDLE, Mode.IDLE, false); }
 }
 
-// superstructure/PlannerObs.java — the planner sees BLOCK state, never devices: no volts, no counts
+// superstructure/PlannerObs.java — the planner sees CHILDREN'S State, never devices: no volts, no counts
 public record PlannerObs(double timestampS, DriveState drive, ColorSenseState color) {}
 
 // superstructure/PlannerTick.java — one outgoing edge: the drive. The sensor gets no command.
@@ -384,12 +384,12 @@ public record PlannerTick(PlannerState state, DriveCommand driveCmd) {}
 ```
 
 ```java
-// superstructure/PlannerBlock.java — the pure planner
-public class PlannerBlock {
+// superstructure/PlannerLogic.java — the pure planner
+public class PlannerLogic {
   private final PlannerConfig cfg;
   private PlannerState.Mode mode = PlannerState.Mode.IDLE;  // internal memory (ch. 25), not State
 
-  public PlannerBlock(PlannerConfig cfg) { this.cfg = cfg; }
+  public PlannerLogic(PlannerConfig cfg) { this.cfg = cfg; }
 
   public PlannerTick update(Goal goal, PlannerObs obs) {
     mode = switch (mode) {                          // ALL transitions pass through this switch
@@ -400,7 +400,7 @@ public class PlannerBlock {
       case HOLDING -> goal == Goal.SEEK_LINE ? PlannerState.Mode.HOLDING : PlannerState.Mode.IDLE;
     };
 
-    // The interlock, in the one legal place: never drive blind. If the sensor block reports
+    // The interlock, in the one legal place: never drive blind. If the sensor reports
     // unhealthy, the seek is vetoed regardless of what the driver requested.
     boolean safeToDrive = obs.color().connected();
     var driveCmd = (mode == PlannerState.Mode.SEEKING && safeToDrive)
@@ -414,21 +414,21 @@ public class PlannerBlock {
 }
 ```
 
-The planner's shell is where the two coupling rules meet without contradiction: the *block* holds no
+The planner's shell is where the two coupling rules meet without contradiction: the *logic* holds no
 reference to any child (it returns its commands), while the *shell* — which is part of the outer
 wiring layer — routes `Command_out` to the child's `Command_in`:
 
 ```java
 // superstructure/Superstructure.java
 public class Superstructure extends SubsystemBase {
-  private final PlannerBlock block;
-  private final Drive drive;              // shells, never blocks — the pure planner can't see these
+  private final PlannerLogic logic;
+  private final Drive drive;              // shells, never logic — the pure planner can't see these
   private final ColorSense colorSense;
   private Goal goal = Goal.IDLE;
   private PlannerState state = PlannerState.initial();
 
   public Superstructure(PlannerConfig cfg, Drive drive, ColorSense colorSense) {
-    this.block = new PlannerBlock(cfg);
+    this.logic = new PlannerLogic(cfg);
     this.drive = drive;
     this.colorSense = colorSense;
   }
@@ -440,7 +440,7 @@ public class Superstructure extends SubsystemBase {
   @Override public void periodic() {
     var obs  = new PlannerObs(Timer.getFPGATimestamp(),
         drive.state(), colorSense.state());          // state up: children's last-published State
-    var tick = block.update(goal, obs);
+    var tick = logic.update(goal, obs);
     drive.accept(tick.driveCmd());                   // command down: Command_out → child Command_in
     state = tick.state();
     // log goal, obs, tick
@@ -455,7 +455,7 @@ through a block diagram. It is deterministic, it is logged, and at 50 Hz it is i
 
 ## The configuration object
 
-Every `Config` POD is *defined* next to its block and *filled* in exactly one file. Numbers live
+Every `Config` POD is *defined* next to its component and *filled* in exactly one file. Numbers live
 here and nowhere else — a CAN id in a subsystem file is a smell:
 
 ```java
@@ -480,8 +480,8 @@ public final class Constants {
 ```
 
 The boundary test from [ch. 25](../part-3/25-portable-component-model.md) applies to every field: if
-it changes every loop it is a `Command`; if it identifies or calibrates the block across a session it
-is `Config`. Nothing in this file changes during a match.
+it changes every loop it is a `Command`; if it identifies or calibrates the component across a session
+it is `Config`. Nothing in this file changes during a match.
 
 ## Commands and the wiring layer
 
@@ -529,7 +529,7 @@ Follow one press of the A button through the tree: the binding sets a `Goal` (in
 planner's pure `update` turns `SEEK_LINE` into a `DriveCommand` of 1.0 m/s (plan); the drive's pure
 `update` turns 1.0 m/s into ~2.8 V of feedforward-plus-feedback (control); the `MotorIO` turns volts
 into a vendor call (metal). Meanwhile raw color counts climb the other way, becoming `onTarget = true`
-at the sensor block and a `SEEKING → HOLDING` transition at the planner, which zeroes the
+at the sensor and a `SEEKING → HOLDING` transition at the planner, which zeroes the
 `DriveCommand` on the way back down. Four layers, and no layer speaks a vocabulary that belongs to
 another.
 
@@ -540,7 +540,7 @@ actually stop on the line? does it refuse to drive with a dead sensor?* — is t
 scheduler, no HAL bootstrap, and no hardware. Construct observations by hand and assert on the tick:
 
 ```java
-class PlannerBlockTest {
+class PlannerLogicTest {
   private PlannerObs obs(double t, ColorSenseState color) {
     return new PlannerObs(t, new DriveState(0, 0, false, true), color);
   }
@@ -550,28 +550,28 @@ class PlannerBlockTest {
 
   @Test
   void seekDrivesUntilLineThenHolds() {
-    var block = new PlannerBlock(Constants.PLANNER);
+    var logic = new PlannerLogic(Constants.PLANNER);
 
-    var seeking = block.update(Goal.SEEK_LINE, obs(0.00, OFF_LINE));
+    var seeking = logic.update(Goal.SEEK_LINE, obs(0.00, OFF_LINE));
     assertEquals(1.0, seeking.driveCmd().speedMps());        // seeking: commanded at seek speed
 
-    var holding = block.update(Goal.SEEK_LINE, obs(0.02, ON_LINE));
+    var holding = logic.update(Goal.SEEK_LINE, obs(0.02, ON_LINE));
     assertEquals(0.0, holding.driveCmd().speedMps());        // line seen: the plan halts the drive
     assertTrue(holding.state().ready());
   }
 
   @Test
   void deadSensorVetoesTheSeek() {
-    var block = new PlannerBlock(Constants.PLANNER);
-    var tick = block.update(Goal.SEEK_LINE, obs(0.00, DEAD));
+    var logic = new PlannerLogic(Constants.PLANNER);
+    var tick = logic.update(Goal.SEEK_LINE, obs(0.00, DEAD));
     assertEquals(0.0, tick.driveCmd().speedMps());           // the interlock, provably enforced
   }
 }
 ```
 
-The same trick works one layer down (`DriveBlock`: feed a `DriveObs`, assert on volts) and one layer
+The same trick works one layer down (`DriveLogic`: feed a `DriveObs`, assert on volts) and one layer
 up in sim (bind the `ColorSensorIOSim`, run the whole robot, script the line appearing). And because
-the shells log exactly the PODs the blocks consume and return, the match log *is* a replay input
+the shells log exactly the PODs the logic consumes and returns, the match log *is* a replay input
 ([ch. 29](../part-3/29-telemetry-replay-tests.md)) — the same `update` functions re-run over recorded
 `Command_in` + `Observations` reproduce the match decision-for-decision.
 
@@ -579,15 +579,15 @@ the shells log exactly the PODs the blocks consume and return, the match log *is
 
 - **Four channels at every altitude** — `Config` / `Command_in` / `State` / `Command_out`, as PODs,
   for the motor, the sensor, both subsystems, and the planner; the fill-pattern classified each.
-- **One pure `update` per block** — emission as the return value, never `child.set…` from inside a
-  block; the shells (and only the shells) touch hardware and route commands.
+- **One pure `update` per component** — emission as the return value, never `child.set…` from inside
+  the logic; the shells (and only the shells) touch hardware and route commands.
 - **No clock reads inside `update`** — every timestamp arrived inside an `Obs` POD.
 - **Vendor confinement** — `com.revrobotics` appears in `MotorIOSparkMax` and `ColorSensorIORevV3`
   and nowhere else; swap to TalonFX by writing one new leaf file.
-- **Config is a channel, filled once** — every number in `Constants`, defined beside its block.
+- **Config is a channel, filled once** — every number in `Constants`, defined beside its component.
 - **Commands are the edges** — a button binds to a `Goal`; the planner's `Command_out` is the
   drive's `Command_in`; the drive's `Command_out` is the motors'. No layer skips a level.
-- **The interlock lives in one function** — the dead-sensor veto is in `PlannerBlock.update` and is
+- **The interlock lives in one function** — the dead-sensor veto is in `PlannerLogic.update` and is
   unit-tested in four lines.
 
 If you can find these seven properties in your own robot — whatever the mechanisms — the

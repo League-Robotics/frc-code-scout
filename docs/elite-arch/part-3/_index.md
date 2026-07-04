@@ -14,7 +14,8 @@ intent separated from execution, vendor confinement, the deferred-dividend disci
 exactly one thing: it observes that the three differently shaped seams plus the pile of subsystems are
 all the **same recursive component**, and proposes building to that one contract deliberately.
 
-That component is the `Block`: four serializable data objects plus one pure step. Naming it buys telemetry, replay, tests, lifecycle, and language
+What every component shares is its **faceplate**: four serializable data objects plus one pure step.
+Naming that shape buys telemetry, replay, tests, lifecycle, and language
 portability **at every scale**, not just at the motor. The part states the shape, recovers the motor
 and swerve interfaces as its leaf and mid-level instances, and is candid about the open questions that
 remain before a team can wire it up and run it.
@@ -25,16 +26,16 @@ remain before a team can wire it up and run it.
 
 24. [From Elite to League](24-elite-to-league.md) — what we keep, what we change, and what "portable"
     buys.
-25. [The Portable Component Model — the `Block`](25-portable-component-model.md) — four channels, one
-    pure `update`, the fill-pattern that *is* the taxonomy, and a worked elevator block.
+25. [The Portable Component Model — the faceplate](25-portable-component-model.md) — four channels, one
+    pure `update`, the fill-pattern that *is* the taxonomy, and a worked elevator.
 
 **J. The instances**
 
-26. [The portable motor interface](26-portable-motor-interface.md) — the leaf block: two PODs, a
+26. [The portable motor interface](26-portable-motor-interface.md) — the leaf component: two PODs, a
     `oneof` command, capability tiers, a proto3 source of truth.
-27. [The portable swerve interface](27-portable-swerve-interface.md) — the mid-level block: five
-    layers, one seam, and `ModuleIO` as two motor blocks plus an encoder.
-28. [`RobotState` and `Superstructure` as blocks](28-robotstate-superstructure-blocks.md) — the two
+27. [The portable swerve interface](27-portable-swerve-interface.md) — the mid-level component: five
+    layers, one seam, and `ModuleIO` as two motors plus an encoder.
+28. [`RobotState` and `Superstructure` as components](28-robotstate-superstructure-blocks.md) — the two
     higher seams recovered as instances; why a subsystem and an executive are the same kind.
 
 **K. The dividends and portability**
@@ -42,7 +43,7 @@ remain before a team can wire it up and run it.
 29. [Telemetry, replay, and tests — the dividends, at every scale](29-telemetry-replay-tests.md) — the
     inputs-struct idea generalized from leaves to executives.
 30. [Lifecycle and graceful degradation](30-lifecycle-degradation.md) — health as state, the null
-    block as the fault state.
+    component as the fault state.
 31. [The ROS bridge and language portability](31-ros-bridge-portability.md) — keep the message
     semantics, drop the transport.
 

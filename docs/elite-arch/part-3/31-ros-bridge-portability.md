@@ -2,16 +2,16 @@
 title: 31. The ROS bridge and language portability
 weight: 31
 ---
-The last argument for the block model is external. If the four-channel shape is a sound factoring of
+The last argument for the component model is external. If the four-channel shape is a sound factoring of
 a robot component, it should map cleanly onto the broader field's component model — the ROS 2 node. It
 largely does, and the mapping is strong evidence that the factoring is conventional rather than
 idiosyncratic — not a proof, but a capability to use.
 
-## A block is a ROS 2 node
+## A component is a ROS 2 node
 
-Each block channel has a ROS 2 counterpart, one-for-one:
+Each faceplate channel has a ROS 2 counterpart, one-for-one:
 
-| Block channel | ROS 2 |
+| Faceplate channel | ROS 2 |
 |---|---|
 | `Config` (write-once + runtime door) | node **parameters** (+ `set_parameters`) |
 | `Command_in` (setpoint) | a subscribed **topic**, or a **goal** for a long-running action |
@@ -33,12 +33,12 @@ exist are third-party packages).
 
 The table is a correspondence, not an identity, and three mismatches keep it honest. ROS topics are
 asynchronous, many-to-many, and QoS-mediated — a publisher neither knows nor waits for its subscribers
-— while block wiring is synchronous 1:1 calls in a fixed order. A ROS action goal has an
+— while component wiring is synchronous 1:1 calls in a fixed order. A ROS action goal has an
 accept/reject/cancel handshake and runs for seconds, while `Command_in` is re-sent every 20 ms with no
 handshake at all — so the executive-as-action-server analogy holds for the data (goal / feedback /
-result), not the protocol. And executors, callback groups, and QoS profiles have no block analog,
-because the block model deliberately has no transport to configure. The mapping earns its keep at the
-one edge where a real message exists; it is not a claim that a robot of blocks *is* a ROS graph.
+result), not the protocol. And executors, callback groups, and QoS profiles have no analog here,
+because the component model deliberately has no transport to configure. The mapping earns its keep at the
+one edge where a real message exists; it is not a claim that a robot of components *is* a ROS graph.
 
 ## Keep the semantics, drop the transport
 
@@ -59,9 +59,9 @@ the RIO and a vision coprocessor. Everything on the RIO stays in-process functio
 ```d2
 direction: right
 RIO: "roboRIO — one process" {
-  EXEC: Executive block
-  SUB: Subsystem block
-  MOT: Motor block
+  EXEC: Executive
+  SUB: Subsystem
+  MOT: Motor
   EXEC -> SUB: "update() call"
   SUB -> MOT: "update() call"
 }
@@ -72,10 +72,10 @@ RIO.style.fill: "#1f3a5a"
 RIO.style.font-color: "#ffffff"
 ```
 
-The blocks inside the RIO are wired by direct calls — same semantics as messages, none of the
+The components inside the RIO are wired by direct calls — same semantics as messages, none of the
 transport cost. Only the genuinely inter-process edge becomes a real message, and *that* edge is where
 the ROS bridge earns its keep: the coprocessor can be a ROS node publishing a pose topic, and the RIO's
-`RobotState` block consumes it through the same `Command_in` channel it would use for any observation.
+`RobotState` consumes it through the same `Command_in` channel it would use for any observation.
 
 ## proto3 is the source of truth
 
@@ -96,7 +96,7 @@ messages would churn the roboRIO's two-core garbage collector every tick, which 
 chose QuickBuffers over protobuf-java for its own serialization ([ch. 26](26-portable-motor-interface.md)).
 
 This is what "portable" in *the League Architecture* finally means. The Elite Architecture is portable
-across *seasons* — the seam survives a rewrite. The block model is portable across *languages and
+across *seasons* — the seam survives a rewrite. The component model is portable across *languages and
 frameworks* too: the same component contract describes the robot in Java, a simulation in Python, a
 controller in a ROS graph, and a tool in TypeScript, because the contract lives in a schema and maps
 without loss onto the component model the rest of robotics already uses. The shape was never an FRC

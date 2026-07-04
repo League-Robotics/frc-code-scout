@@ -1,11 +1,11 @@
 ---
-title: 27. The portable swerve interface — the mid-level block
+title: 27. The portable swerve interface — the mid-level component
 weight: 27
 ---
-A drive subsystem is the first interesting block above the leaf: a `Block` whose children are four
-module blocks, each two motor blocks. Its `Command_in` is a control-intent union, its `State` is the
+A drive subsystem is the first interesting component above the leaf: its children are four module
+components, each two motors. Its `Command_in` is a control-intent union, its `State` is the
 fused drive state, and its `Command_out` is four module setpoints. Working it out shows
-seam-granularity for what it is — *the altitude at which you draw a block boundary* — and reuses the
+seam-granularity for what it is — *the altitude at which you draw a component boundary* — and reuses the
 [motor interface](26-portable-motor-interface.md) wholesale. Part II built the swerve subsystem from
 the corpus ([ch. 19](../part-2/19-the-drivetrain-subsystem.md)); this chapter gives it the portable
 contract.
@@ -40,7 +40,7 @@ L2 and above is WPILib-and-our-own-types only (the D1 rule applied to swerve). A
 struct, not a method bag** — L1's read side is a serializable inputs struct, which makes it
 simultaneously the replay seam, the sim-mock seam, and the vendor-swap seam: one cut buys all three.
 
-## L1 is just two motor blocks and an encoder
+## L1 is just two motors and an encoder
 
 The seam to adopt is AdvantageKit's `ModuleIO`/`GyroIO` — minimal and field-proven: a per-module read
 struct plus four write verbs (drive open-loop, drive velocity, steer open-loop, steer position), and a
@@ -51,7 +51,7 @@ motors' worth of the motor spec** plus an absolute encoder:
 ModuleIO  ≙  { drive: Motor (velocity tier), steer: Motor (position tier), azimuth: AbsoluteEncoder }
 ```
 
-So the swerve block inherits the motor block's nullable payloads, capability tiers, and ROS translation
+So the swerve component inherits the motor spec's nullable payloads, capability tiers, and ROS translation
 for free — a steer motor is "a `Motor` whose `Command` is a position `oneof`," nothing new to design.
 The flat five-method `ModuleIO` is a convenience facade over that canonical pair.
 
@@ -138,5 +138,5 @@ A team climbs capability tiers — drive-only → fused localization → feasibi
 `Twist`-in / `Odometry`-out component with four `JointState` pairs underneath — the shape a
 `ros2_control` swerve controller takes (cf. `diff_drive_controller`; swerve controllers exist as
 third-party packages) ([ch. 31](31-ros-bridge-portability.md)). With the leaf and
-mid-level blocks in hand, the next chapter recovers the two higher seams as blocks:
+mid-level components in hand, the next chapter recovers the two higher seams as components:
 [`RobotState` and `Superstructure`](28-robotstate-superstructure-blocks.md).

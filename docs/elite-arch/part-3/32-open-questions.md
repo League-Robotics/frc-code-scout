@@ -12,18 +12,18 @@ model can be wired up and run by default.
 
 ## Two questions, decided
 
-**`Observations` is the children's `State` — not a fifth channel, and not `Command_in`.** The block
+**`Observations` is the children's `State` — not a fifth channel, and not `Command_in`.** The step
 signature is `update(Command_in, Observations)`, and the early drafts left the second argument
 undefined — the estimator row of the taxonomy exposed the tension, taking observations *in* while
 claiming an empty command channel. Decided, as [ch. 25](25-portable-component-model.md) now states: a
-block's `Observations` are its **children's (and designated peers') most recent `State`, collected by
+component's `Observations` are its **children's (and designated peers') most recent `State`, collected by
 the outer wiring layer** and passed as `update`'s second argument, with the tick timestamp riding
 along. They are not `Command_in` — observations are feedback from below, not intent from above — so
 the four-channel taxonomy survives without a fifth column, and the estimator stops being a special
 case: `RobotState`'s `Command_in` is genuinely empty, and everything it consumes is observation.
 
 **Execution order is state-up, then commands-down.** Each tick runs two passes: first a bottom-up
-**state pass** — leaves read hardware, and every block's fresh `State` propagates upward — then a
+**state pass** — leaves read hardware, and every component's fresh `State` propagates upward — then a
 top-down **command pass**, executive to motors, computed against this tick's states. This is Part I's
 read → log → decide → actuate loop expressed over the tree: observe first, then act. (Running the
 command pass first would decide on *last* tick's states — exactly the one-tick lag the order exists to
@@ -32,11 +32,11 @@ avoid.)
 ## Load-bearing open questions
 
 **One generic scheduler, or hand-wired composition?** `Command_out` is an array; which child gets which
-command? A generic outer loop that topologically sorts blocks and routes `Command_out → Command_in` is
+command? A generic outer loop that topologically sorts components and routes `Command_out → Command_in` is
 possible and very ROS-like, but for FRC scale the recommended path is **explicit hand-wired composition
 in `RobotContainer`** — clearer, debuggable, and consistent with "drop the transport"
 ([ch. 31](31-ros-bridge-portability.md)). The more useful artifact than a generic scheduler is a *wiring
-validator*: a helper that checks every block's `Command_out` has a consumer and every `Command_in` has
+validator*: a helper that checks every component's `Command_out` has a consumer and every `Command_in` has
 a producer.
 
 **Threading.** The signal-synced odometry thread ([ch. 27](27-portable-swerve-interface.md)) samples
@@ -53,8 +53,8 @@ while the superstructure is halfway through a legal transition. That adapter is 
 
 ## Two structural gaps
 
-**`RobotState` sits outside the command tree.** "The robot is a tree of blocks" is strictly true only
-of intent, which descends a hierarchy. `RobotState` obeys the block contract but not the tree wiring:
+**`RobotState` sits outside the command tree.** "The robot is a tree of components" is strictly true only
+of intent, which descends a hierarchy. `RobotState` presents the faceplate but not the tree wiring:
 drive and vision feed it, half the robot reads it, and no command edge touches it
 ([ch. 28](28-robotstate-superstructure-blocks.md)). The resolution is to let the two graphs be
 different shapes — intent descends a tree; estimates fan out through a hub, forming a DAG — and make
@@ -96,7 +96,7 @@ may require a `disable → reconfigure → enable` lifecycle transition.
 
 Two more questions sit beneath these, both about how the model meets WPILib in practice. A team adopting
 it either *replaces* WPILib's `CommandScheduler` with a custom executor (high ceremony, fighting the
-framework) or *wraps* each block in a WPILib `Subsystem` whose `periodic()` delegates to `update()`,
+framework) or *wraps* each component in a WPILib `Subsystem` whose `periodic()` delegates to `update()`,
 with the wiring in `RobotContainer.periodic()`. The pragmatic endorsement is the **wrap**: it keeps the
 pure-function contract intact while working *with* WPILib, and it is the path the elevator example of
 [ch. 25](25-portable-component-model.md) already sketches. Separately, the swerve spec surfaces the

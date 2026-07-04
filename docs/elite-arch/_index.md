@@ -248,34 +248,35 @@ build to that contract deliberately. States the thesis, the scope, and what "por
 *Sources: `specs/portable-component-model.md` (§0–§1), `build-spec/elite-architecture.md`,
 `corpus-analysis/06-lessons-from-broader-robotics.md`.*
 
-### 25. The Portable Component Model — the `Block`
+### 25. The Portable Component Model — the faceplate
 The core of the proposal. Every active thing — motor, sensor, subsystem, `RobotState`,
 superstructure — is a **configured transfer function with memory**: `Config` once, then
-`(State′, Command_out[]) = update(Command_in, Observations)` each tick. Four serializable PODs and
-one pure step. The non-obvious payoff: **which channels a block fills *is* its type** (the
-fill-pattern taxonomy). Emission is a return value, not a side effect; it's a discipline, not a base
-class; it's the in-process ROS 2 node. Recommends the name `Block`.
+`(State′, Command_out[]) = update(Command_in, Observations)` each tick. Every component presents the
+same **faceplate** — four serializable PODs and one pure step. The non-obvious payoff: **which
+channels a component fills *is* its type** (the fill-pattern taxonomy). Emission is a return value,
+not a side effect; it's a discipline, not a base class; it's the in-process ROS 2 node. Names the
+shape *faceplate* — a prose term, never a type.
 *Sources: `specs/portable-component-model.md` (the whole spec).*
 
 ## J. The instances
 
-### 26. The portable motor interface — the leaf block
-The Block contract specialized to a leaf actuator: two serializable PODs (`Command`/`MotorState`,
+### 26. The portable motor interface — the leaf component
+The faceplate contract specialized to a leaf actuator: two serializable PODs (`Command`/`MotorState`,
 named `u`/`x`), nullable payloads, `oneof` control modes, capability tiers, REP-103 units, and a
 proto3 source-of-truth with a generated ROS bridge. Contrasted with the corpus survey of how other
 teams talk to motors (ch. 17) so the design choices are visible as choices.
 *Sources: `specs/portable-motor-interface.md`, `corpus-analysis/05-motor-io-interfaces.md`.*
 
-### 27. The portable swerve interface — the mid-level block
-A drive subsystem as a block whose children are four module blocks, each two motor blocks. The
+### 27. The portable swerve interface — the mid-level component
+A drive subsystem as a component whose children are four module components, each two motors. The
 five-layer model (WPILib math → `ModuleIO`/`GyroIO` seam → module logic → drive + setpoint generator
 → `SwerveRequest` vocabulary): "AdvantageKit's seam + CTRE's vocabulary on WPILib's math." Shows
-seam-granularity as literally *where you draw a block boundary*.
+seam-granularity as literally *where you draw a component boundary*.
 *Sources: `specs/portable-swerve-interface.md`, `corpus-analysis/08-drivetrain-as-architecture.md`.*
 
-### 28. `RobotState` and `Superstructure` as blocks
+### 28. `RobotState` and `Superstructure` as components
 The two higher seams recovered as instances: `RobotState` is "a sensor that fuses" (an observer);
-the superstructure is a block whose `Command_out` feeds subsystems instead of motors. Why a subsystem
+the superstructure is a component whose `Command_out` feeds subsystems instead of motors. Why a subsystem
 and an executive are the *same kind*, why `State` splits into estimate + status above the leaf, and
 why every level is named `…State`.
 *Sources: `specs/portable-component-model.md` (§3, §5, §10),
@@ -284,9 +285,9 @@ why every level is named `…State`.
 ## K. The dividends and portability
 
 ### 29. Telemetry, replay, and tests — the dividends, at every scale
-What four loggable PODs per block buy: snapshot every block's channels each tick and you have
+What four loggable PODs per component buy: snapshot every component's channels each tick and you have
 AdvantageKit-grade replay and telemetry for the *entire robot at every altitude*, not just motors; a
-pure `update` makes every block unit-testable by replaying recorded inputs. The Elite inputs-struct
+pure `update` makes every component unit-testable by replaying recorded inputs. The Elite inputs-struct
 idea (ch. 3 and 16) generalized from leaves to executives.
 *Sources: `specs/portable-component-model.md` (§2, §4), `build-spec/logging.md`,
 `build-spec/testing.md`, `build-spec/simulation.md`.*
@@ -294,13 +295,13 @@ idea (ch. 3 and 16) generalized from leaves to executives.
 ### 30. Lifecycle and graceful degradation
 Baking in the discipline FRC most conspicuously skips (see Lessons from Outside). A real component has a ROS-style
 managed lifecycle; health is a field in `State.status`, not an exception; and the `*IONull`
-null-object *is* the block in its `fault` state. Degradation becomes a lifecycle transition of the
+null-object *is* the component in its `fault` state. Degradation becomes a lifecycle transition of the
 standard shape rather than a special case bolted on.
 *Sources: `specs/portable-component-model.md` (§7),
 `corpus-analysis/06-lessons-from-broader-robotics.md` (§5), `alternatives/02-physical-plant-simulation.md`.*
 
 ### 31. The ROS bridge and language portability
-The proof the factoring is right: a block maps to a ROS 2 node with no impedance mismatch
+The proof the factoring is right: the faceplate maps to a ROS 2 node with no impedance mismatch
 (Config↔parameters, Command_in↔topic/goal, State↔topic + feedback, Command_out↔published topics,
 `update`↔spin). "Keep the message semantics, drop the message transport" — in-process typed calls on
 the RIO; a real message only on the one inter-process edge (RIO ↔ coprocessor). The proto3
@@ -355,8 +356,8 @@ can still carry a four-year zero.* *Source: `examples/patribots-four-year-scorin
   results, and the foundation-first build order. *Sources: `examples/methodology.md`, `rubric/rubric.md`,
   `corpus-analysis/04-novice-to-elite-progression.md`, `survey/sd-frc-final-report.md`,
   `build-spec/elite-architecture.md`.*
-- **Appendix B — Glossary and naming decisions.** Block, seam, IO line, `u`/`x`, estimate vs status,
-  and why `Block` over `Component`/`Node`/`Unit`/`Module`. *Sources:
+- **Appendix B — Glossary and naming decisions.** Faceplate, component, seam, IO line, `u`/`x`,
+  estimate vs status, and why *faceplate* replaced the earlier working name *block*. *Sources:
   `specs/portable-component-model.md` (§12), `corpus-analysis/03-io-layer-strategy-pattern.md`.*
 - **Appendix C — Source-document crosswalk.** A table mapping every `knowledge/` file to the
   chapter(s) that absorb it, so nothing in the corpus is orphaned by the rewrite.

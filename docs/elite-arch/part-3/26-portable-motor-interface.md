@@ -1,9 +1,9 @@
 ---
-title: 26. The portable motor interface — the leaf block
+title: 26. The portable motor interface — the leaf component
 weight: 26
 ---
-The motor is the leaf of the block tree: a `Block` with `Config` (CAN id, gains), `Command` (u),
-`MotorState` (x), and **no** outgoing-command channel. It is where the model touches metal, so it is
+The motor is the leaf of the component tree: its faceplate carries `Config` (CAN id, gains),
+`Command` (u), `MotorState` (x), and **no** outgoing-command channel. It is where the model touches metal, so it is
 where the model is worked all the way down to a schema. Part II surveyed the six `MotorIO` shapes the
 corpus actually uses ([ch. 17](../part-2/17-motor-interfaces.md)); this chapter takes the durable ideas
 in them and recasts them as **two serializable data objects plus a capability-tiered port**, defined
@@ -116,11 +116,11 @@ not an RPC service; `apply`/`read` are in-process calls, and ROS is reached by t
 making this a gRPC endpoint. This is the [capability-typed-devices pattern](../part-1/08-alternatives.md)
 — interfaces named by capability, not vendor — reconciled with a single message schema.
 
-Where the purity boundary sits deserves one explicit paragraph, because the block's `update` never
-touches this port. The `…IO` adapter — the object that owns the vendor handle — is the **impure
+Where the purity boundary sits deserves one explicit paragraph, because the component's `update`
+never touches this port. The `…IO` adapter — the object that owns the vendor handle — is the **impure
 shell**: its `read()` samples hardware into a `MotorState`, its `apply(Command)` pushes a command out
 to metal. The wiring layer calls `read() → update() → apply()` each tick, in that order, and
-everything between the two IO calls is pure ([ch. 25](25-portable-component-model.md)). The block
+everything between the two IO calls is pure ([ch. 25](25-portable-component-model.md)). The component
 computes; the shell touches the world.
 
 ## Units and nullability, settled by codegen
@@ -157,5 +157,5 @@ mechanical field map, not hand-tuned logic, and it needs exactly two conventions
 Commands cross from ROS too, and they are safe by construction: an arriving `Command` is validated
 against `capabilities()` — a `POSITION` command to a PWM-only motor is rejected or clamped, exactly as
 `ros2_control` refuses to write an interface a hardware component never exported. The leaf is now a
-clean block. The next chapter composes four pairs of these into a drivetrain:
+clean component. The next chapter composes four pairs of these into a drivetrain:
 [the portable swerve interface](27-portable-swerve-interface.md).

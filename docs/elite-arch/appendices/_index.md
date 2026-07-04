@@ -11,14 +11,14 @@ interrupting it.*
 - **Appendix A** — [How We Developed This](how-we-developed-this/) — the method behind Parts I and IV: how the
   corpus was read, the eight-dimension rubric, the maturity ladder, what the architecture predicts, and
   the foundation-first build order.
-- **Appendix B** — [Glossary & naming decisions](glossary.md) — Block, seam, IO line, `u`/`x`, estimate
-  vs status, and the naming rationale.
+- **Appendix B** — [Glossary & naming decisions](glossary.md) — faceplate, component, seam, IO line,
+  `u`/`x`, estimate vs status, and the naming rationale.
 - **Appendix C** — [Source-document crosswalk](source-crosswalk.md) — every `knowledge/` source mapped
   to the chapter(s) that absorb it, so nothing is orphaned.
 - **Appendix D** — [Reviewing for the seams](reviewing-for-the-seams.md) — the architecture-first code
   review checklist: the five invariants, S0–S3 severity, and principles P1–P10.
-- **Appendix E** — [The minimal worked example](minimal-worked-example.md) — the four-part block
-  contract stacked three altitudes high in the smallest robot that has all the layers: two drive
+- **Appendix E** — [The minimal worked example](minimal-worked-example.md) — the four-channel
+  faceplate stacked three altitudes high in the smallest robot that has all the layers: two drive
   motors, a color sensor, and a planner that stops on the line.
 
 - **Lessons from Outside** — [what the broader robotics world treats as table
