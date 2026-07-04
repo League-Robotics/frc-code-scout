@@ -11,7 +11,7 @@ by matching .Page.File.Path + .Ordinal to the filename pattern.
 import subprocess, sys, hashlib, re
 from pathlib import Path
 
-REPO = Path("/Volumes/Proj/proj/RobotProjects/frc-code-scout")
+REPO = Path(__file__).resolve().parent.parent
 SRC_MD = REPO / "docs/elite-arch"
 SRC_D2 = SRC_MD / "diagrams"
 DST = REPO / "site/static/diagrams"
