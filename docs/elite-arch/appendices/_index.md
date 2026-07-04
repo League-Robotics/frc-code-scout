@@ -17,6 +17,9 @@ interrupting it.*
   to the chapter(s) that absorb it, so nothing is orphaned.
 - **Appendix D** — [Reviewing for the seams](reviewing-for-the-seams.md) — the architecture-first code
   review checklist: the five invariants, S0–S3 severity, and principles P1–P10.
+- **Appendix E** — [The minimal worked example](minimal-worked-example.md) — the four-part block
+  contract stacked three altitudes high in the smallest robot that has all the layers: two drive
+  motors, a color sensor, and a planner that stops on the line.
 
 - **Lessons from Outside** — [what the broader robotics world treats as table
   stakes](lessons-from-outside/), and what FRC mostly skips — including the generators chapter.
