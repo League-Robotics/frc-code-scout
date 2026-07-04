@@ -1,0 +1,1 @@
+/Volumes/Proj/proj/RobotProjects/frc-code-scout/.agents/skills/project-initiation/SKILL.md
