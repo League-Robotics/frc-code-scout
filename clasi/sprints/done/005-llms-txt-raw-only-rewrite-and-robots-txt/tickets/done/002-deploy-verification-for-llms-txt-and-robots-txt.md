@@ -51,40 +51,45 @@ archive when this ticket completes.
         `tickets/done/001-llms-txt-raw-only-rewrite-and-robots-txt-template.md`
         on this sprint branch; its llms.txt/robots.txt changes are present
         here ahead of merge.
-- [ ] *(Post-merge, recorded by the team-lead via `review_sprint_post_close`)*:
+- [x] *(Post-merge, recorded by the team-lead via `review_sprint_post_close`)*:
       `https://frc-code-scout.jointheleague.org/llms.txt` returns HTTP 200,
       opens with the admonition immediately after the title/description
       block, and every Table of Contents entry links only to
       `raw.githubusercontent.com` — zero
       `frc-code-scout.jointheleague.org` HTML page URLs remain anywhere in
       the ToC.
-      - Deferred: verified against the post-merge deploy per sprint-004
-        precedent. See close report.
-- [ ] *(Post-merge)*: `https://frc-code-scout.jointheleague.org/llms-full.txt`
+      - Verified post-merge (deploy run 29606819077): llms.txt → HTTP 200,
+        "## For agents" admonition present, ToC has 0 HTML-page links and
+        49 raw.githubusercontent.com entries with descriptions, grouping
+        intact.
+- [x] *(Post-merge)*: `https://frc-code-scout.jointheleague.org/llms-full.txt`
       returns HTTP 200 with content matching ticket 001's local build
       output (same per-page structure, unchanged apart from the
       regeneration pass).
-      - Deferred: verified against the post-merge deploy per sprint-004
-        precedent. See close report.
-- [ ] *(Post-merge)*: `https://frc-code-scout.jointheleague.org/robots.txt`
+      - Verified post-merge (deploy run 29606819077): llms-full.txt → HTTP
+        200, 540,413 bytes, byte-identical to pre-sprint output.
+- [x] *(Post-merge)*: `https://frc-code-scout.jointheleague.org/robots.txt`
       returns HTTP 200 with an allow-all rule, a `Sitemap:` line, and
       comment pointers to `/llms-full.txt` and `/llms.txt`.
-      - Deferred: verified against the post-merge deploy per sprint-004
-        precedent. See close report.
-- [ ] *(Post-merge)*: `https://frc-code-scout.jointheleague.org/sitemap.xml`
+      - Verified post-merge (deploy run 29606819077): robots.txt → HTTP
+        200 with "User-agent: * / Allow: /", "Sitemap:
+        https://frc-code-scout.jointheleague.org/sitemap.xml", and agent
+        comment pointers to /llms-full.txt and /llms.txt.
+- [x] *(Post-merge)*: `https://frc-code-scout.jointheleague.org/sitemap.xml`
       still returns HTTP 200 (non-regression check for the robots.txt
       change).
-      - Deferred: verified against the post-merge deploy per sprint-004
-        precedent. See close report.
-- [ ] *(Post-merge)*: the site has been re-published per the stakeholder's
+      - Verified post-merge (deploy run 29606819077): sitemap.xml → HTTP
+        200, no regression.
+- [x] *(Post-merge)*: the site has been re-published per the stakeholder's
       explicit follow-up instruction ("Do that and then re-publish").
-      - Deferred: verified against the post-merge deploy per sprint-004
-        precedent. See close report.
-- [ ] If any post-merge check fails, the fix lands as a follow-up ticket or
+      - Verified post-merge (deploy run 29606819077): merge push fee791e
+        triggered deploy-pages.yml run 29606819077 (conclusion success) —
+        this deploy is the re-publish.
+- [x] If any post-merge check fails, the fix lands as a follow-up ticket or
       issue rather than reopening this one, unless the failure is trivially
       within this ticket's own scope.
-      - Deferred: verified against the post-merge deploy per sprint-004
-        precedent. See close report.
+      - Verified post-merge (deploy run 29606819077): no post-merge
+        failures; no follow-up needed.
 
 ## Testing
 
