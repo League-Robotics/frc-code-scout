@@ -1,6 +1,6 @@
 [project]
 name = "frc-code-scout"
-version = "0.20260717.5"
+version = "0.20260717.6"
 description = "Build a multi-year FRC team code corpus (commit-history + suppressed source) and a Statbotics EPA dataset"
 readme = "README.md"
 requires-python = ">=3.13"
