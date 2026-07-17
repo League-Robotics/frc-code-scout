@@ -104,17 +104,19 @@ stakeholder (via the team-lead) and stop.
         path preserved); robots.jointheleague.org/frc-code-scout/part-1/01-baseline-and-shape/
         301s to the same path on the new domain (HTTP 200). Hub links keep
         working.
-- [ ] *(Post-merge)*: HTTPS is enforced
+- [x] *(Post-merge)*: HTTPS is enforced
       (`gh api repos/League-Robotics/frc-code-scout/pages` shows
       `https_enforced: true`, or the Settings UI confirms it) once GitHub
       has issued the certificate. If the cert hasn't issued yet at
       verification time (can lag DNS by minutes to an hour), record this
       explicitly as pending rather than marking the criterion done, and
       re-check once it lands.
-      - Pending: GitHub Pages certificate still provisioning as of
-        2026-07-17 18:05 UTC; DNS + domain verified, enforcement will be
-        enabled when the cert issues (monitor active). Serving over HTTP
-        200 meanwhile.
+      - Verified 2026-07-17 ~18:04 UTC: certificate reached "approved"
+        (~18:02); `https_enforced=true` applied and confirmed via `gh
+        api`; llms.txt, llms-full.txt (540,413 b), and the homepage all
+        serve HTTP 200 over TLS on the new domain, http:// redirects to
+        https://, and both old-URL chains land HTTP 200 at the new https
+        domain.
 
 ## Testing
 
