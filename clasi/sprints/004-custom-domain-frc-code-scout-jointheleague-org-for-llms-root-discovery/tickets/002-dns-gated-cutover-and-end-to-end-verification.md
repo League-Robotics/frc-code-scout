@@ -1,7 +1,7 @@
 ---
 id: '002'
 title: DNS-gated cutover and end-to-end verification
-status: open
+status: done
 use-cases:
 - SUC-006
 depends-on:
@@ -46,37 +46,57 @@ stakeholder (via the team-lead) and stop.
 
 ## Acceptance Criteria
 
-- [ ] **Gate (must pass before anything else in this ticket)**: `dig` or
+- [x] **Gate (must pass before anything else in this ticket)**: `dig` or
       `host` for `frc-code-scout.jointheleague.org` resolves to
       `league-robotics.github.io` (a CNAME record, per the issue). If it
       does not resolve, or resolves to something unexpected, this ticket
       blocks here — do not proceed to the next criterion. Report to the
       stakeholder via the team-lead instead of retrying speculatively or
       setting the Pages domain anyway.
-- [ ] Ticket 001 confirmed merged (or its changes present on the sprint
+      - Verified 2026-07-17T17:5x UTC: `dig +short
+        frc-code-scout.jointheleague.org CNAME` returns
+        `league-robotics.github.io.`; A records resolve to GitHub Pages IPs
+        (185.199.108-111.153 range). Gate passed.
+- [x] Ticket 001 confirmed merged (or its changes present on the sprint
       branch about to be merged) before proceeding.
-- [ ] GitHub Pages custom domain set:
+      - Verified: ticket 001 has `status: done` and lives in
+        `tickets/done/001-repo-side-url-migration-baseurl-llms-regeneration.md`
+        on this sprint branch; its baseURL/llms changes are present here
+        ahead of merge.
+- [x] GitHub Pages custom domain set:
       `gh api -X PUT repos/League-Robotics/frc-code-scout/pages -f
       cname=frc-code-scout.jointheleague.org` succeeds (or the stakeholder
       has already set it via Settings → Pages → Custom domain — check
       current state with `gh api repos/League-Robotics/frc-code-scout/pages`
       before assuming it needs setting).
+      - Verified: `gh api repos/League-Robotics/frc-code-scout/pages` shows
+        `build_type: "workflow"` and `cname:
+        "frc-code-scout.jointheleague.org"` already set by the
+        stakeholder — the PUT step was not needed. `https_enforced: false`
+        (certificate still provisioning; tracked in the HTTPS criterion
+        below).
 - [ ] *(Post-merge, recorded by the team-lead via `review_sprint_post_close`
       — the merge itself happens in `close-sprint`, not in this ticket)*:
       `https://frc-code-scout.jointheleague.org/llms.txt` and
       `/llms-full.txt` return HTTP 200 at the domain root with content
       matching ticket 001's local build output.
+      - Deferred: verified against the post-merge deploy; HTTPS
+        enforcement pending GitHub certificate issuance. See close report.
 - [ ] *(Post-merge)*: the deployed homepage
       (`https://frc-code-scout.jointheleague.org/`) shows the sprint
       002 agent banner pointing at `llms-full.txt`, and at least one other
       page shows the sidebar-footer pointer — both now resolving on the new
       domain.
+      - Deferred: verified against the post-merge deploy; HTTPS
+        enforcement pending GitHub certificate issuance. See close report.
 - [ ] *(Post-merge)*: old `league-robotics.github.io/frc-code-scout/*` URLs
       (e.g. `.../llms-full.txt`, the homepage) redirect (301/302) to the
       corresponding `frc-code-scout.jointheleague.org` URL, so the
       docs-hub entry (which chains through
       `robots.jointheleague.org/frc-code-scout/` → the github.io URL as of
       today) keeps working without its own edit.
+      - Deferred: verified against the post-merge deploy; HTTPS
+        enforcement pending GitHub certificate issuance. See close report.
 - [ ] *(Post-merge)*: HTTPS is enforced
       (`gh api repos/League-Robotics/frc-code-scout/pages` shows
       `https_enforced: true`, or the Settings UI confirms it) once GitHub
@@ -84,6 +104,8 @@ stakeholder (via the team-lead) and stop.
       verification time (can lag DNS by minutes to an hour), record this
       explicitly as pending rather than marking the criterion done, and
       re-check once it lands.
+      - Deferred: verified against the post-merge deploy; HTTPS
+        enforcement pending GitHub certificate issuance. See close report.
 
 ## Testing
 
