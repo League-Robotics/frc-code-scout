@@ -155,6 +155,16 @@ the **vector and the profile shape**, not just the sum — see the rubric's "com
 shapes" section. D4 (testing) is the rarest, most discriminating marker; most teams
 score 0.
 
+## Publishing to the League docs hub
+
+`docs/wiki/` is the source of truth for this repo's entry on the League Robotics
+docs hub (robots.jointheleague.org). Each page needs `title` and `blurb`
+frontmatter; `docs/wiki/_subsystem.yml` carries the hub metadata (`name`, `title`,
+`blurb`). Pushes touching `docs/wiki/**` on `master` trigger
+`.github/workflows/notify-docs-hub.yml`, which pings the hub to rebuild. See
+<https://robots.jointheleague.org/publishing/> for the authoritative publishing
+instructions.
+
 <!-- CLASI:START -->
 # CLASI Software Engineering Process
 
