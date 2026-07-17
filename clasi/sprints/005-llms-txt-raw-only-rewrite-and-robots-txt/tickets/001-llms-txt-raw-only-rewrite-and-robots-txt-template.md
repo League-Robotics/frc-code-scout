@@ -1,7 +1,7 @@
 ---
 id: '001'
 title: llms.txt raw-only rewrite and robots.txt template
-status: in-progress
+status: done
 use-cases:
 - SUC-007
 - SUC-008
@@ -61,7 +61,7 @@ completes the issues, following sprint 004's ticket 001/002 split precedent.
 
 **llms.txt rewrite:**
 
-- [ ] A strong, agent-directed admonition appears in `llms.txt` immediately
+- [x] A strong, agent-directed admonition appears in `llms.txt` immediately
       after the title/description block — before, or combined with, the
       existing `**Everything in one file:** [...llms-full.txt]` pointer
       line. Phrase it as a direct instruction to agents (per the
@@ -70,48 +70,48 @@ completes the issues, following sprint 004's ticket 001/002 split precedent.
       (everything in one fetch) or the per-chapter raw markdown links below,
       not the HTML web pages, since the markdown files already contain the
       full content of every page.
-- [ ] Every Table of Contents entry is rewritten from
+- [x] Every Table of Contents entry is rewritten from
       `- [title](published-url) ([raw](raw-url)): description` to
       `- [title](raw-url): description` — the raw GitHub markdown URL
       becomes the entry's only link; no published-site URL and no separate
       `(raw)` suffix remain anywhere in `llms.txt`.
-- [ ] Descriptions and part/section (`##`/`###`) heading grouping are
+- [x] Descriptions and part/section (`##`/`###`) heading grouping are
       unchanged from current output — only the per-entry link format and the
       new admonition change.
-- [ ] `llms-full.txt`'s structure is unchanged apart from the regeneration
+- [x] `llms-full.txt`'s structure is unchanged apart from the regeneration
       pass itself: same `# {title}` + canonical published-URL header + raw
       body per page, same `PAGE_DIVIDER`, same book order. Spot-check a
       regenerated copy against the current `site/static/llms-full.txt` to
       confirm no unintended drift.
-- [ ] `python3 scripts/generate_llms_full.py` run standalone regenerates
+- [x] `python3 scripts/generate_llms_full.py` run standalone regenerates
       `site/static/llms.txt` and `site/static/llms-full.txt` with the above
       changes.
 
 **robots.txt:**
 
-- [ ] `site/hugo.toml` sets `enableRobotsTXT = true`.
-- [ ] New `site/layouts/robots.txt` template exists and renders:
+- [x] `site/hugo.toml` sets `enableRobotsTXT = true`.
+- [x] New `site/layouts/robots.txt` template exists and renders:
       `User-agent: *` / `Allow: /`; a `Sitemap:` line pointing at the site's
       generated `sitemap.xml`; comment lines telling agents the whole site
       is available at `/llms-full.txt` (index at `/llms.txt`).
-- [ ] The domain in the rendered output comes only from
+- [x] The domain in the rendered output comes only from
       `{{ .Site.BaseURL }}` (or equivalent Hugo templating) — never a second
       hardcoded literal, matching the rule `generate_llms_full.py` already
       follows for `hugo.toml`'s `baseURL`.
-- [ ] Confirmed (re-verified at execution time, not just from planning) that
+- [x] Confirmed (re-verified at execution time, not just from planning) that
       `site/themes/hugo-theme-voidmain` has no competing `robots.txt` layout
       that would shadow the new project-level template.
 
 **Local build verification (both changes):**
 
-- [ ] `hugo --minify --source site` builds cleanly with no new errors or
+- [x] `hugo --minify --source site` builds cleanly with no new errors or
       warnings.
-- [ ] `site/public/llms.txt` reflects the rewritten format and admonition;
+- [x] `site/public/llms.txt` reflects the rewritten format and admonition;
       `site/public/llms-full.txt` is unchanged in structure.
-- [ ] `site/public/robots.txt` exists and matches the expected content.
-- [ ] `site/public/sitemap.xml` still builds (non-regression check — this
+- [x] `site/public/robots.txt` exists and matches the expected content.
+- [x] `site/public/sitemap.xml` still builds (non-regression check — this
       ticket must not disturb Hugo's existing sitemap generation).
-- [ ] Changes committed on the sprint branch; no files touched outside
+- [x] Changes committed on the sprint branch; no files touched outside
       `scripts/generate_llms_full.py`, `site/static/llms.txt`,
       `site/static/llms-full.txt`, `site/hugo.toml`, and the new
       `site/layouts/robots.txt`.

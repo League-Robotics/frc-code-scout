@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Sitemap: {{ "sitemap.xml" | absURL }}
+
+# Agents: the entire site's content is available as raw Markdown, one file,
+# no HTML navigation chrome — fetch it instead of crawling these pages.
+# Everything in one request: {{ "llms-full.txt" | absURL }}
+# Index / table of contents:  {{ "llms.txt" | absURL }}
