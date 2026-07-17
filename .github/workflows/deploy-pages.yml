@@ -32,6 +32,9 @@ jobs:
       - name: Render D2 diagrams
         run: python3 scripts/render_diagrams.py
 
+      - name: Generate llms-full.txt and llms.txt
+        run: python3 scripts/generate_llms_full.py
+
       - name: Build Hugo
         run: hugo --minify --source site
 

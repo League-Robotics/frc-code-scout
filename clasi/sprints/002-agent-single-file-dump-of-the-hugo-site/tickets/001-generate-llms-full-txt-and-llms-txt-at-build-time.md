@@ -1,7 +1,7 @@
 ---
 id: '001'
 title: Generate llms-full.txt and llms.txt at build time
-status: in-progress
+status: done
 use-cases:
 - SUC-003
 - SUC-004
@@ -45,22 +45,22 @@ description-derivation rule, and the link-target decision — is in
 
 ## Acceptance Criteria
 
-- [ ] `scripts/generate_llms_full.py` exists, is stdlib-only (no new
+- [x] `scripts/generate_llms_full.py` exists, is stdlib-only (no new
       `pyproject.toml` dependency — no `yaml` import), and runs standalone:
       `python3 scripts/generate_llms_full.py`.
-- [ ] Running it writes `site/static/llms-full.txt` containing every `.md`
+- [x] Running it writes `site/static/llms-full.txt` containing every `.md`
       file under `docs/elite-arch/` (including nested subsections, e.g.
       `appendices/how-we-developed-this/*`,
       `appendices/lessons-from-outside/*`), each entry prefixed with a
       header carrying the page's `title` and its canonical published-site
       URL (`baseURL` + relative path + trailing slash).
-- [ ] Pages appear in **full recursive book order**: top-level sections
+- [x] Pages appear in **full recursive book order**: top-level sections
       sorted by frontmatter `weight`, and within each section, pages and
       nested subsections sorted by `weight` and recursed into in that
       order — not just the two-level depth the existing sidebar nav in
       `baseof.html` walks (that logic misses pages nested under
       subsections and must not be copied as-is).
-- [ ] Running it also writes `site/static/llms.txt` containing, in order:
+- [x] Running it also writes `site/static/llms.txt` containing, in order:
       (a) site title + description sourced from `site/hugo.toml`
       (`title`, `params.description`); (b) a prominently placed link to
       `/llms-full.txt` labeled clearly (e.g. "everything in one file"),
@@ -68,28 +68,28 @@ description-derivation rule, and the link-target decision — is in
       contents below that, grouped under part/section headings matching
       book order (nested subsections get their own sub-heading), one entry
       per page.
-- [ ] Each `llms.txt` page entry has: a link to the page's published-site
+- [x] Each `llms.txt` page entry has: a link to the page's published-site
       URL, a secondary `(raw)` link to
       `https://raw.githubusercontent.com/<owner>/<repo>/master/docs/elite-arch/<relpath>`,
       and a one-line description.
-- [ ] Each entry's description uses frontmatter `description` if the page
+- [x] Each entry's description uses frontmatter `description` if the page
       has one, otherwise is derived from the page's first non-blank,
       non-heading prose paragraph: Markdown emphasis/link syntax stripped
       to plain text, whitespace collapsed, truncated to roughly 160
       characters at a word boundary with a trailing `…` if truncated.
-- [ ] The owner/repo (for raw GitHub URLs) and `baseURL` (for published
+- [x] The owner/repo (for raw GitHub URLs) and `baseURL` (for published
       URLs) are both read out of `site/hugo.toml` (`params.repoUrl`,
       `baseURL`) via a small regex-based extractor — not hardcoded a
       second time anywhere in the script. The branch is hardcoded to
       `master` with a comment pointing at `deploy-pages.yml`'s
       `branches: [main, master]` trigger as the precedent.
-- [ ] Frontmatter is parsed with a small stdlib parser (split on the `---`
+- [x] Frontmatter is parsed with a small stdlib parser (split on the `---`
       delimiters, parse simple `key: value` lines) — no `pyyaml` or other
       new dependency added to `pyproject.toml`.
-- [ ] `.github/workflows/deploy-pages.yml` has a new step running
+- [x] `.github/workflows/deploy-pages.yml` has a new step running
       `python3 scripts/generate_llms_full.py`, positioned after checkout
       and before the "Build Hugo" step.
-- [ ] After running `hugo --minify --source site` locally,
+- [x] After running `hugo --minify --source site` locally,
       `site/public/llms-full.txt` and `site/public/llms.txt` exist and
       match what the script wrote to `site/static/` (Hugo's verbatim
       static-file copy).
