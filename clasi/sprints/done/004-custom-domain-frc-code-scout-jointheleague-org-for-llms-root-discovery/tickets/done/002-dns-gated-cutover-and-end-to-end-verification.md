@@ -75,28 +75,35 @@ stakeholder (via the team-lead) and stop.
         stakeholder — the PUT step was not needed. `https_enforced: false`
         (certificate still provisioning; tracked in the HTTPS criterion
         below).
-- [ ] *(Post-merge, recorded by the team-lead via `review_sprint_post_close`
+- [x] *(Post-merge, recorded by the team-lead via `review_sprint_post_close`
       — the merge itself happens in `close-sprint`, not in this ticket)*:
       `https://frc-code-scout.jointheleague.org/llms.txt` and
       `/llms-full.txt` return HTTP 200 at the domain root with content
       matching ticket 001's local build output.
-      - Deferred: verified against the post-merge deploy; HTTPS
-        enforcement pending GitHub certificate issuance. See close report.
-- [ ] *(Post-merge)*: the deployed homepage
+      - Verified post-merge (deploy run 29602113839): llms.txt → HTTP 200,
+        20,124 bytes; llms-full.txt → HTTP 200, 540,413 bytes; both at the
+        domain root, content carries the new-domain links.
+- [x] *(Post-merge)*: the deployed homepage
       (`https://frc-code-scout.jointheleague.org/`) shows the sprint
       002 agent banner pointing at `llms-full.txt`, and at least one other
       page shows the sidebar-footer pointer — both now resolving on the new
       domain.
-      - Deferred: verified against the post-merge deploy; HTTPS
-        enforcement pending GitHub certificate issuance. See close report.
-- [ ] *(Post-merge)*: old `league-robotics.github.io/frc-code-scout/*` URLs
+      - Verified post-merge (deploy run 29602113839): deployed homepage
+        contains both the agent banner and the sidebar-footer "Agents:
+        llms-full.txt" link; the deployed part-1/01-baseline-and-shape/
+        page carries the footer pointer.
+- [x] *(Post-merge)*: old `league-robotics.github.io/frc-code-scout/*` URLs
       (e.g. `.../llms-full.txt`, the homepage) redirect (301/302) to the
       corresponding `frc-code-scout.jointheleague.org` URL, so the
       docs-hub entry (which chains through
       `robots.jointheleague.org/frc-code-scout/` → the github.io URL as of
       today) keeps working without its own edit.
-      - Deferred: verified against the post-merge deploy; HTTPS
-        enforcement pending GitHub certificate issuance. See close report.
+      - Verified post-merge (deploy run 29602113839): old-URL redirects
+        confirmed end to end — league-robotics.github.io/frc-code-scout/llms.txt
+        301-chains to frc-code-scout.jointheleague.org/llms.txt (HTTP 200,
+        path preserved); robots.jointheleague.org/frc-code-scout/part-1/01-baseline-and-shape/
+        301s to the same path on the new domain (HTTP 200). Hub links keep
+        working.
 - [ ] *(Post-merge)*: HTTPS is enforced
       (`gh api repos/League-Robotics/frc-code-scout/pages` shows
       `https_enforced: true`, or the Settings UI confirms it) once GitHub
@@ -104,8 +111,10 @@ stakeholder (via the team-lead) and stop.
       verification time (can lag DNS by minutes to an hour), record this
       explicitly as pending rather than marking the criterion done, and
       re-check once it lands.
-      - Deferred: verified against the post-merge deploy; HTTPS
-        enforcement pending GitHub certificate issuance. See close report.
+      - Pending: GitHub Pages certificate still provisioning as of
+        2026-07-17 18:05 UTC; DNS + domain verified, enforcement will be
+        enabled when the cert issues (monitor active). Serving over HTTP
+        200 meanwhile.
 
 ## Testing
 
