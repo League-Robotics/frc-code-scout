@@ -1,7 +1,7 @@
 ---
 id: '002'
 title: Deploy verification for llms.txt and robots.txt
-status: open
+status: done
 use-cases:
 - SUC-007
 - SUC-008
@@ -45,8 +45,12 @@ archive when this ticket completes.
 
 ## Acceptance Criteria
 
-- [ ] Ticket 001 confirmed merged (or its changes present on the sprint
+- [x] Ticket 001 confirmed merged (or its changes present on the sprint
       branch about to be merged) before proceeding.
+      - Verified: ticket 001 has `status: done` and lives in
+        `tickets/done/001-llms-txt-raw-only-rewrite-and-robots-txt-template.md`
+        on this sprint branch; its llms.txt/robots.txt changes are present
+        here ahead of merge.
 - [ ] *(Post-merge, recorded by the team-lead via `review_sprint_post_close`)*:
       `https://frc-code-scout.jointheleague.org/llms.txt` returns HTTP 200,
       opens with the admonition immediately after the title/description
@@ -54,21 +58,33 @@ archive when this ticket completes.
       `raw.githubusercontent.com` — zero
       `frc-code-scout.jointheleague.org` HTML page URLs remain anywhere in
       the ToC.
+      - Deferred: verified against the post-merge deploy per sprint-004
+        precedent. See close report.
 - [ ] *(Post-merge)*: `https://frc-code-scout.jointheleague.org/llms-full.txt`
       returns HTTP 200 with content matching ticket 001's local build
       output (same per-page structure, unchanged apart from the
       regeneration pass).
+      - Deferred: verified against the post-merge deploy per sprint-004
+        precedent. See close report.
 - [ ] *(Post-merge)*: `https://frc-code-scout.jointheleague.org/robots.txt`
       returns HTTP 200 with an allow-all rule, a `Sitemap:` line, and
       comment pointers to `/llms-full.txt` and `/llms.txt`.
+      - Deferred: verified against the post-merge deploy per sprint-004
+        precedent. See close report.
 - [ ] *(Post-merge)*: `https://frc-code-scout.jointheleague.org/sitemap.xml`
       still returns HTTP 200 (non-regression check for the robots.txt
       change).
+      - Deferred: verified against the post-merge deploy per sprint-004
+        precedent. See close report.
 - [ ] *(Post-merge)*: the site has been re-published per the stakeholder's
       explicit follow-up instruction ("Do that and then re-publish").
+      - Deferred: verified against the post-merge deploy per sprint-004
+        precedent. See close report.
 - [ ] If any post-merge check fails, the fix lands as a follow-up ticket or
       issue rather than reopening this one, unless the failure is trivially
       within this ticket's own scope.
+      - Deferred: verified against the post-merge deploy per sprint-004
+        precedent. See close report.
 
 ## Testing
 
