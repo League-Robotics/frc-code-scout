@@ -1,4 +1,4 @@
-baseURL = "https://league-robotics.github.io/frc-code-scout/"
+baseURL = "https://frc-code-scout.jointheleague.org/"
 title = "Elite & League Architectures"
 theme = "hugo-theme-voidmain"
 enableEmoji = true

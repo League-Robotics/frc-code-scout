@@ -1,6 +1,6 @@
 # The Elite & League Architectures
 
-https://league-robotics.github.io/frc-code-scout/
+https://frc-code-scout.jointheleague.org/
 
 # Inside Competition Robot Code — The Elite and League Architectures
 
@@ -409,7 +409,7 @@ architecture.
 
 # Part I — The Elite Architecture
 
-https://league-robotics.github.io/frc-code-scout/part-1/
+https://frc-code-scout.jointheleague.org/part-1/
 
 # Part I — The Elite Architecture
 
@@ -463,7 +463,7 @@ the architecture itself.
 
 # 1. The baseline and the shape
 
-https://league-robotics.github.io/frc-code-scout/part-1/01-baseline-and-shape/
+https://frc-code-scout.jointheleague.org/part-1/01-baseline-and-shape/
 
 Every WPILib team starts from the same place. The Elite Architecture is best understood not as a
 thing teams build from scratch but as a specific set of additions to that shared starting point — so
@@ -561,7 +561,7 @@ The next chapter draws the board: the architecture in five views.
 
 # 2. The architecture in five views
 
-https://league-robotics.github.io/frc-code-scout/part-1/02-five-views/
+https://frc-code-scout.jointheleague.org/part-1/02-five-views/
 
 No single drawing captures an architecture. A floor plan, a wiring diagram, and a description of how
 people move through a building are all true at once, and none of them is the others. Software is the
@@ -774,7 +774,7 @@ common; assembling the full set of seams is what separates the top tier. We star
 
 # 3. The IO seam — the spine
 
-https://league-robotics.github.io/frc-code-scout/part-1/03-the-io-seam/
+https://frc-code-scout.jointheleague.org/part-1/03-the-io-seam/
 
 The IO seam is the single most widely shared idea in serious FRC code. It appears in 24 of the 55
 season repos in the corpus index (44%) and is the default rather than the exception among the strong
@@ -872,7 +872,7 @@ seam](04-the-state-seam.md).
 
 # 4. The state seam — RobotState
 
-https://league-robotics.github.io/frc-code-scout/part-1/04-the-state-seam/
+https://frc-code-scout.jointheleague.org/part-1/04-the-state-seam/
 
 The second seam is a single object that owns the robot's best belief about the world — where it is on
 the field, and later its game-piece and mechanism state. Sensors *write* to it; decisions, pathing,
@@ -952,7 +952,7 @@ decides what to do with them: [the coordination seam](05-the-coordination-seam.m
 
 # 5. The coordination seam — the superstructure
 
-https://league-robotics.github.io/frc-code-scout/part-1/05-the-coordination-seam/
+https://frc-code-scout.jointheleague.org/part-1/05-the-coordination-seam/
 
 The third seam turns one robot-wide *goal* into a coordinated set of subsystem setpoints, through a
 single transition function that is allowed to *reorder or reject* a transition for safety. A button
@@ -1041,7 +1041,7 @@ others and earns its own treatment even in the overview: [the drivetrain](06-the
 
 # 6. The drivetrain — the special subsystem
 
-https://league-robotics.github.io/frc-code-scout/part-1/06-the-drivetrain/
+https://frc-code-scout.jointheleague.org/part-1/06-the-drivetrain/
 
 Ask "what is a drivetrain" and the easy answer is "the thing that makes the robot move." The corpus
 shows that undersells it. Every other subsystem is *either* an actuator (an arm moves) *or* a sensor
@@ -1129,7 +1129,7 @@ seams — [simulation, testing, and logging](07-cross-cutting-practices.md).
 
 # 7. Cross-cutting practices
 
-https://league-robotics.github.io/frc-code-scout/part-1/07-cross-cutting-practices/
+https://frc-code-scout.jointheleague.org/part-1/07-cross-cutting-practices/
 
 Three practices separate engineering culture from cargo cult, and all three are **dividends of the IO
 seam** ([ch. 3](03-the-io-seam.md)) rather than independent features. Build the seam and they become
@@ -1209,7 +1209,7 @@ their practices in hand, the last two chapters look outward, starting with the l
 
 # 8. Alternatives — legitimate deviations
 
-https://league-robotics.github.io/frc-code-scout/part-1/08-alternatives/
+https://frc-code-scout.jointheleague.org/part-1/08-alternatives/
 
 The Elite Architecture is opinionated on purpose — it teaches one foundation-first path so a team can
 grow without rewrites. That path is the *default*, not the *only* correct design. This chapter
@@ -1301,7 +1301,7 @@ that distinction in hand: [other advanced topics](09-other-advanced-topics.md).
 
 # 9. Other advanced topics
 
-https://league-robotics.github.io/frc-code-scout/part-1/09-other-advanced-topics/
+https://frc-code-scout.jointheleague.org/part-1/09-other-advanced-topics/
 
 Where [chapter 8](08-alternatives.md) cataloged the *alternatives* — different ways to build a seam,
 with the graph and tree forms taken apart in
@@ -1412,7 +1412,7 @@ Part I — the baseline, the views, the seams, the practices, the deviations, an
 
 # Part II — Anatomy of the Elite Architecture
 
-https://league-robotics.github.io/frc-code-scout/part-2/
+https://frc-code-scout.jointheleague.org/part-2/
 
 # Part II — Anatomy of the Elite Architecture
 
@@ -1466,7 +1466,7 @@ a seam and pointed here, this is the page it pointed to.
 
 # 15. The control path, end to end
 
-https://league-robotics.github.io/frc-code-scout/part-2/15-control-path/
+https://frc-code-scout.jointheleague.org/part-2/15-control-path/
 
 *This is the deep dive Part I deferred and the map for everything that follows in Part II. A button press or an autonomous routine becomes a robot-wide goal, becomes per-subsystem setpoints, becomes an IO call, becomes a motor voltage — and measured state flows back up the same structure to a single world model. Trace that path once and the rest of Part II is detail.*
 
@@ -1796,7 +1796,7 @@ Everything in Part II is a closer look at one stop on that path. The next chapte
 
 # 16. Hardware abstraction and the IO line
 
-https://league-robotics.github.io/frc-code-scout/part-2/16-hardware-abstraction/
+https://frc-code-scout.jointheleague.org/part-2/16-hardware-abstraction/
 
 *Part I argued that a subsystem should depend on a contract, not on a motor. This chapter shows the mechanics: the IO layer is the Strategy pattern, "IO layer" and "hardware abstraction" name two different axes, and a single diagnostic — which side of the line the control loop is on — classifies any interface you find.*
 
@@ -2155,7 +2155,7 @@ Next: [chapter 17 — motor interfaces](17-motor-interfaces.md), the layer benea
 
 # 17. Motor interfaces
 
-https://league-robotics.github.io/frc-code-scout/part-2/17-motor-interfaces/
+https://frc-code-scout.jointheleague.org/part-2/17-motor-interfaces/
 
 *Part I drew the IO seam at the subsystem: one `ElevatorIO` per mechanism, vendor types sealed inside the implementation. This chapter goes one level lower, to the device. It surveys how teams in the corpus actually talk to motors in code — the reusable `MotorIO` contracts six teams build, the design axes they disagree on, and the rarer idea of capability-typed devices where an interface is named for what it does, not the brand that does it. It is the prior art on which Part III will build a single portable motor interface.*
 
@@ -2718,7 +2718,7 @@ Next: [18. Subsystem archetypes](18-subsystem-archetypes.md)
 
 # 18. Subsystem archetypes
 
-https://league-robotics.github.io/frc-code-scout/part-2/18-subsystem-archetypes/
+https://frc-code-scout.jointheleague.org/part-2/18-subsystem-archetypes/
 
 *Part I motivated the IO quartet in the abstract; this chapter applies it per mechanism. Game mechanisms — elevator, arm, shooter, intake — collapse to a small set of control archetypes, and the archetype, not the game name, decides the IO contract, the WPILib sim model, and the test. This chapter walks the four actuating archetypes, each with its sim model, an abridged real example, the one control decision it forces, and the testability point it turns on.*
 
@@ -3318,7 +3318,7 @@ Next: [19. The drivetrain subsystem](19-the-drivetrain-subsystem.md) — the spe
 
 # 19. The drivetrain subsystem
 
-https://league-robotics.github.io/frc-code-scout/part-2/19-the-drivetrain-subsystem/
+https://frc-code-scout.jointheleague.org/part-2/19-the-drivetrain-subsystem/
 
 *The drivetrain is the one subsystem that breaks the single-IO rule. It is built from two interfaces (`ModuleIO` ×4 plus `GyroIO` ×1), a module is two control loops behind one contract, and it carries the only real math that belongs above the IO line. This chapter is the deep dive that [Part I, chapter 6](../part-1/06-the-drivetrain.md) deferred: where chapter 6 made the empirical case that the drivetrain is both an actuator and the robot's primary sensor, here we build it.*
 
@@ -3640,7 +3640,7 @@ The drivetrain owns the pose, but it does not own the *world*. Pose is one input
 
 # 20. The world model
 
-https://league-robotics.github.io/frc-code-scout/part-2/20-the-world-model/
+https://frc-code-scout.jointheleague.org/part-2/20-the-world-model/
 
 *Part I argued for centralizing the robot's pose estimate into one shared object; it deferred the mechanics. This chapter shows them: RobotState as a subsystem with no hardware, the two input streams it reconciles, the time-interpolating buffer that rewinds and replays them, and the unit test that makes it the easiest class on the robot to verify.*
 
@@ -3819,7 +3819,7 @@ The world model is where every other subsystem's output converges and where the 
 
 # 21. Vision systems
 
-https://league-robotics.github.io/frc-code-scout/part-2/21-vision-systems/
+https://frc-code-scout.jointheleague.org/part-2/21-vision-systems/
 
 *Vision is the subsystem that breaks the mold: no motor, no setpoint, no control loop. The IO is a pure sensor that produces observations, and the subsystem's only job is to hand them to the world model. This chapter follows the whole path — coprocessor to observation to `VisionIO` interface to `RobotState.addVisionMeasurement` — and shows where the trust gate sits, what the system produces, and who reads each output.*
 
@@ -4022,7 +4022,7 @@ NEXT: [22. Coordination — state machines](22-coordination-state-machines.md), 
 
 # 22. Coordination I — state machines and the superstructure
 
-https://league-robotics.github.io/frc-code-scout/part-2/22-coordination-state-machines/
+https://frc-code-scout.jointheleague.org/part-2/22-coordination-state-machines/
 
 *Part I's chapter on [the coordination seam](../part-1/05-the-coordination-seam.md) named six paradigms and deferred their construction. This chapter builds the common ones: the superstructure, and the two finite-state-machine shapes the corpus uses to run it. The far end of the spectrum — transitions as data, searched as a graph or walked as a behavior tree — is the [next chapter](23-coordination-graphs-trees.md).*
 
@@ -4293,7 +4293,7 @@ Continue to the next chapter: [23. Coordination II — state graphs and behavior
 
 # 23. Coordination II — state graphs and behavior trees
 
-https://league-robotics.github.io/frc-code-scout/part-2/23-coordination-graphs-trees/
+https://frc-code-scout.jointheleague.org/part-2/23-coordination-graphs-trees/
 
 *The wanted/current FSM and the centralized `RobotManager` of [the previous chapter](22-coordination-state-machines.md) are where most elite teams stop. This chapter walks the two rungs past them: modeling the superstructure as a graph of legal states and searching for a safe path, and ticking a behavior tree as a reactive whole-robot brain. [Chapter 5](../part-1/05-the-coordination-seam.md) drew the coordination seam and [chapter 8](../part-1/08-alternatives.md) pointed past it to both paradigms as sound-but-uncommon. Part I argued *why* a team would climb here; this chapter shows the machinery and, for each rung, says plainly when it earns its complexity and when it is over-engineering.*
 
@@ -4581,7 +4581,7 @@ This is the last chapter of Part II. Across these chapters the architecture appe
 
 # Part III — The League Architecture
 
-https://league-robotics.github.io/frc-code-scout/part-3/
+https://frc-code-scout.jointheleague.org/part-3/
 
 # Part III — The League Architecture
 
@@ -4638,7 +4638,7 @@ remain before a team can wire it up and run it.
 
 # 24. From Elite to League — what we keep, what we change
 
-https://league-robotics.github.io/frc-code-scout/part-3/24-elite-to-league/
+https://frc-code-scout.jointheleague.org/part-3/24-elite-to-league/
 
 Parts I and II reconstructed an architecture that top teams converged on without anyone designing it.
 Part III takes the next step: it argues that the architecture is *more uniform than it looks*, and
@@ -4744,7 +4744,7 @@ kind of component is just which channels it populates.** The next chapter makes 
 
 # 25. The Portable Component Model — the faceplate
 
-https://league-robotics.github.io/frc-code-scout/part-3/25-portable-component-model/
+https://frc-code-scout.jointheleague.org/part-3/25-portable-component-model/
 
 This is the core of the proposal. One shape describes every active thing on the robot, and the rest of
 Part III is consequences of it.
@@ -4992,7 +4992,7 @@ this same contract at the leaf, the drivetrain, and the executive, starting with
 
 # 26. The portable motor interface — the leaf component
 
-https://league-robotics.github.io/frc-code-scout/part-3/26-portable-motor-interface/
+https://frc-code-scout.jointheleague.org/part-3/26-portable-motor-interface/
 
 The motor is the leaf of the component tree: its faceplate carries `Config` (CAN id, gains),
 `Command` (u), `MotorState` (x), and **no** outgoing-command channel. It is where the model touches metal, so it is
@@ -5157,7 +5157,7 @@ clean component. The next chapter composes four pairs of these into a drivetrain
 
 # 27. The portable swerve interface — the mid-level component
 
-https://league-robotics.github.io/frc-code-scout/part-3/27-portable-swerve-interface/
+https://frc-code-scout.jointheleague.org/part-3/27-portable-swerve-interface/
 
 A drive subsystem is the first interesting component above the leaf: its children are four module
 components, each two motors. Its `Command_in` is a control-intent union, its `State` is the
@@ -5303,7 +5303,7 @@ mid-level components in hand, the next chapter recovers the two higher seams as 
 
 # 28. RobotState and Superstructure as components
 
-https://league-robotics.github.io/frc-code-scout/part-3/28-robotstate-superstructure-blocks/
+https://frc-code-scout.jointheleague.org/part-3/28-robotstate-superstructure-blocks/
 
 The motor and swerve chapters recovered the bottom two layers as components. This chapter does the
 same for the two *higher* seams of Part I — the world model and the coordinator — and in doing so
@@ -5416,7 +5416,7 @@ collect what that uniformity buys: [telemetry, replay, and tests for free](29-te
 
 # 29. Telemetry, replay, and tests — the dividends, at every scale
 
-https://league-robotics.github.io/frc-code-scout/part-3/29-telemetry-replay-tests/
+https://frc-code-scout.jointheleague.org/part-3/29-telemetry-replay-tests/
 
 This is the chapter that pays for the whole proposal. Part I's cross-cutting practices
 ([ch. 7](../part-1/07-cross-cutting-practices.md)) hang off the IO seam at the *leaf* — you get
@@ -5523,7 +5523,7 @@ broader field's component model.
 
 # 30. Lifecycle and graceful degradation
 
-https://league-robotics.github.io/frc-code-scout/part-3/30-lifecycle-degradation/
+https://frc-code-scout.jointheleague.org/part-3/30-lifecycle-degradation/
 
 The [Lessons from Outside](../appendices/lessons-from-outside/01-lessons-from-outside.md) survey names
 graceful degradation as the discipline FRC most conspicuously skips: a wire comes loose, a CAN device
@@ -5614,7 +5614,7 @@ portability](31-ros-bridge-portability.md).
 
 # 31. The ROS bridge and language portability
 
-https://league-robotics.github.io/frc-code-scout/part-3/31-ros-bridge-portability/
+https://frc-code-scout.jointheleague.org/part-3/31-ros-bridge-portability/
 
 The last argument for the component model is external. If the four-channel shape is a sound factoring of
 a robot component, it should map cleanly onto the broader field's component model — the ROS 2 node. It
@@ -5725,7 +5725,7 @@ One honest caveat closes the part: the model is a proposal with real unresolved 
 
 # 32. Open questions and the road to a build recipe
 
-https://league-robotics.github.io/frc-code-scout/part-3/32-open-questions/
+https://frc-code-scout.jointheleague.org/part-3/32-open-questions/
 
 The League model is a living proposal, not finished doctrine, and the honest close to Part III is to
 name what is settled and what is not. An independent review of the component model found it
@@ -5847,7 +5847,7 @@ candid that the recipe is not yet finished. The shape is right. The wiring is th
 
 # Part IV — Scoring Elite Code
 
-https://league-robotics.github.io/frc-code-scout/scoring/
+https://frc-code-scout.jointheleague.org/scoring/
 
 # Part IV — Scoring Elite Code
 
@@ -5881,7 +5881,7 @@ lives in [Appendix A — How We Developed This](../appendices/how-we-developed-t
 
 # 33. The rubric in full
 
-https://league-robotics.github.io/frc-code-scout/scoring/33-the-rubric/
+https://frc-code-scout.jointheleague.org/scoring/33-the-rubric/
 
 **This is the complete, authoritative rubric — eight dimensions, each scored 0–4 against anchored, observable indicators, with half-steps allowed.** The companion chapter [how to read the rubric](../appendices/how-we-developed-this/02-the-rubric.md) explains why it is shaped this way and how to use it; this page carries every anchor, every caution, and the grep/AST cheat-sheet in full, so it can be scored from directly.
 
@@ -6138,7 +6138,7 @@ A worked example of what step 2 produces — the raw mechanical-candidate output
 
 # 34. The San Diego scoresheet
 
-https://league-robotics.github.io/frc-code-scout/scoring/34-the-san-diego-scoresheet/
+https://frc-code-scout.jointheleague.org/scoring/34-the-san-diego-scoresheet/
 
 **This whole book makes a claim — that the architecture on these pages is what separates elite robot code from the rest — and a claim that big deserves to be checked against reality, not just asserted.** So we ran the rubric on our own backyard. We scored 24 active San Diego FRC teams on the D1–D8 dimensions, paired each with its season-matched [Statbotics](https://www.statbotics.io/) EPA — the modern, normalized strength rating built purely from match results — and asked the blunt question: does better code actually correlate with winning? The short answer is *yes, moderately, and unevenly* — and the uneven part is where the real lessons live. This chapter is the receipt. For what the architecture is *supposed* to predict, see [what the architecture predicts](../appendices/how-we-developed-this/04-what-it-predicts.md); for the scoring instrument itself, see [the rubric in full](33-the-rubric.md).
 
@@ -6244,7 +6244,7 @@ The takeaway is not "write clean code and you will win." It is narrower and more
 
 # 35. The Patribots, four years
 
-https://league-robotics.github.io/frc-code-scout/scoring/35-the-patribots-four-years/
+https://frc-code-scout.jointheleague.org/scoring/35-the-patribots-four-years/
 
 **One team, four seasons, a clean monotonic climb — 5.0 → 10.0 → 17.5 → 20.0 — and one number that never moved.** (One asterisk on the series up front: 2024's 17.5 is the repo's *final* state, reflecting an offseason rebuild — the robot that actually competed that season scored closer to ~12; the 2024 section below has the commit evidence.) This is the worked longitudinal case study: FRC 4738, the Patribots, scored against the full [D1–D8 rubric](33-the-rubric.md) across RapidReact 2022, ChargedUp 2023, Crescendo 2024, and Reefscape 2025. Unlike the corpus survey — shallow clones with `.git` stripped — these are full clones with complete commit history, which is what lets us say not just *what* the code became but *when* it became it. Every level below was confirmed by opening the files behind the grep hits; presence alone was never enough. Read down a column and you see a team improving. Read across the years and you see two rules illustrated on the same repo: **rewrite in the offseason**, and **great code can still have a glaring gap.**
 
@@ -6304,7 +6304,7 @@ Use it as a template. Any team can produce this document about itself: pull full
 
 # Appendices
 
-https://league-robotics.github.io/frc-code-scout/appendices/
+https://frc-code-scout.jointheleague.org/appendices/
 
 # Appendices
 
@@ -6336,7 +6336,7 @@ into [Part I ch. 9](../part-1/09-other-advanced-topics.md).*
 
 # Appendix A — How We Developed This
 
-https://league-robotics.github.io/frc-code-scout/appendices/how-we-developed-this/
+https://frc-code-scout.jointheleague.org/appendices/how-we-developed-this/
 
 # How We Developed This
 
@@ -6372,7 +6372,7 @@ where you are in it.*
 
 # 1. How we read the corpus
 
-https://league-robotics.github.io/frc-code-scout/appendices/how-we-developed-this/01-reading-the-corpus/
+https://frc-code-scout.jointheleague.org/appendices/how-we-developed-this/01-reading-the-corpus/
 
 The architecture in this book was not designed from first principles. It was read out of source
 code — dozens of public FRC repositories, plus a wider base of Botball, FLL, and WRO programs — and
@@ -6462,7 +6462,7 @@ confirm every claim by reading. Two touchstones anchor everything that follows �
 
 # 2. Eight dimensions of sophistication
 
-https://league-robotics.github.io/frc-code-scout/appendices/how-we-developed-this/02-the-rubric/
+https://frc-code-scout.jointheleague.org/appendices/how-we-developed-this/02-the-rubric/
 
 The patterns from the corpus become useful only when they become measurable. The instrument is a
 rubric of **eight dimensions, each scored 0–4** against anchored, observable indicators, with
@@ -6552,7 +6552,7 @@ carved from — [the novice-to-elite maturity ladder](03-the-maturity-ladder.md)
 
 # 3. The novice-to-elite maturity ladder
 
-https://league-robotics.github.io/frc-code-scout/appendices/how-we-developed-this/03-the-maturity-ladder/
+https://frc-code-scout.jointheleague.org/appendices/how-we-developed-this/03-the-maturity-ladder/
 
 The architecture is a destination; this chapter is the route. A program climbs to it over four or
 five seasons, and the climb is governed by three rules that matter more than any pattern.
@@ -6629,7 +6629,7 @@ winning is the question [the next chapter](04-what-it-predicts.md) tests.
 
 # 4. What the architecture predicts
 
-https://league-robotics.github.io/frc-code-scout/appendices/how-we-developed-this/04-what-it-predicts/
+https://frc-code-scout.jointheleague.org/appendices/how-we-developed-this/04-what-it-predicts/
 
 A rubric is only worth trusting if its scores mean something. So the scores were tested: 24 San Diego
 teams scored on the eight dimensions, each paired with season-matched Statbotics EPA (a normalized
@@ -6698,7 +6698,7 @@ order](05-foundation-first.md).
 
 # 5. Foundation-first
 
-https://league-robotics.github.io/frc-code-scout/appendices/how-we-developed-this/05-foundation-first/
+https://frc-code-scout.jointheleague.org/appendices/how-we-developed-this/05-foundation-first/
 
 [Chapter 2](../../part-1/02-five-views.md) said *what* the architecture is. This chapter says *in what order you
 build it and why that order is safe.* The organizing idea: **build the seams, defer the payoffs.**
@@ -6780,7 +6780,7 @@ field treats as table stakes that this architecture still skips, see
 
 # Appendix B — Glossary & naming decisions
 
-https://league-robotics.github.io/frc-code-scout/appendices/glossary/
+https://frc-code-scout.jointheleague.org/appendices/glossary/
 
 **Every load-bearing term in this book earns its place, and several were chosen against plausible
 alternatives that were already spent.** This appendix is two things at once: a glossary of the terms
@@ -6990,7 +6990,7 @@ change of reader across every level of the component tree. See
 
 # Appendix C — Source-document crosswalk
 
-https://league-robotics.github.io/frc-code-scout/appendices/source-crosswalk/
+https://frc-code-scout.jointheleague.org/appendices/source-crosswalk/
 
 **This appendix is the machine-checkable record that nothing in the source corpus was orphaned by the wiki rewrite.** Every document under `knowledge/` (and `docs/review/`) maps to the chapter or chapters that absorbed it, with one of three dispositions. **KEPT (reference)** — the file stays in place as a citable reference source, deeper than the wiki chapter that summarizes it. **ARCHIVED** — the file's content was fully absorbed into the wiki and the original moved to `knowledge/archived/`, where each archived file carries a header pointing back to the chapter that now owns it. **TOOL DEP** — the file stays in place because a skill or script reads it directly (scaffold-robot, analyze-team, setup-logging/simulation/testing, `build_site.py`, `agent_score.py`); it is load-bearing tooling, not just prose.
 
@@ -7037,7 +7037,7 @@ https://league-robotics.github.io/frc-code-scout/appendices/source-crosswalk/
 
 # Appendix D — Reviewing for the seams
 
-https://league-robotics.github.io/frc-code-scout/appendices/reviewing-for-the-seams/
+https://frc-code-scout.jointheleague.org/appendices/reviewing-for-the-seams/
 
 **A code review is the last gate that keeps the architecture honest.** Every other chapter in this book describes how to *build* the three seams — [the IO seam](../part-1/03-the-io-seam.md), the state seam, and [the coordination seam](../part-1/05-the-coordination-seam.md). This appendix is the canonical, enforceable guide for *protecting* them one pull request at a time. It is written for both human reviewers and review agents, and it prioritizes the violations that quietly erode testability, simulation fidelity, replay/debuggability, and long-term maintainability — the exact dividends the seams were built to earn.
 
@@ -7294,7 +7294,7 @@ Report every finding in this exact shape so agent and human reviews stay aligned
 
 # Appendix E — The minimal worked example
 
-https://league-robotics.github.io/frc-code-scout/appendices/minimal-worked-example/
+https://frc-code-scout.jointheleague.org/appendices/minimal-worked-example/
 
 **This is the whole book, once, in the smallest robot that still has all the layers.** Two wheels,
 one color sensor, one job: *drive forward until the sensor sees the red line, then stop.* That is
@@ -7891,7 +7891,7 @@ architecture is intact.
 
 # Lessons from Outside
 
-https://league-robotics.github.io/frc-code-scout/appendices/lessons-from-outside/
+https://frc-code-scout.jointheleague.org/appendices/lessons-from-outside/
 
 # Lessons from Outside
 
@@ -7915,7 +7915,7 @@ those are added here as they are written.
 
 # Lessons from outside FRC
 
-https://league-robotics.github.io/frc-code-scout/appendices/lessons-from-outside/01-lessons-from-outside/
+https://frc-code-scout.jointheleague.org/appendices/lessons-from-outside/01-lessons-from-outside/
 
 The Elite Architecture was reconstructed from FRC code, but FRC is a small corner of robotics. Looking
 outward shows what the rest of the field treats as non-negotiable — and which of those disciplines
@@ -7992,7 +7992,7 @@ patterns that aren't the default and don't fit Part III's single model;
 
 # 2. Spec-in, code-out — generators against the seam
 
-https://league-robotics.github.io/frc-code-scout/appendices/lessons-from-outside/02-code-generators/
+https://frc-code-scout.jointheleague.org/appendices/lessons-from-outside/02-code-generators/
 
 **A whole class of FRC tools takes a specification and hands you back robot code — and every one of them optimizes the wrong axis for this book.** [Lesson 1](01-lessons-from-outside.md) named the pattern in a paragraph and left a rule hanging: *generate the constants, own the architecture.* This chapter is the full treatment. It walks the generator landscape tool by tool, shows why time-to-driving-robot and seam quality are close to orthogonal, and turns that rule from a slogan into a build recipe. It does **not** cover path and trajectory generators (PathPlanner, Choreo, the retired PathWeaver) — those emit *motion*, not robot code, and belong with the autonomy material.
 
