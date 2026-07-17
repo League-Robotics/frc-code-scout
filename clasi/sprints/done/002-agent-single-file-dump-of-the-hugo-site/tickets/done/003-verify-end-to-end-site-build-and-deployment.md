@@ -39,30 +39,35 @@ ones.
       its table of contents lists every page present in `llms-full.txt`'s
       header set, each with a working published-site link, a working raw
       GitHub Markdown link, and a non-empty description.
-- [ ] Pushing this sprint's branch changes (or a `workflow_dispatch` run)
+- [x] Pushing this sprint's branch changes (or a `workflow_dispatch` run)
       triggers `deploy-pages.yml`, and the run completes successfully
       (`gh run list` / `gh run view` shows success), with the new
       generation step visible in the run log.
-      - Deferred: verified against the post-merge deploy (workflow_dispatch
-        from the branch was permission-blocked; deploy-pages.yml triggers
-        automatically on the merge to master). See close report.
-- [ ] The deployed
+      - Verified: the merge push to master triggered deploy-pages.yml run
+        29598303555, conclusion success; the "Generate llms-full.txt and
+        llms.txt" step logged "49 page(s) -> site/static/llms-full.txt".
+- [x] The deployed
       `https://league-robotics.github.io/frc-code-scout/llms-full.txt`
       and `.../llms.txt` are reachable (HTTP 200) and their content
       matches the local build's output.
-      - Deferred: verified against the post-merge deploy (workflow_dispatch
-        from the branch was permission-blocked; deploy-pages.yml triggers
-        automatically on the merge to master). See close report.
-- [ ] The deployed homepage
+      - Verified: both URLs serve HTTP 200 (via a 301 to the org's custom
+        domain robots.jointheleague.org, pre-existing Pages config, not a
+        sprint defect); llms-full.txt is 540,805 bytes and llms.txt is
+        20,532 bytes, matching the local build, and llms.txt's content
+        (title, description, "Everything in one file" link first, full
+        49-entry ToC with published + raw links and descriptions) is
+        correct.
+- [x] The deployed homepage
       (`https://league-robotics.github.io/frc-code-scout/`) shows the
       agent-facing banner pointing to `llms-full.txt`.
-      - Deferred: verified against the post-merge deploy (workflow_dispatch
-        from the branch was permission-blocked; deploy-pages.yml triggers
-        automatically on the merge to master). See close report.
-- [ ] At least one other deployed page shows the sidebar-footer pointer.
-      - Deferred: verified against the post-merge deploy (workflow_dispatch
-        from the branch was permission-blocked; deploy-pages.yml triggers
-        automatically on the merge to master). See close report.
+      - Verified: deployed homepage HTML contains the agent banner
+        ("Agents: download this single file instead…" linking
+        llms-full.txt) plus the sidebar-footer "Agents: llms-full.txt"
+        link.
+- [x] At least one other deployed page shows the sidebar-footer pointer.
+      - Verified: deployed
+        https://robots.jointheleague.org/frc-code-scout/part-1/01-baseline-and-shape/
+        contains the sidebar-footer llms-full.txt pointer.
 - [x] Two or three of `llms.txt`'s raw-GitHub-Markdown links are spot
       checked and resolve to real files on the `master` branch (e.g.
       `https://raw.githubusercontent.com/League-Robotics/frc-code-scout/master/docs/elite-arch/...`).
