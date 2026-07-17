@@ -1,7 +1,7 @@
 ---
 id: '005'
 title: llms.txt raw-only rewrite and robots.txt
-status: ticketing
+status: closed
 branch: sprint/005-llms-txt-raw-only-rewrite-and-robots-txt
 worktree: false
 use-cases:
