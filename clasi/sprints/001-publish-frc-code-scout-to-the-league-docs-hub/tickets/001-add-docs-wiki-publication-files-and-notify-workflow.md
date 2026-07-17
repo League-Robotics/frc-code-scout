@@ -1,7 +1,7 @@
 ---
 id: '001'
 title: Add docs/wiki publication files and notify workflow
-status: in-progress
+status: done
 use-cases:
 - SUC-001
 - SUC-002
