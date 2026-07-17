@@ -1,7 +1,7 @@
 ---
 id: '004'
 title: Custom domain frc-code-scout.jointheleague.org for llms root discovery
-status: planning-docs
+status: closed
 branch: sprint/004-custom-domain-frc-code-scout-jointheleague-org-for-llms-root-discovery
 worktree: false
 use-cases:
