@@ -1,6 +1,10 @@
 ---
-status: pending
+status: in-progress
 sprint: '002'
+tickets:
+- 002-001
+- 002-002
+- 002-003
 ---
 
 # Agent-oriented single-file dump of the whole Hugo site
