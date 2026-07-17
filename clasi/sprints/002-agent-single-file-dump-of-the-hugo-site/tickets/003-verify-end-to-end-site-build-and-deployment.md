@@ -1,9 +1,13 @@
 ---
 id: '003'
 title: Verify end-to-end site build and deployment
-status: open
-use-cases: [SUC-003, SUC-004]
-depends-on: ['001', '002']
+status: in-progress
+use-cases:
+- SUC-003
+- SUC-004
+depends-on:
+- '001'
+- '002'
 github-issue: ''
 issue: agent-single-file-site-dump.md
 completes_issue: true
@@ -24,14 +28,14 @@ ones.
 
 ## Acceptance Criteria
 
-- [ ] Local build (`python3 scripts/generate_llms_full.py && hugo --minify
+- [x] Local build (`python3 scripts/generate_llms_full.py && hugo --minify
       --source site`) succeeds with no errors or new warnings introduced
       by this sprint's changes.
-- [ ] `site/public/llms-full.txt` exists, is non-empty, and the number of
+- [x] `site/public/llms-full.txt` exists, is non-empty, and the number of
       per-page headers in it matches the number of `.md` files under
       `docs/elite-arch/` at verification time (49 as of sprint planning —
       recount, since content may have changed since).
-- [ ] `site/public/llms.txt` exists, links to `llms-full.txt` first, and
+- [x] `site/public/llms.txt` exists, links to `llms-full.txt` first, and
       its table of contents lists every page present in `llms-full.txt`'s
       header set, each with a working published-site link, a working raw
       GitHub Markdown link, and a non-empty description.
@@ -39,15 +43,27 @@ ones.
       triggers `deploy-pages.yml`, and the run completes successfully
       (`gh run list` / `gh run view` shows success), with the new
       generation step visible in the run log.
+      - Deferred: verified against the post-merge deploy (workflow_dispatch
+        from the branch was permission-blocked; deploy-pages.yml triggers
+        automatically on the merge to master). See close report.
 - [ ] The deployed
       `https://league-robotics.github.io/frc-code-scout/llms-full.txt`
       and `.../llms.txt` are reachable (HTTP 200) and their content
       matches the local build's output.
+      - Deferred: verified against the post-merge deploy (workflow_dispatch
+        from the branch was permission-blocked; deploy-pages.yml triggers
+        automatically on the merge to master). See close report.
 - [ ] The deployed homepage
       (`https://league-robotics.github.io/frc-code-scout/`) shows the
       agent-facing banner pointing to `llms-full.txt`.
+      - Deferred: verified against the post-merge deploy (workflow_dispatch
+        from the branch was permission-blocked; deploy-pages.yml triggers
+        automatically on the merge to master). See close report.
 - [ ] At least one other deployed page shows the sidebar-footer pointer.
-- [ ] Two or three of `llms.txt`'s raw-GitHub-Markdown links are spot
+      - Deferred: verified against the post-merge deploy (workflow_dispatch
+        from the branch was permission-blocked; deploy-pages.yml triggers
+        automatically on the merge to master). See close report.
+- [x] Two or three of `llms.txt`'s raw-GitHub-Markdown links are spot
       checked and resolve to real files on the `master` branch (e.g.
       `https://raw.githubusercontent.com/League-Robotics/frc-code-scout/master/docs/elite-arch/...`).
 
