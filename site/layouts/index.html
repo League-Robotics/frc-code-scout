@@ -1,0 +1,52 @@
+{{ define "main" }}
+{{/* Filter to top-level sections only */}}
+{{ $allSections := where .Site.Pages "Kind" "section" }}
+{{ $sections := slice }}
+{{ range $allSections }}
+  {{ if .Parent.IsHome }}
+    {{ $sections = $sections | append . }}
+  {{ end }}
+{{ end }}
+{{ $sections = sort $sections "Params.weight" }}
+
+<div class="callout callout-info agent-dump-banner">
+  <div class="callout-title">Agents</div>
+  <div class="callout-body">
+    Agents: download <a href="{{ "llms-full.txt" | relURL }}">this single file</a> instead — it has everything. Or fetch <a href="{{ "llms.txt" | relURL }}">the table of contents</a> and pick individual pages.
+  </div>
+</div>
+
+<section class="session-header" data-jump="Overview">
+  <span class="eyebrow"><span>{{ .Site.Title }}</span><span class="pos">· Wiki</span></span>
+  <h1 class="session-title">{{ .Site.Title }}</h1>
+  {{ with .Site.Params.description }}<p class="session-summary">{{ . }}</p>{{ end }}
+</section>
+
+{{ if .Content }}
+<section class="section-block" data-jump="Overview">
+  {{ .Content }}
+</section>
+{{ end }}
+
+<section class="section-block" data-jump="Modules">
+  <div class="section-head">
+    <h2>Sections</h2>
+    <span class="section-meta">{{ len $sections }} total</span>
+  </div>
+  <div class="modules-grid">
+    {{ range $sections }}
+    <article class="module-card">
+      <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+      {{ .Summary }}
+      {{ if .Pages }}
+      <ul>
+        {{ range sort .RegularPages "Params.weight" }}
+        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+        {{ end }}
+      </ul>
+      {{ end }}
+    </article>
+    {{ end }}
+  </div>
+</section>
+{{ end }}

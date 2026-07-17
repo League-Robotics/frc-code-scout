@@ -1,10 +1,12 @@
 ---
 id: '002'
 title: Agent single-file dump of the Hugo site
-status: planning-docs
+status: closed
 branch: sprint/002-agent-single-file-dump-of-the-hugo-site
 worktree: false
-use-cases: [SUC-003, SUC-004]
+use-cases:
+- SUC-003
+- SUC-004
 issues:
 - agent-single-file-site-dump.md
 ---
@@ -34,15 +36,27 @@ Add a small, stdlib-only Python build step
 (`scripts/generate_llms_full.py`) that walks `docs/elite-arch/` recursively,
 computes the same "book order" the sidebar nav uses (top-level section weight,
 then page weight, recursing into nested sections), and writes two generated
-static files — `llms-full.txt` (every page's raw content, each prefixed with a
-`title` + canonical URL header) and `llms.txt` (a short index: site title,
-description, and links to the top-level parts) — into `site/static/` before
-Hugo builds. Because Hugo copies `static/` verbatim into `public/`, the two
-files ride along in the existing `deploy-pages.yml` pipeline with one new step
-and no change to how the site is deployed. Two site-local Hugo layout
-overrides (`site/layouts/index.html`, `site/layouts/_default/baseof.html`)
-add a conspicuous pointer to the top of the homepage and to the persistent
-sidebar footer that appears on every page.
+static files into `site/static/` before Hugo builds:
+
+- **`llms-full.txt`** — every page's raw content, each prefixed with a
+  `title` + canonical URL header, concatenated in book order.
+- **`llms.txt`** — site title and description at the top, with a prominent
+  link to `/llms-full.txt` ("everything in one file") first, followed by a
+  full table of contents: every page listed under its part/section heading,
+  each entry a link plus a one-line description of what's on that page, so
+  an agent can skip the full dump and fetch exactly the page it needs. Since
+  this is a public repo, each entry links to both the published page (what a
+  visitor lands on) and, secondarily, the raw GitHub markdown for that page
+  (cleaner for an agent that wants just that one page's source). Per-page
+  descriptions are never hand-maintained — see Design Rationale for the
+  derivation rule.
+
+Because Hugo copies `static/` verbatim into `public/`, both files ride along
+in the existing `deploy-pages.yml` pipeline with one new step and no change
+to how the site is deployed. Two site-local Hugo layout overrides
+(`site/layouts/index.html`, `site/layouts/_default/baseof.html`) add a
+conspicuous pointer to the top of the homepage and to the persistent sidebar
+footer that appears on every page.
 
 This is a **build-script** approach, not the Hugo-custom-output-format
 approach the issue floated as a candidate. See Design Rationale below for why.
@@ -54,6 +68,13 @@ approach the issue floated as a candidate. See Design Rationale below for why.
   manual step.
 - `llms-full.txt` contains the full content of every page under
   `docs/elite-arch`, each with a title + canonical-URL header, in book order.
+- `llms.txt` puts the site title, description, and a prominent link to
+  `/llms-full.txt` first, followed by a complete table of contents — every
+  page under `docs/elite-arch` listed under its part/section heading, in
+  book order, each with a link and a one-line description.
+- Every `llms.txt` entry's description is programmatically derived
+  (frontmatter `description` if present, otherwise derived from the page's
+  own content) — never a hand-written blurb that can drift from the page.
 - The deployed homepage conspicuously tells agents where to fetch the
   single-file dump.
 - The pointer also appears in the persistent sidebar footer, present on every
@@ -65,7 +86,10 @@ approach the issue floated as a candidate. See Design Rationale below for why.
 ### In Scope
 
 - `scripts/generate_llms_full.py` — new stdlib-only script producing
-  `site/static/llms-full.txt` and `site/static/llms.txt`.
+  `site/static/llms-full.txt` (full concatenated dump) and
+  `site/static/llms.txt` (site title/description + link to the full dump +
+  a per-page table of contents with programmatically derived descriptions
+  and both published-site and raw-GitHub-markdown links).
 - One new step in `.github/workflows/deploy-pages.yml`, run before the
   existing "Build Hugo" step, alongside the existing "Render D2 diagrams"
   step.
@@ -141,9 +165,10 @@ graph LR
 Three responsibility groups, each changing independently:
 
 1. **Dump generator** (`scripts/generate_llms_full.py`) — a new, isolated
-   Python script. Its only job is turning `docs/elite-arch/` into the two
-   static text files, in book order. It doesn't know about Hugo templates or
-   HTML. Serves SUC-003 and SUC-004.
+   Python script. Its only job is turning `docs/elite-arch/` into the site's
+   machine-readable text outputs, in book order: the full concatenated dump
+   and an indexed table of contents over the same page set. It doesn't know
+   about Hugo templates or HTML. Serves SUC-003 and SUC-004.
 2. **Pipeline wiring** (`.github/workflows/deploy-pages.yml`) — one new step,
    ordered before "Build Hugo," alongside the existing D2-diagram step. Its
    only job is running the generator before the Hugo build sees `static/`.
@@ -238,19 +263,93 @@ upstreaming a partial hook.**
   theme's copy and will not pick up future upstream theme changes to that
   file automatically. Flagged in Migration Concerns and Open Questions.
 
-**Decision: emit both `/llms.txt` (short index) and `/llms-full.txt` (full
-dump).**
-- Context: the issue explicitly floats `/llms.txt` as a candidate "if
-  cheap," per the emerging llms.txt convention where the two files are a
-  pair.
-- Alternatives considered: full dump only — satisfies the issue's hard
-  requirements but forgoes the near-zero-cost conventional companion file,
-  since the generator already has the full page list in hand once it builds
-  `llms-full.txt`.
-- Why this choice: negligible marginal cost, matches the convention as
-  suggested.
-- Consequences: two generated files (not one) to reference from both
-  pointer locations and to verify in ticket 003.
+**Decision: `llms.txt` is a full per-page table of contents with a link to
+`llms-full.txt` first, not just a short index of top-level parts.**
+- Context: original plan had `llms.txt` link only the top-level parts. The
+  stakeholder amended this: since the repo is public, `llms.txt` should list
+  *every* page individually with a link and description, so an agent can
+  fetch exactly the one page it needs instead of either crawling the site or
+  pulling the entire full dump.
+- Alternatives considered: (a) short index of top-level parts only (original
+  plan) — cheap but forces an agent that wants one page to either guess a
+  URL or fall back to the full dump; (b) full per-page ToC (chosen) — costs
+  nothing extra to generate, since the generator already computes the full
+  book-ordered page list and each page's title/URL for `llms-full.txt`'s
+  headers; the only new work is a one-line description per page.
+- Why this choice: matches the stakeholder's explicit request and the
+  llms.txt convention (a navigable index) better than a stub linking only
+  five or six part-level pages.
+- Consequences: `llms.txt` is now the second real output of the generator,
+  not a trivial companion — it needs a description for every page (see next
+  decision) and, per the link-target decision below, two links per entry.
+
+**Decision: derive each `llms.txt` entry's description from frontmatter
+`description` if present, otherwise from the page's first prose paragraph,
+truncated at a word boundary — never hand-written.**
+- Context: verified directly against the actual content — no page under
+  `docs/elite-arch/` currently carries a `description` frontmatter key; every
+  page's frontmatter is exactly `title` + `weight` (checked `_index.md` and a
+  representative sample across `part-1`, `part-2`, `part-3`, `appendices`,
+  `appendices/how-we-developed-this`, and `scoring`). The requirement is
+  explicit that descriptions must never be hand-maintained.
+- Alternatives considered: (a) require every page to add a `description`
+  frontmatter field — most faithful to intent, but means editing all 49
+  content files as a prerequisite, which is out of scope for a
+  publishing-pipeline sprint and would need to be kept up manually on every
+  new page (the thing being forbidden); (b) derive from the page's `.Summary`
+  the way `Site.Home`'s module cards already do (theme's `index.html` uses
+  `.Summary`) — rejected because that's a Hugo-render-time value, not
+  available to a plain Python script working from raw Markdown; (c) chosen:
+  read frontmatter `description` if a page ever adds one (future-proofs the
+  forbidden-manual-edit case away without any generator change), otherwise
+  take the first non-blank, non-heading paragraph of prose after the
+  frontmatter, strip Markdown emphasis/link syntax down to plain text,
+  collapse whitespace, and truncate to roughly 160 characters at the last
+  full word, appending `…` if truncated.
+- Why this choice: zero manual authoring today, forward-compatible if a page
+  ever adds an explicit `description`, and the truncated-first-paragraph
+  rule reliably produces a reasonable one-liner for this corpus — every
+  sampled page opens with a topic-setting sentence or bolded thesis
+  statement rather than an unrelated aside.
+- Consequences: a small number of pages may get a slightly awkward
+  truncated description if their opening paragraph isn't a clean summary
+  (e.g. mid-sentence cuts); this is an acceptable, inspectable trade-off
+  versus hand-maintenance, and any page can opt out of the heuristic later
+  by adding its own `description` frontmatter.
+
+**Decision: each `llms.txt` entry links to the published site page first,
+with the raw GitHub markdown URL as a secondary link.**
+- Context: the stakeholder flagged this as an open choice: published-site
+  URL (canonical, what a browser or agent normally lands on) vs. raw GitHub
+  markdown URL (no HTML to strip, and the llms.txt convention generally
+  favors linking raw Markdown).
+- Alternatives considered: (a) published URL only — consistent with
+  `llms-full.txt`'s per-page headers and with the homepage/footer pointers,
+  but forces an agent that wants clean Markdown for one page to fetch HTML
+  and strip it, or fall back to `llms-full.txt` and search within it; (b) raw
+  GitHub Markdown URL only — cleanest single-page fetch and matches the
+  llms.txt convention's preference, but breaks the "click through and land
+  where a visitor lands" property, and orphans `llms.txt` from the
+  published-site URL space the rest of this sprint uses; (c) chosen: both,
+  published URL primary, `(raw)` secondary, per entry — `- [title](published
+  URL) ([raw](raw URL)): description`. This stays readable at 49 entries
+  because both URLs share the same path stem and the raw link is a short,
+  clearly-labeled parenthetical, not a second full line.
+- Why this choice: serves both consumers without picking one at the other's
+  expense — an agent that wants exactly one page's clean Markdown source
+  gets it directly, without fetching all of `llms-full.txt` or parsing HTML;
+  a visitor or an agent that wants the normal site experience still lands on
+  the canonical page. Costs one extra computed URL per entry, which the
+  generator can derive rather than hand-maintain.
+- Consequences: the generator must compute the raw GitHub URL
+  (`https://raw.githubusercontent.com/<owner>/<repo>/<branch>/docs/elite-arch/<relpath>`)
+  in addition to the published URL. Rather than hardcode the owner/repo a
+  third time (`hugo.toml`'s `params.repoUrl` already has it, and `baseURL`
+  already has the published-site base), the generator reads both values out
+  of `site/hugo.toml` with a small regex-based extractor (no TOML-parsing
+  dependency needed for two scalar keys) and hardcodes the branch as
+  `master`, matching this repo's default branch and the existing precedent
+  in `deploy-pages.yml`'s `branches: [main, master]` trigger.
 
 ### Migration Concerns
 
@@ -271,6 +370,18 @@ Two ongoing-maintenance points, not migration blockers:
   implementation of the ordering convention Hugo's own sidebar nav encodes
   in `baseof.html`. If that convention changes (e.g., a new frontmatter key
   for ordering), both places need updating together.
+- The generator now also reads `site/hugo.toml` (`baseURL`,
+  `params.repoUrl`) with a small regex-based extractor to build both the
+  published-site and raw-GitHub-markdown links in `llms.txt`. If either key
+  is renamed or the branch changes from `master`, the generator's extractor
+  needs a matching update — a third, lightweight instance of the same
+  "site-config values read in more than one place" pattern already noted
+  above for book order.
+- Per-page descriptions in `llms.txt` are heuristically derived (see Design
+  Rationale) and are best-effort, not hand-tunable; a handful of pages may
+  read slightly awkwardly until/unless they add their own `description`
+  frontmatter. This is an accepted trade-off, not a defect to fix in this
+  sprint.
 
 Sequencing: ticket 001 (generator + pipeline wiring) should land before
 ticket 002 (pointer templates), so the templates can link to files that
@@ -279,12 +390,10 @@ together.
 
 ## Open Questions
 
-- Does including `_index.md` section-landing prose (e.g., the "Part I —
-  The Elite Architecture" overview text) as its own entry in
-  `llms-full.txt` match what the stakeholder wants, or should section
-  landings be skipped as boilerplate? This plan defaults to **include
-  them** (every rendered page, including section landings, is real content
-  here) — flagged in case the stakeholder wants them excluded.
+- ~~Does including `_index.md` section-landing prose...~~ **Resolved.**
+  Stakeholder reviewed this plan's default (include section landings as
+  their own entry in both `llms-full.txt` and the `llms.txt` table of
+  contents) and did not object — section landings stay included.
 - Exact homepage banner and footer-line copy is left to ticket
   implementation as a judgment call within the issue's suggested wording
   ("Agents: download this single file instead — it has everything");
@@ -309,16 +418,27 @@ Parent: UC-007
   2. Agent sees the conspicuous pointer at the top of the page: "Agents:
      download this single file instead — it has everything," with the URL.
   3. Agent fetches `/llms-full.txt` directly instead of crawling all 49+
-     pages via the sidebar.
-  4. Agent now has the full content of every page in one document, in book
-     order.
-- **Postconditions**: Agent has the complete site content without crawling
-  individual pages.
+     pages via the sidebar — or, if it only needs one topic, fetches
+     `/llms.txt` first and follows one entry's link straight to that page
+     (published or raw Markdown) without pulling the whole book.
+  4. Agent now has either the full content of every page in one document
+     (via `llms-full.txt`), or exactly the one page it needed (via an
+     `llms.txt` entry), in book order either way.
+- **Postconditions**: Agent has the complete site content, or the one page
+  it needed, without crawling individual pages via the sidebar.
 - **Acceptance Criteria**:
   - [ ] The homepage's rendered HTML contains a conspicuous pointer to
         `/llms-full.txt` at the top of the page.
   - [ ] `/llms-full.txt` is reachable and contains every published page's
         content.
+  - [ ] `/llms.txt` is reachable, links to `/llms-full.txt` prominently
+        first, and lists every published page under its part/section
+        heading with a link and a one-line description.
+  - [ ] Every `llms.txt` entry's description is programmatically derived
+        (frontmatter `description`, or the derived-first-paragraph rule) —
+        no hand-written blurb.
+  - [ ] Every `llms.txt` entry links to both the published page and the raw
+        GitHub Markdown for that page.
 
 ### SUC-004: Maintainer publishes updated docs and the dump stays current automatically
 Parent: UC-007
@@ -357,13 +477,13 @@ Before tickets can be created, all of the following must be true:
       Architecture and Use Cases sections)
 - [x] Architecture review passed (or skipped, for changes with no
       architectural impact)
-- [ ] Stakeholder has approved the sprint plan
+- [x] Stakeholder has approved the sprint plan
 
 ## Tickets
 
 | # | Title | Depends On |
 |---|-------|------------|
-| 001 | Generate llms-full.txt and llms.txt at build time | — |
+| 001 | Generate llms-full.txt and llms.txt (with full per-page table of contents) at build time | — |
 | 002 | Advertise the dump on the homepage and site-wide footer | 001 |
 | 003 | Verify end-to-end site build and deployment | 001, 002 |
 
