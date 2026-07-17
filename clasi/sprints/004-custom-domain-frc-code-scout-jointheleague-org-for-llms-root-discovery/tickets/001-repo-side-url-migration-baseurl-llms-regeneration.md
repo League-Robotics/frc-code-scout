@@ -1,7 +1,7 @@
 ---
 id: '001'
 title: Repo-side URL migration (baseURL + llms regeneration)
-status: in-progress
+status: done
 use-cases:
 - SUC-005
 depends-on: []
@@ -36,39 +36,39 @@ this ticket only stages the repo-side half.
 
 ## Acceptance Criteria
 
-- [ ] `site/hugo.toml`'s `baseURL` is
+- [x] `site/hugo.toml`'s `baseURL` is
       `https://frc-code-scout.jointheleague.org/` (was
       `https://league-robotics.github.io/frc-code-scout/`).
-- [ ] Running `python3 scripts/generate_llms_full.py` standalone regenerates
+- [x] Running `python3 scripts/generate_llms_full.py` standalone regenerates
       `site/static/llms-full.txt` and `site/static/llms.txt`, and every link
       in both files uses the new `frc-code-scout.jointheleague.org` domain
       — spot-check the homepage/page headers in `llms-full.txt` and several
       `llms.txt` entries' published-site links (raw GitHub links are
       unaffected, since they come from `params.repoUrl`, not `baseURL`).
-- [ ] `hugo --minify --source site` builds cleanly with no new errors or
+- [x] `hugo --minify --source site` builds cleanly with no new errors or
       warnings, and `site/public/llms.txt` / `llms-full.txt` reflect the new
       domain.
-- [ ] A fresh repo-wide grep for `league-robotics.github.io/frc-code-scout`
+- [x] A fresh repo-wide grep for `league-robotics.github.io/frc-code-scout`
       (excluding `clasi/sprints/done/**`, `site/public/**`, `site/static/**`
       generated output, and this sprint's own issue/planning files) returns
       no hits outside `site/hugo.toml` before the edit — re-verify this
       ticket's own premise rather than trusting the sprint plan's grep
       result, since the repo may have changed since planning.
-- [ ] `docs/wiki/overview.md` is confirmed to need no change: its outbound
+- [x] `docs/wiki/overview.md` is confirmed to need no change: its outbound
       link is `https://robots.jointheleague.org/frc-code-scout/`, a
       domain-agnostic hub redirect (sprint 003), not a hardcoded reference
       to the GitHub Pages hostname. If the re-verification grep above finds
       it (or any other file) now hardcoding the old URL, edit that file too
       and note the discrepancy against this ticket's plan in the PR/commit.
-- [ ] `AGENTS.md` and `docs/wiki/_subsystem.yml` confirmed to have no
+- [x] `AGENTS.md` and `docs/wiki/_subsystem.yml` confirmed to have no
       hardcoded domain references needing a change (re-verify; sprint
       planning found none).
-- [ ] `.github/workflows/deploy-pages.yml` confirmed to have no hardcoded
+- [x] `.github/workflows/deploy-pages.yml` confirmed to have no hardcoded
       domain reference or CNAME-file step needing a change (this repo
       deploys via `actions/upload-pages-artifact` + `actions/deploy-pages`,
       where the custom domain is a repository setting, not a file in the
       published artifact — see sprint.md Design Rationale).
-- [ ] Changes committed on the sprint branch; no application code touched
+- [x] Changes committed on the sprint branch; no application code touched
       outside `site/hugo.toml`, `site/static/llms.txt`,
       `site/static/llms-full.txt`, and (only if the re-verification grep
       requires it) `docs/wiki/overview.md`.
