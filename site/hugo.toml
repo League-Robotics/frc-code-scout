@@ -2,6 +2,7 @@ baseURL = "https://frc-code-scout.jointheleague.org/"
 title = "Elite & League Architectures"
 theme = "hugo-theme-voidmain"
 enableEmoji = true
+enableRobotsTXT = true
 
 # Mount docs/elite-arch/ as content — edit files there, site rebuilds automatically
 [[module.mounts]]

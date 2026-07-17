@@ -7,13 +7,15 @@ carries them verbatim into site/public/ with no template wiring:
   llms-full.txt — every page's raw Markdown under docs/elite-arch/, each
                    prefixed with a title + canonical published-URL header,
                    concatenated in full recursive book order.
-  llms.txt      — site title + description, a prominent link to
-                   /llms-full.txt ("everything in one file") first, then a
+  llms.txt      — site title + description, a "For agents" admonition
+                   instructing agents to fetch /llms-full.txt or a chapter's
+                   raw-Markdown link rather than crawl the HTML pages, then a
                    full table of contents grouped by part/section headings:
-                   one entry per page with the published-site link, a
-                   secondary raw-GitHub-markdown link, and a one-line
-                   description (frontmatter `description` if present,
-                   otherwise derived from the page's first prose paragraph).
+                   one entry per page linking directly to its raw-GitHub-
+                   markdown URL (no published-site HTML link) plus a
+                   one-line description (frontmatter `description` if
+                   present, otherwise derived from the page's first prose
+                   paragraph).
 
 "Book order" here is a fully recursive depth-first walk of docs/elite-arch/,
 sorted by frontmatter `weight` at every level and recursing into nested
@@ -300,10 +302,9 @@ def render_llms_full(entries: list[Entry], config: dict) -> str:
 # ── llms.txt ───────────────────────────────────────────────────────────────
 
 def toc_entry_line(entry: Entry, config: dict) -> str:
-    url = published_url(entry, config["base_url"])
     raw = raw_url(entry, config["owner"], config["repo"])
     description = f": {entry.description}" if entry.description else ""
-    return f"- [{entry.title}]({url}) ([raw]({raw})){description}"
+    return f"- [{entry.title}]({raw}){description}"
 
 
 def render_llms(entries: list[Entry], config: dict) -> str:
@@ -316,9 +317,16 @@ def render_llms(entries: list[Entry], config: dict) -> str:
         lines.append("")
 
     llms_full_url = config["base_url"] + "llms-full.txt"
+    lines.append("## For agents")
+    lines.append("")
     lines.append(
-        f"**Everything in one file:** [{llms_full_url}]({llms_full_url}) "
-        "— the complete content of every page below, concatenated in book order."
+        f"**Fetch [{llms_full_url}]({llms_full_url}) — it contains the complete "
+        "content of every page below in a single request.** If you only need one "
+        "chapter, follow that entry's raw-Markdown link in the Table of Contents "
+        "below instead. **Do not crawl the HTML pages on this site**: every page's "
+        "full content already lives in the raw Markdown these links point to, so "
+        "the HTML adds nothing but site navigation on top of content you already "
+        "have a direct link to."
     )
     lines.append("")
     lines.append("## Table of Contents")
