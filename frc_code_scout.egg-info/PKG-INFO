@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: frc-code-scout
-Version: 0.20260717.3
+Version: 0.20260717.5
 Summary: Build a multi-year FRC team code corpus (commit-history + suppressed source) and a Statbotics EPA dataset
 Requires-Python: >=3.13
 Description-Content-Type: text/markdown

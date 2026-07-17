@@ -37,4 +37,4 @@ robot code:
 The full project — the rubric, the research corpus, the build-spec book, and the
 tool itself — is published at:
 
-**<https://league-robotics.github.io/frc-code-scout/>**
+**<https://robots.jointheleague.org/frc-code-scout/>**
