@@ -1,9 +1,11 @@
 ---
 id: '002'
 title: Advertise the dump on the homepage and site-wide footer
-status: open
-use-cases: [SUC-003]
-depends-on: ['001']
+status: done
+use-cases:
+- SUC-003
+depends-on:
+- '001'
 github-issue: ''
 issue: agent-single-file-site-dump.md
 completes_issue: true
@@ -28,28 +30,28 @@ wholesale"). Do not edit the vendored theme files directly.
 
 ## Acceptance Criteria
 
-- [ ] `site/layouts/index.html` exists (a site-local override of the
+- [x] `site/layouts/index.html` exists (a site-local override of the
       theme's `layouts/index.html`) and renders a conspicuous banner at
       the top of the homepage — before or immediately alongside the
       existing `session-header` block — with wording along the lines of
       "Agents: download this single file instead — it has everything",
       linking to `/llms-full.txt`, plus a secondary mention of `/llms.txt`
       for agents that want to fetch one page instead of everything.
-- [ ] The banner's links are built with Hugo's `relURL`/`absURL` (not a
+- [x] The banner's links are built with Hugo's `relURL`/`absURL` (not a
       hardcoded path string), so they resolve correctly under the site's
       `baseURL` subpath (`https://league-robotics.github.io/frc-code-scout/`).
-- [ ] `site/layouts/_default/baseof.html` exists (a site-local override of
+- [x] `site/layouts/_default/baseof.html` exists (a site-local override of
       the theme's `_default/baseof.html`) and adds one line inside the
       persistent `.sidebar-footer` block — present on every rendered
       page — pointing to `/llms-full.txt`, using the same
       `relURL`/`absURL` convention.
-- [ ] The override is the vendored theme's current `baseof.html` plus
+- [x] The override is the vendored theme's current `baseof.html` plus
       exactly the one added footer line — no unrelated behavior change
       (sidebar nav, prev/next buttons, the about-modal, and the mobile
       header all still work identically to before this ticket).
-- [ ] No file under `site/themes/hugo-theme-voidmain/` is modified —
+- [x] No file under `site/themes/hugo-theme-voidmain/` is modified —
       overrides live only under `site/layouts/`.
-- [ ] After `python3 scripts/generate_llms_full.py && hugo --minify
+- [x] After `python3 scripts/generate_llms_full.py && hugo --minify
       --source site`, `site/public/index.html` contains the homepage
       banner text and a working link to `llms-full.txt`, and at least one
       non-home rendered page (e.g.
