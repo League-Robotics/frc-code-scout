@@ -1,7 +1,7 @@
 ---
 id: '003'
 title: Verify end-to-end site build and deployment
-status: in-progress
+status: done
 use-cases:
 - SUC-003
 - SUC-004

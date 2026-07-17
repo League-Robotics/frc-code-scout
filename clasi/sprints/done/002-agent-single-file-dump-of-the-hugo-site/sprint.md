@@ -1,10 +1,12 @@
 ---
 id: '002'
 title: Agent single-file dump of the Hugo site
-status: planning-docs
+status: closed
 branch: sprint/002-agent-single-file-dump-of-the-hugo-site
 worktree: false
-use-cases: [SUC-003, SUC-004]
+use-cases:
+- SUC-003
+- SUC-004
 issues:
 - agent-single-file-site-dump.md
 ---
